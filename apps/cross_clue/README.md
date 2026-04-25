@@ -59,36 +59,22 @@ A digital adaptation of the cooperative party game "Cross Clue", hosted on the M
   {"type": "guess_result", "data": {"guess": "B3", "secret": "B3", "is_correct": true, "grid_state": {...}}}
   ```
 
-## 🗺️ Cross Clue Execution Plan
+## 🗺️ Application Execution Plan
 
-### Phase 1: Backend Foundation
-- [x] Initialize FastAPI project.
-- [x] Configure Uvicorn to bind to `0.0.0.0:8000`.
-- [x] Implement local IP detection on startup.
-- [x] Build the WebSocket Connection Manager (connect, disconnect, broadcast).
-- [x] Set up static file serving for the frontend build.
+### Phase 1: Application Game Logic & State Management
+- [x] Implement GameStateManager class with session-based state storage
+- [x] Create hardcoded word bank of 100 nouns for word-association gameplay
+- [x] Build session initialization logic (4x4 grid generation, word assignment, coordinate deck shuffling)
+- [x] Implement backend WebSocket event handlers (`init_game`, `draw_card`, `submit_clue`, `guess_coordinate`, `get_state`)
+- [x] Establish public state filtering to protect secret information (coordinates, active turn details)
+- [ ] Debug and validate game state synchronization across multiple WebSocket clients
+- [ ] Test edge cases (empty deck, invalid guesses, concurrent actions)
 
-### Phase 2: App Shell (Frontend)
-- [x] Initialize Vite + React project.
-- [x] Set up React Router for dynamic session URLs.
-- [x] Create a landing dashboard with a "Start Cross Clue Session" button.
-- [x] Implement an ID generator for session URLs.
-- [x] Establish standard WebSocket connection logic in the React app.
-
-### Phase 3.5: UI Flow Refactor
-- [x] Create dedicated Cross Clue landing page (`CrossClueLanding.jsx`).
-- [x] Move session joining logic from main Dashboard to app-specific landing page.
-- [x] Update routing hierarchy: `/cross-clue` → landing, `/cross-clue/:sessionId` → game.
-- [x] Isolate all Cross Clue UI components in `frontend/src/apps/cross_clue/`.
-
-### Phase 3: Game Logic Debugging
-- [x] Create a hardcoded list of 100 nouns on the backend.
-- [x] Build session initialization logic (generate 4x4 grid, assign words, shuffle 16 coordinate cards).
-- [x] Implement backend WebSocket event listeners (`get_state`, `draw_card`, `submit_clue`, `guess_coordinate`).
-- [ ] Debug and test game state synchronization across multiple clients.
-
-### Phase 4: Interactive Game UI
-- [ ] Build the 4x4 interactive grid component.
-- [ ] Implement the active player view (draw card, secret coordinate display, clue input).
-- [ ] Implement the team view (display incoming clue, enable grid clicking).
-- [ ] Add dynamic styling for grid states (Success/Fail).
+### Phase 2: Interactive Real-time Interface
+- [ ] Build 4x4 interactive grid component with coordinate selection
+- [ ] Implement active player view (draw card button, secret coordinate display, clue input field)
+- [ ] Implement team view (incoming clue display, grid clicking for coordinate guesses)
+- [ ] Add dynamic styling for grid states (empty, success, fail visual indicators)
+- [ ] Integrate real-time state updates via WebSocket message parsing
+- [ ] Implement player role detection and UI state management
+- [ ] Add responsive design for mobile device compatibility
