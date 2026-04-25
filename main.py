@@ -1,9 +1,19 @@
 import socket
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from typing import Dict, List, Set
 
 app = FastAPI()
+
+# Add CORS middleware for local development
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class ConnectionManager:
@@ -71,20 +81,27 @@ async def startup_event():
     print("=" * 60 + "\n")
 
 
-# Serve static files from frontend build
-app.mount("/", StaticFiles(directory="frontend/dist", html=True), name="static")
-
-
 @app.websocket("/ws/{app_name}/{session_id}")
 async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: str):
+    print(f"🔗 New WebSocket connection attempt: app_name={app_name}, session_id={session_id}")
     await manager.connect(websocket, app_name, session_id)
+    print(f"✅ WebSocket connected: app_name={app_name}, session_id={session_id}")
     try:
         while True:
             data = await websocket.receive_text()
+            print(f"📨 Message received from {session_id}: {data}")
             # Broadcast the received message to all users in the same session
             await manager.broadcast(data, app_name, session_id)
     except WebSocketDisconnect:
+        print(f"❌ WebSocket disconnected: app_name={app_name}, session_id={session_id}")
         manager.disconnect(websocket, app_name, session_id)
+    except Exception as e:
+        print(f"⚠️ WebSocket error: {e}")
+        manager.disconnect(websocket, app_name, session_id)
+
+
+# Serve static files from frontend build (must be after WebSocket routes)
+app.mount("/", StaticFiles(directory="frontend/dist", html=True), name="static")
 
 
 if __name__ == "__main__":

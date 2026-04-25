@@ -66,3 +66,4 @@ The first application hosted on Modux is a digital adaptation of the cooperative
 ## 🎯 Milestones & Testing
 
 - **April 25, 2026**: Successfully validated core WebSocket ConnectionManager and local network IP accessibility (0.0.0.0 binding) across multiple mobile devices. Cross-device real-time messaging confirmed working.
+- **April 26, 2026**: Vite/React frontend successfully connects to FastAPI WebSockets dynamically across the local network. Fixed routing order issue (WebSocket routes before static files mount) and added CORS middleware for development.

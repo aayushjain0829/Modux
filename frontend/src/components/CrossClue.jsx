@@ -1,34 +1,45 @@
 import { useParams } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 function CrossClue() {
   const { sessionId } = useParams()
   const [connected, setConnected] = useState(false)
-  const [ws, setWs] = useState(null)
+  const wsRef = useRef(null)
 
   useEffect(() => {
-    const wsUrl = `ws://${window.location.host}/ws/cross-clue/${sessionId}`
+    const wsUrl = `ws://${window.location.hostname}:8000/ws/cross-clue/${sessionId}`
+    console.log('Attempting WebSocket connection to:', wsUrl)
+    
     const websocket = new WebSocket(wsUrl)
+    wsRef.current = websocket
 
     websocket.onopen = () => {
-      console.log('WebSocket connected')
+      console.log('✅ WebSocket connected successfully')
+      console.log('Connection state:', websocket.readyState)
       setConnected(true)
     }
 
-    websocket.onclose = () => {
-      console.log('WebSocket disconnected')
+    websocket.onmessage = (event) => {
+      console.log('📨 Message received:', event.data)
+    }
+
+    websocket.onclose = (event) => {
+      console.log('❌ WebSocket disconnected')
+      console.log('Close event code:', event.code, 'reason:', event.reason)
       setConnected(false)
     }
 
     websocket.onerror = (error) => {
-      console.error('WebSocket error:', error)
+      console.error('⚠️ WebSocket error occurred:', error)
+      console.log('WebSocket state:', websocket.readyState)
       setConnected(false)
     }
 
-    setWs(websocket)
-
     return () => {
-      websocket.close()
+      console.log('🧹 Cleaning up WebSocket connection')
+      if (websocket && websocket.readyState === WebSocket.OPEN) {
+        websocket.close()
+      }
     }
   }, [sessionId])
 
