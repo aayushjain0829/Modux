@@ -44,11 +44,11 @@ The first application hosted on Modux is a digital adaptation of the cooperative
 - [x] Set up static file serving for the frontend build.
 
 ### Phase 2: App Shell (Frontend)
-- [ ] Initialize Vite + React project.
-- [ ] Set up React Router for dynamic session URLs.
-- [ ] Create a landing dashboard with a "Start Cross Clue Session" button.
-- [ ] Implement an ID generator for session URLs.
-- [ ] Establish standard WebSocket connection logic in the React app.
+- [x] Initialize Vite + React project.
+- [x] Set up React Router for dynamic session URLs.
+- [x] Create a landing dashboard with a "Start Cross Clue Session" button.
+- [x] Implement an ID generator for session URLs.
+- [x] Establish standard WebSocket connection logic in the React app.
 
 ### Phase 3: Cross Clue Game State Logic
 - [ ] Create a hardcoded list of 100 nouns on the backend.

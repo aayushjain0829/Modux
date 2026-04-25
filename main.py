@@ -1,7 +1,6 @@
 import socket
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 from typing import Dict, List, Set
 
 app = FastAPI()
@@ -72,14 +71,8 @@ async def startup_event():
     print("=" * 60 + "\n")
 
 
-@app.get("/")
-async def root():
-    return FileResponse("test_client.html")
-
-
-# Placeholder route for static files (will be used when frontend is built)
-# Uncomment this when frontend/dist directory exists
-# app.mount("/", StaticFiles(directory="frontend/dist", html=True), name="static")
+# Serve static files from frontend build
+app.mount("/", StaticFiles(directory="frontend/dist", html=True), name="static")
 
 
 @app.websocket("/ws/{app_name}/{session_id}")
