@@ -13,9 +13,9 @@ A digital adaptation of the cooperative party game "Cross Clue", hosted on the M
   3. The rest of the team discusses and selects a coordinate on the shared grid.
   4. The system validates the guess, marks the grid (Success/Fail), and updates the shared state.
 
-## 🔌 WebSocket Events
+## 🔌 WebSocket API
 
-### Client → Server
+### Client → Server Events
 
 - **init_game**: Initializes the grid, words, and deck for the session
   ```json
@@ -42,7 +42,7 @@ A digital adaptation of the cooperative party game "Cross Clue", hosted on the M
   {"action": "get_state", "user_id": "player1"}
   ```
 
-### Server → Client
+### Server → Client Events
 
 - **state_update**: Broadcasts the public game state to all players
   ```json
@@ -75,12 +75,19 @@ A digital adaptation of the cooperative party game "Cross Clue", hosted on the M
 - [x] Implement an ID generator for session URLs.
 - [x] Establish standard WebSocket connection logic in the React app.
 
-### Phase 3: Cross Clue Game State Logic
+### Phase 3.5: UI Flow Refactor
+- [x] Create dedicated Cross Clue landing page (`CrossClueLanding.jsx`).
+- [x] Move session joining logic from main Dashboard to app-specific landing page.
+- [x] Update routing hierarchy: `/cross-clue` → landing, `/cross-clue/:sessionId` → game.
+- [x] Isolate all Cross Clue UI components in `frontend/src/apps/cross_clue/`.
+
+### Phase 3: Game Logic Debugging
 - [x] Create a hardcoded list of 100 nouns on the backend.
 - [x] Build session initialization logic (generate 4x4 grid, assign words, shuffle 16 coordinate cards).
 - [x] Implement backend WebSocket event listeners (`get_state`, `draw_card`, `submit_clue`, `guess_coordinate`).
+- [ ] Debug and test game state synchronization across multiple clients.
 
-### Phase 4: Cross Clue UI Interface
+### Phase 4: Interactive Game UI
 - [ ] Build the 4x4 interactive grid component.
 - [ ] Implement the active player view (draw card, secret coordinate display, clue input).
 - [ ] Implement the team view (display incoming clue, enable grid clicking).

@@ -3,20 +3,6 @@ import { useNavigate } from 'react-router-dom'
 function Dashboard() {
   const navigate = useNavigate()
 
-  const generateSessionId = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-    let result = ''
-    for (let i = 0; i < 6; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length))
-    }
-    return result
-  }
-
-  const startSession = () => {
-    const sessionId = generateSessionId()
-    navigate(`/cross-clue/${sessionId}`)
-  }
-
   return (
     <div style={{
       display: 'flex',
@@ -51,7 +37,7 @@ function Dashboard() {
           Modular Web Platform
         </p>
         <button
-          onClick={startSession}
+          onClick={() => navigate('/cross-clue')}
           style={{
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             color: 'white',
@@ -73,7 +59,7 @@ function Dashboard() {
             e.target.style.boxShadow = 'none'
           }}
         >
-          Start Cross Clue Session
+          Play Cross Clue
         </button>
       </div>
     </div>
