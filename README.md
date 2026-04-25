@@ -128,6 +128,15 @@ To access the platform from a mobile device on the same Wi-Fi network:
 - [x] Isolate all app-specific UI components in `frontend/src/apps/`
 - [x] Update platform documentation to reflect multi-app architecture
 
+### Phase 4: Global Multiplayer Staging System (Planned)
+- [ ] Add global username configuration to main Modux Dashboard
+- [ ] Persist user identities via sessionStorage across all apps
+- [ ] Develop reusable MultiplayerLobby.jsx component for pre-game grouping
+- [ ] Implement WebSocket broadcasting for player joins/leaves
+- [ ] Display live list of connected users in staging area
+- [ ] Create standardized 'Start Game' trigger for lobby-to-app transition
+- [ ] Implement seamless handoff from lobby to app state engine
+
 ## 🎯 Milestones & Testing
 
 - **April 25, 2026**: Successfully validated core WebSocket ConnectionManager and local network IP accessibility (0.0.0.0 binding) across multiple mobile devices. Cross-device real-time messaging confirmed working.
