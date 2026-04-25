@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import Dashboard from './components/Dashboard'
-import CrossClue from './components/CrossClue'
+import CrossClue from './apps/cross_clue/CrossClue'
 
 function App() {
   return (

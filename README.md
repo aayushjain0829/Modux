@@ -15,55 +15,82 @@ Modux is a modular, session-based local web server designed to host interactive,
 1. **Dynamic Session Routing:** Users can generate and share unique alphanumeric URLs (e.g., `/app/{app_name}/session/{session_id}`).
 2. **WebSocket Manager:** A robust connection manager to handle active connections, broadcast messages to specific session rooms, and handle graceful disconnections.
 3. **Local IP Broadcast:** On startup, the server programmatically logs the local network IP for quick mobile access.
+4. **Modular App Architecture:** Each application is isolated in its own directory with dedicated game state logic, making it easy to add new apps to the platform.
 
----
+## 📁 Project Structure
 
-## 🎮 Module 1: Cross Clue
+```
+Modux/
+├── main.py                 # Core FastAPI server with WebSocket routing
+├── apps/                   # Modular app directory
+│   └── cross_clue/        # Cross Clue game module
+│       ├── __init__.py
+│       ├── game.py        # Game state management
+│       └── README.md      # App-specific documentation
+├── frontend/              # React frontend
+│   └── src/
+│       ├── apps/
+│       │   └── cross_clue/  # Cross Clue React components
+│       └── components/      # Shared components
+└── requirements.txt
+```
 
-The first application hosted on Modux is a digital adaptation of the cooperative party game "Cross Clue". 
+## � Getting Started
 
-### Game Mechanics
-- **The Board:** A 4x4 grid. Rows are labeled A-D, columns are labeled 1-4.
-- **The Words:** 8 unique nouns are assigned to the axes (4 for rows, 4 for columns).
-- **The Goal:** Players cooperate to guess all 16 coordinates.
-- **The Flow:**
-  1. The active player draws a coordinate card (e.g., `B3`). This is kept secret.
-  2. The active player broadcasts a 1-word clue that connects the word for Row B and the word for Column 3.
-  3. The rest of the team discusses and selects a coordinate on the shared grid.
-  4. The system validates the guess, marks the grid (Success/Fail), and updates the shared state.
+### Backend Setup
 
----
+1. Create and activate a Python virtual environment:
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
 
-## 🗺️ Project Execution Plan
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-### Phase 1: Backend Foundation
-- [x] Initialize FastAPI project.
-- [x] Configure Uvicorn to bind to `0.0.0.0:8000`.
-- [x] Implement local IP detection on startup.
-- [x] Build the WebSocket Connection Manager (connect, disconnect, broadcast).
-- [x] Set up static file serving for the frontend build.
+3. Start the server:
+```bash
+python main.py
+```
 
-### Phase 2: App Shell (Frontend)
-- [x] Initialize Vite + React project.
-- [x] Set up React Router for dynamic session URLs.
-- [x] Create a landing dashboard with a "Start Cross Clue Session" button.
-- [x] Implement an ID generator for session URLs.
-- [x] Establish standard WebSocket connection logic in the React app.
+The server will display your local Wi-Fi IP address for mobile access.
 
-### Phase 3: Cross Clue Game State Logic
-- [ ] Create a hardcoded list of 100 nouns on the backend.
-- [ ] Build session initialization logic (generate 4x4 grid, assign words, shuffle 16 coordinate cards).
-- [ ] Implement backend WebSocket event listeners (`get_state`, `draw_card`, `submit_clue`, `guess_coordinate`).
+### Frontend Setup
 
-### Phase 4: Cross Clue UI Interface
-- [ ] Build the 4x4 interactive grid component.
-- [ ] Implement the active player view (draw card, secret coordinate display, clue input).
-- [ ] Implement the team view (display incoming clue, enable grid clicking).
-- [ ] Add dynamic styling for grid states (Success/Fail).
+1. Navigate to the frontend directory:
+```bash
+cd frontend
+```
 
----
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. For development:
+```bash
+npm run dev
+```
+
+4. For production build:
+```bash
+npm run build
+```
+
+The production build is served automatically by the FastAPI backend.
+
+## 🔌 Adding a New App
+
+1. Create a new directory in `apps/your_app_name/`
+2. Add `__init__.py` and `game.py` with your app's GameStateManager
+3. Import and handle your app in the WebSocket endpoint in `main.py`
+4. Create corresponding React components in `frontend/src/apps/your_app_name/`
+5. Add routing in `frontend/src/App.jsx`
 
 ## 🎯 Milestones & Testing
 
 - **April 25, 2026**: Successfully validated core WebSocket ConnectionManager and local network IP accessibility (0.0.0.0 binding) across multiple mobile devices. Cross-device real-time messaging confirmed working.
 - **April 26, 2026**: Vite/React frontend successfully connects to FastAPI WebSockets dynamically across the local network. Fixed routing order issue (WebSocket routes before static files mount) and added CORS middleware for development.
+- **April 26, 2026**: Refactored architecture to isolate Cross Clue as a modular app, enabling true multi-app platform capability.
