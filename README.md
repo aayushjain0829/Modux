@@ -37,11 +37,11 @@ The first application hosted on Modux is a digital adaptation of the cooperative
 ## 🗺️ Project Execution Plan
 
 ### Phase 1: Backend Foundation
-- [ ] Initialize FastAPI project.
-- [ ] Configure Uvicorn to bind to `0.0.0.0:8000`.
-- [ ] Implement local IP detection on startup.
-- [ ] Build the WebSocket Connection Manager (connect, disconnect, broadcast).
-- [ ] Set up static file serving for the frontend build.
+- [x] Initialize FastAPI project.
+- [x] Configure Uvicorn to bind to `0.0.0.0:8000`.
+- [x] Implement local IP detection on startup.
+- [x] Build the WebSocket Connection Manager (connect, disconnect, broadcast).
+- [x] Set up static file serving for the frontend build.
 
 ### Phase 2: App Shell (Frontend)
 - [ ] Initialize Vite + React project.
