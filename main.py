@@ -21,6 +21,8 @@ class ConnectionManager:
     def __init__(self):
         # Dictionary to store sessions: {session_id: {app_name: set_of_websockets}}
         self.sessions: Dict[str, Dict[str, Set[WebSocket]]] = {}
+        # Dictionary to store user_id to websocket mapping: {session_id: {user_id: websocket}}
+        self.user_connections: Dict[str, Dict[str, WebSocket]] = {}
 
     async def connect(self, websocket: WebSocket, app_name: str, session_id: str):
         await websocket.accept()
@@ -29,6 +31,15 @@ class ConnectionManager:
         if app_name not in self.sessions[session_id]:
             self.sessions[session_id][app_name] = set()
         self.sessions[session_id][app_name].add(websocket)
+        
+        # Initialize user connections for this session
+        if session_id not in self.user_connections:
+            self.user_connections[session_id] = {}
+
+    def register_user(self, websocket: WebSocket, session_id: str, user_id: str):
+        """Register a user_id to websocket mapping"""
+        if session_id in self.user_connections:
+            self.user_connections[session_id][user_id] = websocket
 
     def disconnect(self, websocket: WebSocket, app_name: str, session_id: str):
         if session_id in self.sessions and app_name in self.sessions[session_id]:
@@ -39,6 +50,15 @@ class ConnectionManager:
             # Clean up session_id if no apps left
             if not self.sessions[session_id]:
                 del self.sessions[session_id]
+        
+        # Remove user mapping
+        if session_id in self.user_connections:
+            # Find and remove the user_id that maps to this websocket
+            to_remove = [uid for uid, ws in self.user_connections[session_id].items() if ws == websocket]
+            for uid in to_remove:
+                del self.user_connections[session_id][uid]
+            if not self.user_connections[session_id]:
+                del self.user_connections[session_id]
 
     async def broadcast(self, message: str, app_name: str, session_id: str):
         if session_id in self.sessions and app_name in self.sessions[session_id]:
@@ -55,6 +75,17 @@ class ConnectionManager:
         except Exception:
             pass
 
+    async def send_personal_message_by_user_id(self, data: Dict, session_id: str, user_id: str):
+        """Send JSON data to a specific user by user_id"""
+        if session_id in self.user_connections and user_id in self.user_connections[session_id]:
+            websocket = self.user_connections[session_id][user_id]
+            try:
+                await websocket.send_text(json.dumps(data))
+                return True
+            except Exception:
+                return False
+        return False
+
     async def broadcast_state(self, app_name: str, session_id: str, state: Dict):
         """Broadcast game state to all users in a session"""
         message = json.dumps({"type": "state_update", "data": state})
@@ -69,6 +100,17 @@ class ConnectionManager:
 
 
 manager = ConnectionManager()
+
+# Singleton game managers for each app (persistent across connections)
+_game_managers = {}
+
+def get_game_manager(app_name: str):
+    """Get or create a singleton game manager for an app"""
+    if app_name not in _game_managers:
+        if app_name == "cross-clue":
+            from apps.cross_clue import GameStateManager
+            _game_managers[app_name] = GameStateManager()
+    return _game_managers.get(app_name)
 
 
 def get_local_ip():
@@ -96,17 +138,13 @@ async def startup_event():
 
 @app.websocket("/ws/{app_name}/{session_id}")
 async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: str):
-    print(f"🔗 New WebSocket connection attempt: app_name={app_name}, session_id={session_id}")
     await manager.connect(websocket, app_name, session_id)
-    print(f"✅ WebSocket connected: app_name={app_name}, session_id={session_id}")
     
-    # Dynamically load app-specific game manager
-    game_manager = None
-    if app_name == "cross-clue":
-        from apps.cross_clue import GameStateManager
-        game_manager = GameStateManager()
-        
-        # Send current game state if it exists
+    # Get singleton game manager for this app
+    game_manager = get_game_manager(app_name)
+    
+    # Send current game state if it exists
+    if game_manager:
         public_state = game_manager.get_public_state(session_id)
         if public_state:
             await manager.send_personal_json({"type": "state_update", "data": public_state}, websocket)
@@ -114,41 +152,42 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
     try:
         while True:
             data = await websocket.receive_text()
-            print(f"📨 Message received from {session_id}: {data}")
             
             try:
                 message = json.loads(data)
                 action = message.get("action")
                 user_id = message.get("user_id", "anonymous")
                 
+                # Register user_id to websocket mapping
+                manager.register_user(websocket, session_id, user_id)
+                
                 if app_name == "cross-clue" and game_manager:
                     if action == "init_game":
                         game_state = game_manager.init_game(session_id)
                         public_state = game_manager.get_public_state(session_id)
                         await manager.broadcast_state(app_name, session_id, public_state)
-                        print(f"🎮 Game initialized for session {session_id}")
                     
                     elif action == "draw_card":
                         coordinate = game_manager.draw_card(session_id, user_id)
                         if coordinate:
-                            await manager.send_personal_json({
-                                "type": "card_drawn",
-                                "data": {"coordinate": coordinate}
-                            }, websocket)
-                            # Broadcast updated state
+                            # Send private secret card only to the requesting user
+                            await manager.send_personal_message_by_user_id({
+                                "type": "secret_update",
+                                "secret_card": coordinate
+                            }, session_id, user_id)
+                            # Broadcast public state update to everyone
                             public_state = game_manager.get_public_state(session_id)
                             await manager.broadcast_state(app_name, session_id, public_state)
-                            print(f"🃏 Card drawn for user {user_id}: {coordinate}")
                     
                     elif action == "submit_clue":
                         clue = message.get("clue")
                         if clue and game_manager.submit_clue(session_id, clue):
                             public_state = game_manager.get_public_state(session_id)
                             await manager.broadcast_state(app_name, session_id, public_state)
-                            print(f"💬 Clue submitted: {clue}")
                     
                     elif action == "guess_coordinate":
-                        guess = message.get("guess")
+                        # Support both "guess" and "coordinate" keys
+                        guess = message.get("guess") or message.get("coordinate")
                         if guess:
                             result = game_manager.guess_coordinate(session_id, guess)
                             if result:
@@ -159,7 +198,6 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
                                 # Broadcast updated state
                                 public_state = game_manager.get_public_state(session_id)
                                 await manager.broadcast_state(app_name, session_id, public_state)
-                                print(f"🎯 Guess: {guess}, Correct: {result['is_correct']}")
                     
                     elif action == "get_state":
                         public_state = game_manager.get_public_state(session_id)
@@ -167,15 +205,13 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
                             await manager.send_personal_json({"type": "state_update", "data": public_state}, websocket)
                 
             except json.JSONDecodeError:
-                print(f"⚠️ Invalid JSON received: {data}")
-            except Exception as e:
-                print(f"⚠️ Error processing message: {e}")
+                pass
+            except Exception:
+                pass
                 
     except WebSocketDisconnect:
-        print(f"❌ WebSocket disconnected: app_name={app_name}, session_id={session_id}")
         manager.disconnect(websocket, app_name, session_id)
-    except Exception as e:
-        print(f"⚠️ WebSocket error: {e}")
+    except Exception:
         manager.disconnect(websocket, app_name, session_id)
 
 

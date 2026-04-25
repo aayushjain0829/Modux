@@ -67,8 +67,9 @@ A digital adaptation of the cooperative party game "Cross Clue", hosted on the M
 - [x] Build session initialization logic (4x4 grid generation, word assignment, coordinate deck shuffling)
 - [x] Implement backend WebSocket event handlers (`init_game`, `draw_card`, `submit_clue`, `guess_coordinate`, `get_state`)
 - [x] Establish public state filtering to protect secret information (coordinates, active turn details)
-- [ ] Debug and validate game state synchronization across multiple WebSocket clients
-- [ ] Test edge cases (empty deck, invalid guesses, concurrent actions)
+- [x] Implement user_id to WebSocket mapping for targeted private messaging
+- [x] Debug and validate game state synchronization across multiple WebSocket clients
+- [x] Test edge cases (empty deck, invalid guesses, concurrent actions)
 
 ### Phase 2: Interactive Real-time Interface
 - [ ] Build 4x4 interactive grid component with coordinate selection
@@ -78,3 +79,10 @@ A digital adaptation of the cooperative party game "Cross Clue", hosted on the M
 - [ ] Integrate real-time state updates via WebSocket message parsing
 - [ ] Implement player role detection and UI state management
 - [ ] Add responsive design for mobile device compatibility
+
+## 🧪 Testing
+
+A temporary debug UI is currently present in `CrossClue.jsx` to verify the game state engine before building the Phase 2 interactive interface. The debug UI includes:
+- Test buttons for all WebSocket actions (init_game, draw_card, submit_clue, guess_coordinate)
+- JSON inspector displaying game state and secret card information
+- User ID display for verifying unique client identification

@@ -91,7 +91,7 @@ To access the platform from a mobile device on the same Wi-Fi network:
 
 ## 🎮 Supported Apps
 
-- **[Cross Clue](./apps/cross_clue/README.md)** - A cooperative word-association party game
+- **[Cross Clue](./apps/cross_clue/README.md)** - A cooperative word-association party game (Phase 1: Game Logic & State Management complete)
 
 ## 🔌 Adding a New App
 
