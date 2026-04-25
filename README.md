@@ -137,6 +137,12 @@ To access the platform from a mobile device on the same Wi-Fi network:
 - [ ] Create standardized 'Start Game' trigger for lobby-to-app transition
 - [ ] Implement seamless handoff from lobby to app state engine
 
+### Phase 4.1: Advanced Lobby Configuration (Optional)
+- [ ] Implement role-based access control (Host privileges for 'Start Game')
+- [ ] Add configuration parameters for minimum and maximum player limits
+- [ ] Introduce visual 'Ready' toggle for joined players
+- [ ] Add 'Copy Invite Link' utility to lobby UI for frictionless onboarding
+
 ## 🎯 Milestones & Testing
 
 - **April 25, 2026**: Successfully validated core WebSocket ConnectionManager and local network IP accessibility (0.0.0.0 binding) across multiple mobile devices. Cross-device real-time messaging confirmed working.
