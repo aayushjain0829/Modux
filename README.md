@@ -60,3 +60,9 @@ The first application hosted on Modux is a digital adaptation of the cooperative
 - [ ] Implement the active player view (draw card, secret coordinate display, clue input).
 - [ ] Implement the team view (display incoming clue, enable grid clicking).
 - [ ] Add dynamic styling for grid states (Success/Fail).
+
+---
+
+## 🎯 Milestones & Testing
+
+- **April 25, 2026**: Successfully validated core WebSocket ConnectionManager and local network IP accessibility (0.0.0.0 binding) across multiple mobile devices. Cross-device real-time messaging confirmed working.

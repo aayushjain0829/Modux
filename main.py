@@ -1,6 +1,7 @@
 import socket
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from typing import Dict, List, Set
 
 app = FastAPI()
@@ -73,7 +74,7 @@ async def startup_event():
 
 @app.get("/")
 async def root():
-    return {"message": "Modux - Modular Web Platform"}
+    return FileResponse("test_client.html")
 
 
 # Placeholder route for static files (will be used when frontend is built)
