@@ -143,6 +143,21 @@ To access the platform from a mobile device on the same Wi-Fi network:
 - [ ] Introduce visual 'Ready' toggle for joined players
 - [ ] Add 'Copy Invite Link' utility to lobby UI for frictionless onboarding
 
+### Phase 5: Platform Portability & Mobile Encapsulation (Planned)
+
+**Pathway A: Cloud-Native Evolution (Client-Server)**
+- [ ] Transition FastAPI backend to scalable cloud host (Render/Railway)
+- [ ] Deploy Vite/React frontend via Vercel or Netlify
+- [ ] Utilize Capacitor to encapsulate web application into standalone Android APK
+- [ ] Maintain cloud WebSockets for real-time sync
+
+**Pathway B: WebRTC Peer-to-Peer Architecture (Decentralized)**
+- [ ] Develop lightweight matchmaking server for SDP handshakes
+- [ ] Port Python game logic entirely to React frontend
+- [ ] Implement session creator as 'Host Node' for state management
+- [ ] Replace WebSockets with WebRTC for direct device-to-device communication
+- [ ] Ensure ultra-low latency and true offline local network play
+
 ## 🎯 Milestones & Testing
 
 - **April 25, 2026**: Successfully validated core WebSocket ConnectionManager and local network IP accessibility (0.0.0.0 binding) across multiple mobile devices. Cross-device real-time messaging confirmed working.
