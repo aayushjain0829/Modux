@@ -48,7 +48,8 @@ function Dashboard() {
             borderRadius: '8px',
             cursor: 'pointer',
             transition: 'transform 0.2s, box-shadow 0.2s',
-            width: '100%'
+            width: '100%',
+            marginBottom: '15px'
           }}
           onMouseOver={(e) => {
             e.target.style.transform = 'translateY(-2px)'
@@ -60,6 +61,34 @@ function Dashboard() {
           }}
         >
           Play Cross Clue
+        </button>
+        <button
+          onClick={() => {
+            const sessionId = Math.random().toString(36).substring(2, 8).toUpperCase();
+            navigate(`/bingo/${sessionId}`);
+          }}
+          style={{
+            background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
+            color: 'white',
+            border: 'none',
+            padding: '16px 32px',
+            fontSize: '1.1rem',
+            fontWeight: '600',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            transition: 'transform 0.2s, box-shadow 0.2s',
+            width: '100%'
+          }}
+          onMouseOver={(e) => {
+            e.target.style.transform = 'translateY(-2px)'
+            e.target.style.boxShadow = '0 8px 20px rgba(40, 167, 69, 0.4)'
+          }}
+          onMouseOut={(e) => {
+            e.target.style.transform = 'translateY(0)'
+            e.target.style.boxShadow = 'none'
+          }}
+        >
+          Play BINGO
         </button>
       </div>
     </div>
