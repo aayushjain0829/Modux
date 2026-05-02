@@ -13,6 +13,7 @@ A turn-based, 5x5 grid game where players arrange numbers 1-25, take turns calli
   - Build a React component for players to arrange their 1-25 grid before the game starts.
   - Include an 'Auto-Fill/Shuffle' utility button for faster testing.
   - Build a 'Waiting Room' state that holds until all players have submitted their boards.
+  - Implemented Sequential Click Setup: Users click empty cells to automatically assign the lowest available number (1-25). Clicking a filled cell reclaims the number, making it available again.
 
 - [x] **Phase 3: The Active Game (UI & Matrix Logic)**
   - Render the 5x5 interactive grid.

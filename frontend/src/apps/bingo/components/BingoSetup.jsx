@@ -1,8 +1,27 @@
 import React, { useState } from 'react';
 
 const BingoSetup = ({ gameState, userId, sendMessage }) => {
-  const [grid, setGrid] = useState([]);
+  // Initialize 5x5 grid with null values
+  const [grid, setGrid] = useState(() => 
+    Array(5).fill(null).map(() => Array(5).fill(null))
+  );
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  // Helper function to find the lowest available number (1-25) not in use
+  const getLowestAvailableNumber = () => {
+    const usedNumbers = new Set(grid.flat().filter(n => n !== null));
+    for (let i = 1; i <= 25; i++) {
+      if (!usedNumbers.has(i)) {
+        return i;
+      }
+    }
+    return null; // All numbers used
+  };
+
+  // Check if board is complete (no null values)
+  const isBoardComplete = () => {
+    return grid.every(row => row.every(cell => cell !== null));
+  };
 
   // Auto-shuffle: populate grid with randomized 1-25
   const autoShuffle = () => {
@@ -20,40 +39,28 @@ const BingoSetup = ({ gameState, userId, sendMessage }) => {
     setGrid(grid5x5);
   };
 
-  // Manual cell click handler
+  // Sequential click handler: empty cell gets lowest available, filled cell becomes null
   const handleCellClick = (rowIndex, colIndex) => {
-    const newNumber = prompt(`Enter number for cell (${rowIndex}, ${colIndex}):`);
-    if (newNumber === null) return;
+    const newGrid = grid.map(row => [...row]);
     
-    const num = parseInt(newNumber, 10);
-    if (isNaN(num) || num < 1 || num > 25) {
-      alert('Please enter a number between 1 and 25');
-      return;
+    if (newGrid[rowIndex][colIndex] !== null) {
+      // Clicking a filled cell reclaims the number (sets to null)
+      newGrid[rowIndex][colIndex] = null;
+    } else {
+      // Clicking an empty cell assigns the lowest available number
+      const lowestAvailable = getLowestAvailableNumber();
+      if (lowestAvailable !== null) {
+        newGrid[rowIndex][colIndex] = lowestAvailable;
+      }
     }
-
-    // Check for duplicates
-    const flatGrid = grid.flat();
-    if (flatGrid.includes(num)) {
-      alert('This number is already in the grid');
-      return;
-    }
-
-    const newGrid = [...grid];
-    newGrid[rowIndex][colIndex] = num;
+    
     setGrid(newGrid);
   };
 
   // Submit board
   const submitBoard = () => {
-    // Validate grid is complete
-    if (grid.length !== 5 || grid.some(row => row.length !== 5)) {
-      alert('Please complete the 5x5 grid');
-      return;
-    }
-
-    const flatGrid = grid.flat();
-    if (flatGrid.length !== 25 || new Set(flatGrid).size !== 25) {
-      alert('Grid must contain exactly the numbers 1-25 with no duplicates');
+    if (!isBoardComplete()) {
+      alert('Please fill all cells in the grid');
       return;
     }
 
@@ -146,78 +153,94 @@ const BingoSetup = ({ gameState, userId, sendMessage }) => {
         </button>
       </div>
 
+      {/* Next number indicator */}
+      <div style={{
+        textAlign: 'center',
+        marginBottom: '15px',
+        padding: '10px',
+        background: '#e9ecef',
+        borderRadius: '8px'
+      }}>
+        <span style={{ color: '#666' }}>Next number: </span>
+        <span style={{ 
+          fontWeight: '700', 
+          color: '#667eea',
+          fontSize: '1.2rem'
+        }}>
+          {getLowestAvailableNumber() || 'None - Board full!'}
+        </span>
+      </div>
+
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(5, 1fr)',
         gap: '8px',
         marginBottom: '20px'
       }}>
-        {grid.length === 0 ? (
-          <div style={{
-            gridColumn: '1 / -1',
-            textAlign: 'center',
-            padding: '40px',
-            background: '#f8f9fa',
-            borderRadius: '8px',
-            color: '#666'
-          }}>
-            Click "Auto-Shuffle Board" to generate your grid, or click cells to enter numbers manually
-          </div>
-        ) : (
-          grid.map((row, rowIndex) =>
-            row.map((num, colIndex) => (
-              <div
-                key={`${rowIndex}-${colIndex}`}
-                onClick={() => handleCellClick(rowIndex, colIndex)}
-                style={{
-                  aspectRatio: '1',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: '#f8f9fa',
-                  border: '2px solid #dee2e6',
-                  borderRadius: '8px',
-                  fontSize: '1.2rem',
-                  fontWeight: '600',
-                  color: '#333',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-                onMouseOver={(e) => {
+        {grid.map((row, rowIndex) =>
+          row.map((num, colIndex) => (
+            <div
+              key={`${rowIndex}-${colIndex}`}
+              onClick={() => handleCellClick(rowIndex, colIndex)}
+              style={{
+                aspectRatio: '1',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: num !== null ? '#d4edda' : '#f8f9fa',
+                border: '2px solid',
+                borderColor: num !== null ? '#28a745' : '#dee2e6',
+                borderRadius: '8px',
+                fontSize: '1.2rem',
+                fontWeight: '600',
+                color: num !== null ? '#155724' : '#adb5bd',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+              onMouseOver={(e) => {
+                if (num !== null) {
+                  e.target.style.background = '#f8d7da';
+                  e.target.style.borderColor = '#dc3545';
+                } else {
                   e.target.style.background = '#e9ecef';
                   e.target.style.borderColor = '#667eea';
-                }}
-                onMouseOut={(e) => {
+                }
+              }}
+              onMouseOut={(e) => {
+                if (num !== null) {
+                  e.target.style.background = '#d4edda';
+                  e.target.style.borderColor = '#28a745';
+                } else {
                   e.target.style.background = '#f8f9fa';
                   e.target.style.borderColor = '#dee2e6';
-                }}
-              >
-                {num || ''}
-              </div>
-            ))
-          )
+                }
+              }}
+            >
+              {num !== null ? num : '+'}
+            </div>
+          ))
         )}
       </div>
 
       <div style={{ textAlign: 'center' }}>
         <button
           onClick={submitBoard}
-          disabled={grid.length === 0}
+          disabled={!isBoardComplete()}
           style={{
             padding: '12px 24px',
-            background: grid.length === 0 ? '#ccc' : '#28a745',
+            background: !isBoardComplete() ? '#ccc' : '#28a745',
             color: 'white',
             border: 'none',
             borderRadius: '8px',
             fontSize: '1rem',
-            cursor: grid.length === 0 ? 'not-allowed' : 'pointer',
+            cursor: !isBoardComplete() ? 'not-allowed' : 'pointer',
             transition: 'background 0.2s'
           }}
           onMouseOver={(e) => {
-            if (grid.length !== 0) e.target.style.background = '#218838';
+            if (isBoardComplete()) e.target.style.background = '#218838';
           }}
           onMouseOut={(e) => {
-            if (grid.length !== 0) e.target.style.background = '#28a745';
+            if (isBoardComplete()) e.target.style.background = '#28a745';
           }}
         >
           Submit Board
