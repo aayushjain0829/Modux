@@ -37,7 +37,7 @@ function Dashboard() {
           Modular Web Platform
         </p>
         <button
-          onClick={() => navigate('/cross-clue')}
+          onClick={() => navigate('/lobby/cross-clue')}
           style={{
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             color: 'white',
@@ -63,10 +63,7 @@ function Dashboard() {
           Play Cross Clue
         </button>
         <button
-          onClick={() => {
-            const sessionId = Math.random().toString(36).substring(2, 8).toUpperCase();
-            navigate(`/bingo/${sessionId}`);
-          }}
+          onClick={() => navigate('/lobby/bingo')}
           style={{
             background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
             color: 'white',
