@@ -110,6 +110,9 @@ def get_game_manager(app_name: str):
         if app_name == "cross-clue":
             from apps.cross_clue import GameStateManager
             _game_managers[app_name] = GameStateManager()
+        elif app_name == "bingo":
+            from apps.bingo.game import BingoGameManager
+            _game_managers[app_name] = BingoGameManager()
     return _game_managers.get(app_name)
 
 
@@ -203,6 +206,28 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
                         public_state = game_manager.get_public_state(session_id)
                         if public_state:
                             await manager.send_personal_json({"type": "state_update", "data": public_state}, websocket)
+                
+                elif app_name == "bingo" and game_manager:
+                    if action == "join_game":
+                        username = message.get("username", f"Player_{user_id[:4]}")
+                        game_state = game_manager.join_game(session_id, user_id, username)
+                        await manager.broadcast_state(app_name, session_id, game_state.dict())
+                    
+                    elif action == "submit_board":
+                        board = message.get("board")
+                        if board:
+                            game_state = game_manager.submit_board(session_id, user_id, board)
+                            await manager.broadcast_state(app_name, session_id, game_state.dict())
+                    
+                    elif action == "call_number":
+                        number = message.get("number")
+                        if number is not None:
+                            game_state = game_manager.call_number(session_id, user_id, number)
+                            await manager.broadcast_state(app_name, session_id, game_state.dict())
+                    
+                    elif action == "get_state":
+                        game_state = game_manager.get_session(session_id)
+                        await manager.send_personal_json({"type": "state_update", "data": game_state.dict()}, websocket)
                 
             except json.JSONDecodeError:
                 pass
