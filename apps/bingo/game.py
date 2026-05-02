@@ -11,6 +11,11 @@ class BingoGameManager:
             self.sessions[session_id] = BingoGameState(session_id=session_id)
         return self.sessions[session_id]
 
+    def get_public_state(self, session_id: str) -> Dict:
+        """Return the public game state for broadcasting"""
+        game_state = self.get_session(session_id)
+        return game_state.dict()
+
     def join_game(self, session_id: str, user_id: str, username: str) -> BingoGameState:
         game_state = self.get_session(session_id)
         

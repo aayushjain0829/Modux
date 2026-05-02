@@ -149,9 +149,13 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
     
     # Send current game state if it exists
     if game_manager:
-        public_state = game_manager.get_public_state(session_id)
-        if public_state:
-            await manager.send_personal_json({"type": "state_update", "data": public_state}, websocket)
+        try:
+            public_state = game_manager.get_public_state(session_id)
+            if public_state:
+                await manager.send_personal_json({"type": "state_update", "data": public_state}, websocket)
+        except Exception:
+            # If get_public_state fails, continue without sending initial state
+            pass
     
     try:
         while True:

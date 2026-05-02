@@ -4,7 +4,7 @@ A turn-based, 5x5 grid game where players arrange numbers 1-25, take turns calli
 
 ## Execution Plan
 
-- [ ] **Phase 1: Backend State Engine & Turn Logic**
+- [x] **Phase 1: Backend State Engine & Turn Logic**
   - Define the Pydantic models for the Bingo game state.
   - Implement WebSocket actions: 'join_game', 'submit_board' (validating a 1-25 array), and 'call_number'.
   - Implement round-robin turn progression logic.
