@@ -144,11 +144,16 @@ To access the platform from a mobile device on the same Wi-Fi network:
 - [x] Implement seamless handoff from lobby to app state engine
 - [x] Refactor all apps to consume global UserContext and remove isolated lobby logic
 
-### Phase 4.1: Advanced Lobby Configuration (Optional)
-- [ ] Implement role-based access control (Host privileges for 'Start Game')
-- [ ] Add configuration parameters for minimum and maximum player limits
-- [ ] Introduce visual 'Ready' toggle for joined players
-- [ ] Add 'Copy Invite Link' utility to lobby UI for frictionless onboarding
+### Phase 4.1: The Modux Platform Shell & Game Lifecycle
+- [ ] Develop `<ModuxLayout>` persistent platform shell to standardize UI rendering across all apps
+- [ ] Implement persistent Left-Sidebar Player List (tracks real-time connections, readiness, and active turns)
+- [ ] Standardize platform header (Room Code, App Name, and 'Copy Invite Link' utility)
+- [ ] Build **Lobby** stage: Universal gathering point with Host-controlled, transparent game configurations
+- [ ] Build **Prepare** stage: Optional dynamic routing for game-specific loadouts (e.g., Bingo boards)
+- [ ] Build **Action** stage: Core gameplay container with global Spectator Mode for late-joiners
+- [ ] Build **Result** stage: Shared post-game screen with unified "Next Game" and "Return to Lobby" routing
+- [ ] Implement visual 'Ready' toggle mechanics and Host-exclusive privileges ('Start Game')
+- [ ] Refactor existing apps (Cross Clue, Bingo) to consume the unified 4-stage pipeline
 
 ### Phase 5: Platform Portability & Mobile Encapsulation (Planned)
 
