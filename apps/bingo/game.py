@@ -69,15 +69,33 @@ class BingoGameManager:
         
         # Recalculate lines completed for all players
         called_set: Set[int] = set(game_state.called_numbers)
+        potential_winners: List[str] = []
+        
         for player_id, player in game_state.players.items():
             if player.board:
                 player.lines_completed = self._calculate_lines_completed(player.board, called_set)
                 
-                # Check win condition
+                # Collect potential winners (5+ lines completed)
                 if player.lines_completed >= 5:
-                    game_state.status = 'finished'
-                    game_state.winner = player_id
-                    return game_state
+                    potential_winners.append(player_id)
+        
+        # Check win condition with tie-breaker logic
+        if len(potential_winners) > 0:
+            game_state.status = 'finished'
+            
+            # Tie-breaker: If multiple winners, prioritize the active player (who called the number)
+            if len(potential_winners) > 1:
+                if user_id in potential_winners:
+                    # Active player wins the tie
+                    game_state.winner = user_id
+                else:
+                    # Fallback: shouldn't happen mathematically, but default to first in list
+                    game_state.winner = potential_winners[0]
+            else:
+                # Single winner
+                game_state.winner = potential_winners[0]
+            
+            return game_state
         
         # Advance turn if game not finished
         if game_state.status == 'playing':
