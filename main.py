@@ -240,6 +240,26 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
                 pass
                 
     except WebSocketDisconnect:
+        # Handle player disconnect - remove from game state and advance turn if needed
+        if game_manager and app_name == "bingo":
+            game_state = game_manager.get_session(session_id)
+            
+            # Remove player from game state
+            if user_id in game_state.players:
+                del game_state.players[user_id]
+            
+            # Remove from turn order
+            if user_id in game_state.turn_order:
+                player_index = game_state.turn_order.index(user_id)
+                game_state.turn_order.remove(user_id)
+                
+                # If it was their turn, advance to next player
+                if player_index == game_state.current_turn_index and game_state.turn_order:
+                    game_state.current_turn_index = game_state.current_turn_index % len(game_state.turn_order)
+            
+            # Broadcast updated state to remaining players
+            await manager.broadcast_state(app_name, session_id, game_state.model_dump())
+        
         manager.disconnect(websocket, app_name, session_id)
     except Exception:
         manager.disconnect(websocket, app_name, session_id)

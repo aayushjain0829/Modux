@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import BingoSetup from './components/BingoSetup';
 import BingoActive from './components/BingoActive';
 
 const BingoGame = () => {
   const { sessionId } = useParams();
+  const navigate = useNavigate();
   const [gameState, setGameState] = useState({
     session_id: sessionId,
     status: 'setup',
@@ -130,12 +131,82 @@ const BingoGame = () => {
             borderRadius: '16px',
             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
           }}>
-            <h2 style={{ color: '#28a745', marginBottom: '20px' }}>
-              Game Over!
-            </h2>
-            <p style={{ fontSize: '1.2rem', color: '#333' }}>
-              Winner: {gameState.winner}
-            </p>
+            {/* BINGO Stop Banner */}
+            <div style={{
+              background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
+              color: 'white',
+              padding: '20px',
+              borderRadius: '12px',
+              marginBottom: '30px',
+              fontSize: '2rem',
+              fontWeight: '700',
+              textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+              animation: 'pulse 2s infinite'
+            }}>
+              🎉 BINGO STOP! 🎉
+            </div>
+            
+            {/* Winner Announcement */}
+            <div style={{
+              background: '#f8f9fa',
+              padding: '25px',
+              borderRadius: '12px',
+              marginBottom: '25px',
+              border: '2px solid #28a745'
+            }}>
+              <h2 style={{ color: '#28a745', marginBottom: '15px' }}>
+                🏆 Winner! 🏆
+              </h2>
+              <p style={{ fontSize: '1.5rem', color: '#333', fontWeight: '600' }}>
+                {gameState.players[gameState.winner]?.username || 'Unknown Player'}
+              </p>
+              <p style={{ color: '#666', fontSize: '1rem', marginTop: '10px' }}>
+                (ID: {gameState.winner})
+              </p>
+            </div>
+            
+            {/* Action Buttons */}
+            <div style={{
+              display: 'flex',
+              gap: '15px',
+              justifyContent: 'center',
+              flexWrap: 'wrap'
+            }}>
+              <button
+                onClick={() => navigate('/')}
+                style={{
+                  padding: '12px 24px',
+                  background: '#667eea',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                onMouseOver={(e) => e.target.style.background = '#5568d3'}
+                onMouseOut={(e) => e.target.style.background = '#667eea'}
+              >
+                Return to Lobby
+              </button>
+              <button
+                onClick={() => window.location.reload()}
+                style={{
+                  padding: '12px 24px',
+                  background: '#28a745',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                onMouseOver={(e) => e.target.style.background = '#218838'}
+                onMouseOut={(e) => e.target.style.background = '#28a745'}
+              >
+                Play Again
+              </button>
+            </div>
           </div>
         )}
           </>

@@ -20,7 +20,7 @@ A turn-based, 5x5 grid game where players arrange numbers 1-25, take turns calli
   - Build the matrix-checking algorithm to detect completed lines and track the B-I-N-G-O letter progression.
   - Implement the visual 'Active Caller' indicator.
 
-- [ ] **Phase 4: Win Condition & Edge Cases**
+- [x] **Phase 4: Win Condition & Edge Cases**
   - Handle the 'BINGO Stop' broadcast when a player hits 5 lines.
   - Manage edge cases: player disconnects during their turn, or attempting to call a number that has already been called.
 
