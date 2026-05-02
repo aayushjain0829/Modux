@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import BingoSetup from './components/BingoSetup';
+import BingoActive from './components/BingoActive';
 
 const BingoGame = () => {
   const { sessionId } = useParams();
@@ -114,37 +115,19 @@ const BingoGame = () => {
         )}
 
         {gameState.status === 'playing' && (
-          <div style={{
-            textAlign: 'center',
-            padding: '40px',
-            background: 'white',
-            borderRadius: '16px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-          }}>
-            <h2 style={{ color: '#667eea', marginBottom: '20px' }}>
-              Game In Progress
-            </h2>
-            <p style={{ color: '#666' }}>
-              Active game UI coming in Phase 3
-            </p>
-          </div>
+          <BingoActive
+            gameState={gameState}
+            userId={userId}
+            sendMessage={sendMessage}
+          />
         )}
 
         {gameState.status === 'finished' && (
-          <div style={{
-            textAlign: 'center',
-            padding: '40px',
-            background: 'white',
-            borderRadius: '16px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-          }}>
-            <h2 style={{ color: '#28a745', marginBottom: '20px' }}>
-              Game Over!
-            </h2>
-            <p style={{ fontSize: '1.2rem', color: '#333' }}>
-              Winner: {gameState.winner}
-            </p>
-          </div>
+          <BingoActive
+            gameState={gameState}
+            userId={userId}
+            sendMessage={sendMessage}
+          />
         )}
           </>
         )}

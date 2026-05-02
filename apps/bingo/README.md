@@ -14,7 +14,7 @@ A turn-based, 5x5 grid game where players arrange numbers 1-25, take turns calli
   - Include an 'Auto-Fill/Shuffle' utility button for faster testing.
   - Build a 'Waiting Room' state that holds until all players have submitted their boards.
 
-- [ ] **Phase 3: The Active Game (UI & Matrix Logic)**
+- [x] **Phase 3: The Active Game (UI & Matrix Logic)**
   - Render the 5x5 interactive grid.
   - Build the matrix-checking algorithm to detect completed lines and track the B-I-N-G-O letter progression.
   - Implement the visual 'Active Caller' indicator.
