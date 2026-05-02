@@ -63,7 +63,9 @@ class ConnectionManager:
 
     async def broadcast(self, message: str, app_name: str, session_id: str):
         if session_id in self.sessions and app_name in self.sessions[session_id]:
-            for connection in self.sessions[session_id][app_name]:
+            # Create a copy of the set to avoid "Set changed size during iteration" errors
+            connections = list(self.sessions[session_id][app_name])
+            for connection in connections:
                 try:
                     await connection.send_text(message)
                 except Exception:
@@ -215,6 +217,8 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
                 elif app_name == "bingo" and game_manager:
                     if action == "join_game":
                         username = message.get("username", f"Player_{user_id[:4]}")
+                        # Register user_id to websocket mapping for targeted messaging
+                        manager.register_user(websocket, session_id, user_id)
                         game_state = game_manager.join_game(session_id, user_id, username)
                         await manager.broadcast_state(app_name, session_id, game_state.model_dump())
                     
