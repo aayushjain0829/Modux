@@ -57,10 +57,11 @@ const BingoSetup = ({ gameState, userId, sendMessage }) => {
       return;
     }
 
-    sendMessage({
+    const payload = {
       action: 'submit_board',
       board: grid
-    });
+    };
+    sendMessage(payload);
     setIsSubmitted(true);
   };
 

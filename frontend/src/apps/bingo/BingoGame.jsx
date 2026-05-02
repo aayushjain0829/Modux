@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useParams } from 'react-router-dom';
 import BingoSetup from './components/BingoSetup';
 
-const BingoGame = ({ sessionId }) => {
+const BingoGame = () => {
+  const { sessionId } = useParams();
   const [gameState, setGameState] = useState({
     session_id: sessionId,
     status: 'setup',
@@ -11,23 +13,8 @@ const BingoGame = ({ sessionId }) => {
     winner: null,
     players: {}
   });
-  const [userId, setUserId] = useState('');
+  const [userId] = useState(() => 'user_' + Math.random().toString(36).substring(2, 9));
   const wsRef = useRef(null);
-
-  // Helper function to get or generate unique user ID
-  const getUserId = () => {
-    let id = sessionStorage.getItem('modux_user_id');
-    if (!id) {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      let result = '';
-      for (let i = 0; i < 8; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      id = result;
-      sessionStorage.setItem('modux_user_id', id);
-    }
-    return id;
-  };
 
   const sendMessage = (message) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -37,24 +24,24 @@ const BingoGame = ({ sessionId }) => {
   };
 
   useEffect(() => {
-    // Initialize user ID on component mount
-    const id = getUserId();
-    setUserId(id);
+    // Safety check for undefined sessionId
+    if (!sessionId) {
+      return;
+    }
 
-    // Determine WebSocket URL based on current location
+    // Determine WebSocket URL - use backend port 8000
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.host;
-    const wsUrl = `${protocol}//${host}/ws/bingo/${sessionId}`;
+    const host = window.location.hostname || 'localhost';
+    const wsUrl = `${protocol}//${host}:8000/ws/bingo/${sessionId}`;
 
     // Connect to WebSocket
     wsRef.current = new WebSocket(wsUrl);
 
     wsRef.current.onopen = () => {
-      console.log('WebSocket connected');
       // Join game on connection
       sendMessage({
         action: 'join_game',
-        username: `Player_${id.substring(0, 4)}`
+        username: `Player_${userId.substring(5, 9)}`
       });
     };
 
@@ -91,15 +78,32 @@ const BingoGame = ({ sessionId }) => {
         maxWidth: '800px',
         margin: '0 auto'
       }}>
-        <h1 style={{
-          textAlign: 'center',
-          color: 'white',
-          marginBottom: '30px',
-          fontSize: '2rem',
-          textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
-        }}>
-          BINGO
-        </h1>
+        {!sessionId ? (
+          <div style={{
+            textAlign: 'center',
+            padding: '40px',
+            background: 'white',
+            borderRadius: '16px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+          }}>
+            <h2 style={{ color: '#dc3545', marginBottom: '20px' }}>
+              Error: No Session ID
+            </h2>
+            <p style={{ color: '#666' }}>
+              Please navigate to a valid Bingo session URL (e.g., /bingo/ABC123)
+            </p>
+          </div>
+        ) : (
+          <>
+            <h1 style={{
+              textAlign: 'center',
+              color: 'white',
+              marginBottom: '30px',
+              fontSize: '2rem',
+              textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+            }}>
+              BINGO
+            </h1>
 
         {gameState.status === 'setup' && (
           <BingoSetup
@@ -141,6 +145,8 @@ const BingoGame = ({ sessionId }) => {
               Winner: {gameState.winner}
             </p>
           </div>
+        )}
+          </>
         )}
       </div>
     </div>

@@ -216,23 +216,23 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
                     if action == "join_game":
                         username = message.get("username", f"Player_{user_id[:4]}")
                         game_state = game_manager.join_game(session_id, user_id, username)
-                        await manager.broadcast_state(app_name, session_id, game_state.dict())
+                        await manager.broadcast_state(app_name, session_id, game_state.model_dump())
                     
                     elif action == "submit_board":
                         board = message.get("board")
                         if board:
                             game_state = game_manager.submit_board(session_id, user_id, board)
-                            await manager.broadcast_state(app_name, session_id, game_state.dict())
+                            await manager.broadcast_state(app_name, session_id, game_state.model_dump())
                     
                     elif action == "call_number":
                         number = message.get("number")
                         if number is not None:
                             game_state = game_manager.call_number(session_id, user_id, number)
-                            await manager.broadcast_state(app_name, session_id, game_state.dict())
+                            await manager.broadcast_state(app_name, session_id, game_state.model_dump())
                     
                     elif action == "get_state":
                         game_state = game_manager.get_session(session_id)
-                        await manager.send_personal_json({"type": "state_update", "data": game_state.dict()}, websocket)
+                        await manager.send_personal_json({"type": "state_update", "data": game_state.model_dump()}, websocket)
                 
             except json.JSONDecodeError:
                 pass
