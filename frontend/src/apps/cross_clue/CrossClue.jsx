@@ -10,7 +10,17 @@ function CrossClue() {
   const [gameState, setGameState] = useState(null)
   const [secretCard, setSecretCard] = useState(null)
   const [clueInput, setClueInput] = useState('')
+  const [copied, setCopied] = useState(false)
   const wsRef = useRef(null)
+
+  // Handle copy session ID to clipboard
+  const handleCopySession = () => {
+    if (sessionId) {
+      navigator.clipboard.writeText(sessionId)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
 
   // Security check: redirect to lobby if username is empty
   useEffect(() => {
@@ -181,6 +191,64 @@ function CrossClue() {
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         padding: '16px'
       }}>
+        {/* Room Header with Session ID */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '12px',
+          marginBottom: '20px',
+          padding: '12px 20px',
+          background: 'rgba(255, 255, 255, 0.15)',
+          borderRadius: '8px',
+          backdropFilter: 'blur(10px)',
+          maxWidth: '768px',
+          width: '100%'
+        }}>
+          <span style={{
+            color: 'white',
+            fontSize: '0.9rem',
+            fontWeight: '500'
+          }}>
+            Room Code:
+          </span>
+          <span style={{
+            color: 'white',
+            fontSize: '1.1rem',
+            fontWeight: '700',
+            letterSpacing: '2px',
+            textTransform: 'uppercase'
+          }}>
+            {sessionId}
+          </span>
+          <button
+            onClick={handleCopySession}
+            style={{
+              padding: '6px 12px',
+              background: copied ? '#28a745' : 'rgba(255, 255, 255, 0.2)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '0.8rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              minWidth: '70px'
+            }}
+            onMouseOver={(e) => {
+              if (!copied) {
+                e.target.style.background = 'rgba(255, 255, 255, 0.3)'
+              }
+            }}
+            onMouseOut={(e) => {
+              if (!copied) {
+                e.target.style.background = 'rgba(255, 255, 255, 0.2)'
+              }
+            }}
+          >
+            {copied ? 'Copied!' : 'Copy'}
+          </button>
+        </div>
+
         <div className="main-card" style={{
           background: 'white',
           padding: '40px',
