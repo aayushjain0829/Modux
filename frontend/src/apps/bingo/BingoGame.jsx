@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useUser } from '../../context/UserContext';
+import ModuxLayout from '../../components/layout/ModuxLayout';
 import BingoSetup from './components/BingoSetup';
 import BingoActive from './components/BingoActive';
 
@@ -8,7 +9,6 @@ const BingoGame = () => {
   const { sessionId } = useParams();
   const navigate = useNavigate();
   const { username, userId } = useUser();
-  const [copied, setCopied] = useState(false);
   
   const [gameState, setGameState] = useState({
     session_id: sessionId,
@@ -28,14 +28,17 @@ const BingoGame = () => {
     }
   }, [username, navigate]);
 
-  // Handle copy session ID to clipboard
-  const handleCopySession = () => {
-    if (sessionId) {
-      navigator.clipboard.writeText(sessionId);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+  // Handle leave game
+  const handleLeave = () => {
+    navigate('/');
   };
+
+  // Derive players array from gameState.players object
+  const playerArray = Object.keys(gameState.players).map(id => ({
+    id,
+    name: gameState.players[id]?.username || id,
+    isReady: true
+  }));
 
   const sendMessage = (message) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -89,87 +92,19 @@ const BingoGame = () => {
     };
   }, [sessionId]);
 
+  if (!sessionId) {
+    navigate('/lobby/bingo');
+    return null;
+  }
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      padding: '20px'
-    }}>
-      <div style={{
-        maxWidth: '800px',
-        margin: '0 auto'
-      }}>
-        {!sessionId ? (
-          navigate('/lobby/bingo')
-        ) : (
-          <>
-            {/* Room Header with Session ID */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '12px',
-              marginBottom: '20px',
-              padding: '12px 20px',
-              background: 'rgba(255, 255, 255, 0.15)',
-              borderRadius: '8px',
-              backdropFilter: 'blur(10px)'
-            }}>
-              <span style={{
-                color: 'white',
-                fontSize: '0.9rem',
-                fontWeight: '500'
-              }}>
-                Room Code:
-              </span>
-              <span style={{
-                color: 'white',
-                fontSize: '1.1rem',
-                fontWeight: '700',
-                letterSpacing: '2px',
-                textTransform: 'uppercase'
-              }}>
-                {sessionId}
-              </span>
-              <button
-                onClick={handleCopySession}
-                style={{
-                  padding: '6px 12px',
-                  background: copied ? '#28a745' : 'rgba(255, 255, 255, 0.2)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '0.8rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  minWidth: '70px'
-                }}
-                onMouseOver={(e) => {
-                  if (!copied) {
-                    e.target.style.background = 'rgba(255, 255, 255, 0.3)';
-                  }
-                }}
-                onMouseOut={(e) => {
-                  if (!copied) {
-                    e.target.style.background = 'rgba(255, 255, 255, 0.2)';
-                  }
-                }}
-              >
-                {copied ? 'Copied!' : 'Copy'}
-              </button>
-            </div>
-
-            <h1 style={{
-              textAlign: 'center',
-              color: 'white',
-              marginBottom: '30px',
-              fontSize: '2rem',
-              textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
-            }}>
-              BINGO
-            </h1>
-
-        {gameState.status === 'setup' && (
+    <ModuxLayout
+      appName="Bingo"
+      sessionId={sessionId}
+      players={playerArray}
+      onLeave={handleLeave}
+    >
+      {gameState.status === 'setup' && (
           <BingoSetup
             gameState={gameState}
             userId={userId}
@@ -271,10 +206,7 @@ const BingoGame = () => {
             </div>
           </div>
         )}
-          </>
-        )}
-      </div>
-    </div>
+    </ModuxLayout>
   );
 };
 
