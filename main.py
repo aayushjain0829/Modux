@@ -1,8 +1,9 @@
 import socket
 import json
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from typing import Dict, List, Set, Optional
 
 app = FastAPI()
@@ -241,7 +242,13 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
 
 
 # Serve static files from frontend build (must be after WebSocket routes)
-app.mount("/", StaticFiles(directory="frontend/dist", html=True), name="static")
+# Use a more specific path to avoid intercepting WebSocket connections
+app.mount("/static", StaticFiles(directory="frontend/dist", html=True), name="static")
+
+# Also mount at root for SPA routing, but with a check to avoid WebSocket interception
+@app.get("/{path:path}")
+async def serve_spa(path: str):
+    return FileResponse(f"frontend/dist/{path}" if path else "frontend/dist/index.html")
 
 
 if __name__ == "__main__":
