@@ -100,16 +100,6 @@ To access the platform from a mobile device on the same Wi-Fi network:
 - **[Cross Clue](./apps/cross_clue/README.md)** - A cooperative word-association party game (Phase 1: Game Logic & State Management complete)
 - **[Bingo (1-25 Variant)](./apps/bingo/README.md)** - A turn-based 5x5 number grid game with real-time multiplayer sync (All 4 Phases Complete)
 
-### Bingo Technical Breakdown
-
-**Real-Time Engine:** FastAPI WebSockets with rigorous turn-based gatekeeper logic and disconnect safeguards. Automatically removes disconnected players from the game state and advances the turn to prevent soft-locks.
-
-**O(1) Matrix Math:** Server-side win calculation utilizing derived state (`lines_completed`) to prevent client-server state conflicts. The backend validates all moves and calculates completed lines (rows, columns, diagonals) in real-time.
-
-**Scalable Sessions:** Support for dynamic, multi-user rooms with randomized unique identity generation. Each player receives a unique `user_id` on connection, enabling seamless multi-tab and multi-device gameplay.
-
-**UX Design:** 'Sequential Click' board setup that entirely eliminates keyboard input and duplicate validation errors. Players click empty cells to auto-assign the lowest available number (1-25); clicking filled cells reclaims the number for reuse.
-
 ## 🔌 Adding a New App
 
 1. Create a new directory in `apps/your_app_name/`

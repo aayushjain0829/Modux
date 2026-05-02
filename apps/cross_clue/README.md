@@ -13,51 +13,15 @@ A digital adaptation of the cooperative party game "Cross Clue", hosted on the M
   3. The rest of the team discusses and selects a coordinate on the shared grid.
   4. The system validates the guess, marks the grid (Success/Fail), and updates the shared state.
 
-## 🔌 WebSocket API
+## � Technical Breakdown
 
-### Client → Server Events
+**Real-Time Engine:** FastAPI WebSockets with session-based state management and targeted private messaging. The backend maintains separate public and private state channels to protect secret information (coordinates, active turn details) while broadcasting shared state to all players.
 
-- **init_game**: Initializes the grid, words, and deck for the session
-  ```json
-  {"action": "init_game", "user_id": "player1"}
-  ```
+**Grid-Based Coordinate Mapping:** 4x4 matrix with A-D row labels and 1-4 column labels. The system validates all coordinate guesses against the active secret card and updates the shared grid state in real-time.
 
-- **draw_card**: Draws a coordinate card from the deck (sent only to the requesting player)
-  ```json
-  {"action": "draw_card", "user_id": "player1"}
-  ```
+**State Synchronization:** Dual-channel architecture where public game state (grid markings, active clues, remaining deck) is broadcast to all players, while secret cards are delivered only to the requesting player via targeted WebSocket messages.
 
-- **submit_clue**: Submits a 1-word clue from the active player
-  ```json
-  {"action": "submit_clue", "clue": "bridge", "user_id": "player1"}
-  ```
-
-- **guess_coordinate**: Submits a coordinate guess from the team
-  ```json
-  {"action": "guess_coordinate", "guess": "B3", "user_id": "player2"}
-  ```
-
-- **get_state**: Requests the current game state
-  ```json
-  {"action": "get_state", "user_id": "player1"}
-  ```
-
-### Server → Client Events
-
-- **state_update**: Broadcasts the public game state to all players
-  ```json
-  {"type": "state_update", "data": {"row_words": [...], "col_words": [...], "grid_state": {...}, "active_clue": "...", "deck_remaining": 12}}
-  ```
-
-- **card_drawn**: Sends the secret coordinate only to the player who drew it
-  ```json
-  {"type": "card_drawn", "data": {"coordinate": "B3"}}
-  ```
-
-- **guess_result**: Broadcasts the result of a coordinate guess
-  ```json
-  {"type": "guess_result", "data": {"guess": "B3", "secret": "B3", "is_correct": true, "grid_state": {...}}}
-  ```
+**Scalable Sessions:** Support for dynamic, multi-user rooms with persistent session state. The game engine handles concurrent actions and maintains session integrity across multiple WebSocket connections.
 
 ## 🗺️ Application Execution Plan
 
@@ -100,9 +64,11 @@ A digital adaptation of the cooperative party game "Cross Clue", hosted on the M
 
 ## 🧪 Testing
 
-The interactive game interface in `CrossClue.jsx` provides real-time testing of the game state engine. The UI includes:
-- 4x4 interactive grid with coordinate selection
-- Active player console (draw card, secret coordinate display, clue submission)
-- Team view (incoming clue display, grid clicking for guesses)
-- Dynamic visual states (empty, success, fail indicators)
-- Responsive design for mobile and desktop testing
+To test the Cross Clue module locally:
+
+1. **Multi-Player Simulation:** Open two browser tabs and navigate to the same session URL (e.g., `/cross-clue/TEST01`). Each tab will generate a unique user ID via the global UserContext, simulating multiple players.
+2. **Game Initialization:** In one tab, click "Start Game" to initialize the grid with words and shuffle the coordinate deck. Verify both tabs receive the public game state with row and column words.
+3. **Card Drawing:** Click "Draw Card" to receive a secret coordinate. Verify the secret coordinate displays only in the active player's view.
+4. **Clue Submission:** Enter a 1-word clue and submit. Verify the clue appears in both tabs as the "Current Clue".
+5. **Coordinate Guessing:** In the second tab, click a coordinate on the grid to submit a guess. Verify the grid updates with success (green) or fail (red) indicators in both tabs.
+6. **Responsive Testing:** Resize the browser window or use mobile device emulation to verify the grid and UI adapt correctly to different screen sizes.
