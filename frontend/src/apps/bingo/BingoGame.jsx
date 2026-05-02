@@ -73,7 +73,8 @@ const BingoGame = () => {
       const data = JSON.parse(event.data);
       
       if (data.type === 'state_update') {
-        setGameState(data.data);
+        // Force new object reference to trigger React re-render
+        setGameState({ ...data.data });
       }
     };
 
