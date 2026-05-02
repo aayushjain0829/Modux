@@ -22,3 +22,6 @@ A turn-based, 5x5 grid game where players arrange numbers 1-25, take turns calli
 - [ ] **Phase 4: Win Condition & Edge Cases**
   - Handle the 'BINGO Stop' broadcast when a player hits 5 lines.
   - Manage edge cases: player disconnects during their turn, or attempting to call a number that has already been called.
+
+## Phase 5: Security & Quality of Life (Planned)
+- [ ] **State Sanitization:** Refactor the WebSocket broadcast logic to strip opponent board arrays from the payload. This ensures the frontend only receives the active player's board, preventing network-level cheating.
