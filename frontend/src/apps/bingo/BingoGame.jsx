@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useUser } from '../../context/UserContext';
 import BingoSetup from './components/BingoSetup';
 import BingoActive from './components/BingoActive';
 
 const BingoGame = () => {
   const { sessionId } = useParams();
   const navigate = useNavigate();
+  const { username, userId } = useUser();
+  
   const [gameState, setGameState] = useState({
     session_id: sessionId,
     status: 'setup',
@@ -15,8 +18,14 @@ const BingoGame = () => {
     winner: null,
     players: {}
   });
-  const [userId] = useState(() => 'user_' + Math.random().toString(36).substring(2, 9));
   const wsRef = useRef(null);
+
+  // Security check: redirect to lobby if username is empty
+  useEffect(() => {
+    if (!username || username.trim() === '') {
+      navigate('/lobby/bingo');
+    }
+  }, [username, navigate]);
 
   const sendMessage = (message) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -40,10 +49,10 @@ const BingoGame = () => {
     wsRef.current = new WebSocket(wsUrl);
 
     wsRef.current.onopen = () => {
-      // Join game on connection
+      // Join game on connection using global username
       sendMessage({
         action: 'join_game',
-        username: `Player_${userId.substring(5, 9)}`
+        username: username || `Player_${userId.substring(5, 9)}`
       });
     };
 
@@ -81,20 +90,7 @@ const BingoGame = () => {
         margin: '0 auto'
       }}>
         {!sessionId ? (
-          <div style={{
-            textAlign: 'center',
-            padding: '40px',
-            background: 'white',
-            borderRadius: '16px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-          }}>
-            <h2 style={{ color: '#dc3545', marginBottom: '20px' }}>
-              Error: No Session ID
-            </h2>
-            <p style={{ color: '#666' }}>
-              Please navigate to a valid Bingo session URL (e.g., /bingo/ABC123)
-            </p>
-          </div>
+          navigate('/lobby/bingo')
         ) : (
           <>
             <h1 style={{

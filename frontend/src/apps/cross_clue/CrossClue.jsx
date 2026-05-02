@@ -1,29 +1,23 @@
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import React, { useState, useEffect, useRef } from 'react'
+import { useUser } from '../../context/UserContext'
 
 function CrossClue() {
   const { sessionId } = useParams()
+  const navigate = useNavigate()
+  const { username, userId } = useUser()
   const [connected, setConnected] = useState(false)
   const [gameState, setGameState] = useState(null)
   const [secretCard, setSecretCard] = useState(null)
-  const [userId, setUserId] = useState('')
   const [clueInput, setClueInput] = useState('')
   const wsRef = useRef(null)
 
-  // Helper function to get or generate unique user ID
-  const getUserId = () => {
-    let id = sessionStorage.getItem('modux_user_id')
-    if (!id) {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-      let result = ''
-      for (let i = 0; i < 8; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length))
-      }
-      id = result
-      sessionStorage.setItem('modux_user_id', id)
+  // Security check: redirect to lobby if username is empty
+  useEffect(() => {
+    if (!username || username.trim() === '') {
+      navigate('/lobby/cross-clue')
     }
-    return id
-  }
+  }, [username, navigate])
 
   const sendMessage = (message) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -33,9 +27,11 @@ function CrossClue() {
   }
 
   useEffect(() => {
-    // Initialize user ID on component mount
-    const id = getUserId()
-    setUserId(id)
+    // Skip WebSocket connection if no sessionId
+    if (!sessionId) {
+      navigate('/lobby/cross-clue')
+      return
+    }
 
     const wsUrl = `ws://${window.location.hostname}:8000/ws/cross-clue/${sessionId}`
     
