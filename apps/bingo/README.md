@@ -9,7 +9,7 @@ A turn-based, 5x5 grid game where players arrange numbers 1-25, take turns calli
   - Implement WebSocket actions: 'join_game', 'submit_board' (validating a 1-25 array), and 'call_number'.
   - Implement round-robin turn progression logic.
 
-- [ ] **Phase 2: The Setup Phase (UI)**
+- [x] **Phase 2: The Setup Phase (UI)**
   - Build a React component for players to arrange their 1-25 grid before the game starts.
   - Include an 'Auto-Fill/Shuffle' utility button for faster testing.
   - Build a 'Waiting Room' state that holds until all players have submitted their boards.
