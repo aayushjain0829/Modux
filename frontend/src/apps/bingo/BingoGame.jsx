@@ -123,11 +123,20 @@ const BingoGame = () => {
         )}
 
         {gameState.status === 'finished' && (
-          <BingoActive
-            gameState={gameState}
-            userId={userId}
-            sendMessage={sendMessage}
-          />
+          <div style={{
+            textAlign: 'center',
+            padding: '40px',
+            background: 'white',
+            borderRadius: '16px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+          }}>
+            <h2 style={{ color: '#28a745', marginBottom: '20px' }}>
+              Game Over!
+            </h2>
+            <p style={{ fontSize: '1.2rem', color: '#333' }}>
+              Winner: {gameState.winner}
+            </p>
+          </div>
         )}
           </>
         )}
