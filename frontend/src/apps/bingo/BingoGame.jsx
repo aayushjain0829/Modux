@@ -8,6 +8,7 @@ const BingoGame = () => {
   const { sessionId } = useParams();
   const navigate = useNavigate();
   const { username, userId } = useUser();
+  const [copied, setCopied] = useState(false);
   
   const [gameState, setGameState] = useState({
     session_id: sessionId,
@@ -26,6 +27,15 @@ const BingoGame = () => {
       navigate('/lobby/bingo');
     }
   }, [username, navigate]);
+
+  // Handle copy session ID to clipboard
+  const handleCopySession = () => {
+    if (sessionId) {
+      navigator.clipboard.writeText(sessionId);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   const sendMessage = (message) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -93,6 +103,62 @@ const BingoGame = () => {
           navigate('/lobby/bingo')
         ) : (
           <>
+            {/* Room Header with Session ID */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '12px',
+              marginBottom: '20px',
+              padding: '12px 20px',
+              background: 'rgba(255, 255, 255, 0.15)',
+              borderRadius: '8px',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <span style={{
+                color: 'white',
+                fontSize: '0.9rem',
+                fontWeight: '500'
+              }}>
+                Room Code:
+              </span>
+              <span style={{
+                color: 'white',
+                fontSize: '1.1rem',
+                fontWeight: '700',
+                letterSpacing: '2px',
+                textTransform: 'uppercase'
+              }}>
+                {sessionId}
+              </span>
+              <button
+                onClick={handleCopySession}
+                style={{
+                  padding: '6px 12px',
+                  background: copied ? '#28a745' : 'rgba(255, 255, 255, 0.2)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '0.8rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  minWidth: '70px'
+                }}
+                onMouseOver={(e) => {
+                  if (!copied) {
+                    e.target.style.background = 'rgba(255, 255, 255, 0.3)';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (!copied) {
+                    e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+                  }
+                }}
+              >
+                {copied ? 'Copied!' : 'Copy'}
+              </button>
+            </div>
+
             <h1 style={{
               textAlign: 'center',
               color: 'white',
