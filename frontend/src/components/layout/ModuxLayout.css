@@ -1,0 +1,330 @@
+.modux-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.modux-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modux-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modux-menu-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: white;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modux-menu-toggle:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.modux-leave-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modux-leave-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.modux-app-name {
+  color: white;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.modux-session-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+}
+
+.modux-room-label {
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.modux-session-id {
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.modux-copy-button {
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 60px;
+}
+
+.modux-copy-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.modux-copy-button.copied {
+  background: #28a745;
+}
+
+.modux-body {
+  display: flex;
+  flex: 1;
+  padding: 20px;
+  gap: 20px;
+}
+
+.modux-sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modux-sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modux-sidebar-title {
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.modux-sidebar-close {
+  display: none;
+  color: rgba(255, 255, 255, 0.6);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.modux-sidebar-close:hover {
+  color: white;
+}
+
+.modux-players-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.modux-player-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.modux-player-item:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.modux-player-status {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.modux-player-status.ready {
+  background-color: #28a745;
+  box-shadow: 0 0 8px rgba(40, 167, 69, 0.5);
+}
+
+.modux-player-status.not-ready {
+  background-color: #dc3545;
+  box-shadow: 0 0 8px rgba(220, 53, 69, 0.5);
+}
+
+.modux-player-name {
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.modux-main-content {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  overflow: auto;
+}
+
+.modux-no-players {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+  text-align: center;
+  margin: 20px 0;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .modux-header {
+    padding: 12px 16px;
+  }
+
+  .modux-menu-toggle {
+    display: flex;
+  }
+
+  .modux-leave-button span {
+    display: none;
+  }
+
+  .modux-app-name {
+    font-size: 1.2rem;
+  }
+
+  .modux-session-info {
+    padding: 6px 12px;
+    gap: 8px;
+  }
+
+  .modux-room-label {
+    font-size: 0.75rem;
+  }
+
+  .modux-session-id {
+    font-size: 0.9rem;
+  }
+
+  .modux-body {
+    flex-direction: column;
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .modux-sidebar {
+    display: none;
+    width: 90%;
+    max-width: 350px;
+    position: fixed;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+  }
+
+  .modux-sidebar.open {
+    display: block;
+  }
+
+  .modux-sidebar-close {
+    display: block;
+  }
+
+  .modux-main-content {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modux-header {
+    padding: 8px 12px;
+  }
+
+  .modux-leave-button {
+    padding: 6px 12px;
+  }
+
+  .modux-app-name {
+    font-size: 1rem;
+  }
+
+  .modux-session-info {
+    padding: 4px 8px;
+  }
+
+  .modux-session-id {
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+  }
+
+  .modux-copy-button {
+    padding: 2px 6px;
+    font-size: 0.7rem;
+    min-width: 50px;
+  }
+
+  .modux-body {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .modux-sidebar {
+    width: 95%;
+    max-width: 320px;
+    top: 50px;
+  }
+
+  .modux-main-content {
+    padding: 12px;
+  }
+}

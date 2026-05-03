@@ -145,9 +145,9 @@ To access the platform from a mobile device on the same Wi-Fi network:
 - [x] Refactor all apps to consume global UserContext and remove isolated lobby logic
 
 ### Phase 4.1: The Modux Platform Shell & Game Lifecycle
-- [ ] Develop `<ModuxLayout>` persistent platform shell to standardize UI rendering across all apps
-- [ ] Implement persistent Left-Sidebar Player List (tracks real-time connections, readiness, and active turns)
-- [ ] Standardize platform header (Room Code, App Name, and 'Copy Invite Link' utility)
+- [x] Develop `<ModuxLayout>` persistent platform shell to standardize UI rendering across all apps
+- [x] Implement persistent Left-Sidebar Player List (tracks real-time connections, readiness, and active turns)
+- [x] Standardize platform header (Room Code, App Name, and 'Copy Invite Link' utility)
 - [ ] Build **Lobby** stage: Universal gathering point with Host-controlled, transparent game configurations
 - [ ] Build **Prepare** stage: Optional dynamic routing for game-specific loadouts (e.g., Bingo boards)
 - [ ] Build **Action** stage: Core gameplay container with global Spectator Mode for late-joiners
