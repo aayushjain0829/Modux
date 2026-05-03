@@ -19,12 +19,7 @@ function CrossClue() {
   const [currentStage, setCurrentStage] = useState('lobby') // lobby, setup, arena, recap
   const wsRef = useRef(null)
 
-  // Security check: redirect to portal if username is empty
-  useEffect(() => {
-    if (!username || username.trim() === '') {
-      navigate('/portal/cross-clue')
-    }
-  }, [username, navigate])
+  // Username will be handled with fallback in WebSocket join message
 
   // Handle stage transitions based on game state
   useEffect(() => {
@@ -136,11 +131,16 @@ function CrossClue() {
   }
 
   // Derive players array from gameState.players object
-  const playerArray = Object.keys(gameState?.players || {}).map(id => ({
-    id,
-    name: gameState.players[id]?.username || id,
-    isReady: gameState.players[id]?.is_ready || false
-  }))
+  const playerArray = Object.keys(gameState?.players || {}).map(id => {
+    const player = gameState.players[id];
+    return {
+      id,
+      name: player?.username || id,
+      is_ready: player?.is_ready || false,
+      has_submitted: player?.has_submitted || false,
+      is_spectator: player?.is_spectator || false
+    };
+  });
 
   const isHost = gameState?.host_id === userId
 
@@ -171,6 +171,7 @@ function CrossClue() {
             gameConfig={{ mode: 'cooperative', grid: '5x5' }}
             onToggleReady={handleToggleReady}
             onStartGame={handleStartGame}
+            currentUserId={userId}
           />
         )
       case 'setup':
