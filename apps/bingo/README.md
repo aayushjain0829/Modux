@@ -25,6 +25,23 @@ A turn-based, 5x5 grid game where players arrange numbers 1-25, take turns calli
 
 **UX Design:** 'Sequential Click' board setup that entirely eliminates keyboard input and duplicate validation errors. Players click empty cells to auto-assign the lowest available number (1-25); clicking filled cells reclaims the number for reuse.
 
+## 🏗️ Phase 4.1 Integration
+
+Bingo now follows the standardized Modux platform lifecycle:
+
+- **Portal → Lobby → Setup → Arena → Recap**: Universal entry through shared Portal, then progresses through standardized stages
+- **ModuxLayout Shell**: Persistent platform UI with player sidebar and session management
+- **Modular Components**: Separated concerns with dedicated components for each stage
+
+## 🧩 Component Architecture
+
+**Main Container:**
+- `BingoGame.jsx` - Orchestrates stage transitions and WebSocket management
+
+**Stage Components:**
+- `BingoSetup.jsx` - Handles board generation and number selection
+- `BingoActive.jsx` - Manages active gameplay, turn tracking, and number calling
+
 ## 🗺️ Application Execution Plan
 
 - [x] **Phase 1: Backend State Engine & Turn Logic**

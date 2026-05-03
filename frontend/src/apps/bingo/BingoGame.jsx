@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useUser } from '../../context/UserContext';
 import ModuxLayout from '../../components/layout/ModuxLayout';
+import LobbyStage from '../../components/stages/LobbyStage';
+import SetupStage from '../../components/stages/SetupStage';
+import ArenaStage from '../../components/stages/ArenaStage';
+import RecapStage from '../../components/stages/RecapStage';
 import BingoSetup from './components/BingoSetup';
 import BingoActive from './components/BingoActive';
 
@@ -12,13 +16,14 @@ const BingoGame = () => {
   
   const [gameState, setGameState] = useState({
     session_id: sessionId,
-    status: 'setup',
+    status: 'lobby',
     turn_order: [],
     current_turn_index: 0,
     called_numbers: [],
     winner: null,
     players: {}
   });
+  const [currentStage, setCurrentStage] = useState('lobby'); // lobby, setup, arena, recap
   const wsRef = useRef(null);
 
   // Security check: redirect to portal if username is empty
@@ -27,6 +32,29 @@ const BingoGame = () => {
       navigate('/portal/bingo');
     }
   }, [username, navigate]);
+
+  // Handle stage transitions based on game state
+  useEffect(() => {
+    if (gameState) {
+      if (gameState.status === 'lobby') {
+        setCurrentStage('lobby')
+      } else if (gameState.status === 'setup') {
+        setCurrentStage('setup')
+      } else if (gameState.status === 'active') {
+        setCurrentStage('arena')
+      } else if (gameState.status === 'completed') {
+        setCurrentStage('recap')
+      }
+    }
+  }, [gameState])
+
+  // Dev toggle functionality
+  const handleDevToggle = () => {
+    const stages = ['lobby', 'setup', 'arena', 'recap']
+    const currentIndex = stages.indexOf(currentStage)
+    const nextIndex = (currentIndex + 1) % stages.length
+    setCurrentStage(stages[nextIndex])
+  }
 
   // Handle leave game
   const handleLeave = () => {
@@ -37,7 +65,7 @@ const BingoGame = () => {
   const playerArray = Object.keys(gameState.players).map(id => ({
     id,
     name: gameState.players[id]?.username || id,
-    isReady: true
+    isReady: gameState.players[id]?.is_ready || false
   }));
 
   const sendMessage = (message) => {
@@ -94,120 +122,105 @@ const BingoGame = () => {
   }, [sessionId]);
 
   if (!sessionId) {
-    navigate('/lobby/bingo');
+    navigate('/portal/bingo');
     return null;
   }
 
-  return (
-    <ModuxLayout
-      appName="Bingo"
-      sessionId={sessionId}
-      players={playerArray}
-      onLeave={handleLeave}
-    >
-      {gameState.status === 'setup' && (
+  // Handle stage transitions
+  const handleToggleReady = () => {
+    sendMessage({
+      type: 'toggle_ready',
+      user_id: userId
+    })
+  }
+
+  const handleStartGame = () => {
+    sendMessage({
+      type: 'start_game',
+      user_id: userId
+    })
+  }
+
+  // Render based on current stage
+  const renderStageContent = () => {
+    switch (currentStage) {
+      case 'lobby':
+        return (
+          <LobbyStage
+            isHost={gameState?.host_id === userId}
+            players={playerArray}
+            gameConfig={{}} // Empty config for Bingo
+            onToggleReady={handleToggleReady}
+            onStartGame={handleStartGame}
+          />
+        )
+      case 'setup':
+        return (
           <BingoSetup
             gameState={gameState}
             userId={userId}
             sendMessage={sendMessage}
           />
-        )}
-
-        {gameState.status === 'playing' && (
+        )
+      case 'arena':
+        return (
           <BingoActive
             gameState={gameState}
             userId={userId}
             sendMessage={sendMessage}
           />
-        )}
+        )
+      case 'recap':
+        return (
+          <RecapStage />
+        )
+      default:
+        return <div>Loading...</div>
+    }
+  }
 
-        {gameState.status === 'finished' && (
-          <div style={{
-            textAlign: 'center',
-            padding: '40px',
-            background: 'white',
-            borderRadius: '16px',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-          }}>
-            {/* BINGO Stop Banner */}
-            <div style={{
-              background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
-              color: 'white',
-              padding: '20px',
-              borderRadius: '12px',
-              marginBottom: '30px',
-              fontSize: '2rem',
-              fontWeight: '700',
-              textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
-              animation: 'pulse 2s infinite'
-            }}>
-              🎉 BINGO STOP! 🎉
-            </div>
-            
-            {/* Winner Announcement */}
-            <div style={{
-              background: '#f8f9fa',
-              padding: '25px',
-              borderRadius: '12px',
-              marginBottom: '25px',
-              border: '2px solid #28a745'
-            }}>
-              <h2 style={{ color: '#28a745', marginBottom: '15px' }}>
-                🏆 Winner! 🏆
-              </h2>
-              <p style={{ fontSize: '1.5rem', color: '#333', fontWeight: '600' }}>
-                {gameState.players[gameState.winner]?.username || 'Unknown Player'}
-              </p>
-              <p style={{ color: '#666', fontSize: '1rem', marginTop: '10px' }}>
-                (ID: {gameState.winner})
-              </p>
-            </div>
-            
-            {/* Action Buttons */}
-            <div style={{
-              display: 'flex',
-              gap: '15px',
-              justifyContent: 'center',
-              flexWrap: 'wrap'
-            }}>
-              <button
-                onClick={() => navigate('/')}
-                style={{
-                  padding: '12px 24px',
-                  background: '#667eea',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '1rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-                onMouseOver={(e) => e.target.style.background = '#5568d3'}
-                onMouseOut={(e) => e.target.style.background = '#667eea'}
-              >
-                Return to Lobby
-              </button>
-              <button
-                onClick={() => window.location.reload()}
-                style={{
-                  padding: '12px 24px',
-                  background: '#28a745',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '1rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-                onMouseOver={(e) => e.target.style.background = '#218838'}
-                onMouseOut={(e) => e.target.style.background = '#28a745'}
-              >
-                Play Again
-              </button>
-            </div>
-          </div>
-        )}
-    </ModuxLayout>
+  return (
+    <>
+      <ModuxLayout
+        appName="Bingo"
+        sessionId={sessionId}
+        players={playerArray}
+        onLeave={handleLeave}
+      >
+        {renderStageContent()}
+      </ModuxLayout>
+      
+      {/* Dev Toggle Button */}
+      <button
+        onClick={handleDevToggle}
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          padding: '12px 20px',
+          background: '#667eea',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          fontSize: '0.9rem',
+          fontWeight: '600',
+          boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+          zIndex: 1000,
+          transition: 'all 0.2s'
+        }}
+        onMouseOver={(e) => {
+          e.target.style.transform = 'translateY(-2px)';
+          e.target.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.4)';
+        }}
+        onMouseOut={(e) => {
+          e.target.style.transform = 'translateY(0)';
+          e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.3)';
+        }}
+      >
+        Dev Toggle: {currentStage.toUpperCase()}
+      </button>
+    </>
   );
 };
 

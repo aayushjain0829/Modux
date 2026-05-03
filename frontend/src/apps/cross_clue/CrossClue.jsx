@@ -3,6 +3,9 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useUser } from '../../context/UserContext'
 import ModuxLayout from '../../components/layout/ModuxLayout'
 import LobbyStage from '../../components/stages/LobbyStage'
+import SetupStage from '../../components/stages/SetupStage'
+import ArenaStage from '../../components/stages/ArenaStage'
+import RecapStage from '../../components/stages/RecapStage'
 import CrossClueSetup from './components/CrossClueSetup'
 import CrossClueArena from './components/CrossClueArena'
 
@@ -13,7 +16,7 @@ function CrossClue() {
   const [connected, setConnected] = useState(false)
   const [gameState, setGameState] = useState(null)
   const [secretCard, setSecretCard] = useState(null)
-  const [currentStage, setCurrentStage] = useState('lobby') // lobby, setup, arena
+  const [currentStage, setCurrentStage] = useState('lobby') // lobby, setup, arena, recap
   const wsRef = useRef(null)
 
   // Security check: redirect to portal if username is empty
@@ -32,9 +35,19 @@ function CrossClue() {
         setCurrentStage('setup')
       } else if (gameState.status === 'active') {
         setCurrentStage('arena')
+      } else if (gameState.status === 'completed') {
+        setCurrentStage('recap')
       }
     }
   }, [gameState])
+
+  // Dev toggle functionality
+  const handleDevToggle = () => {
+    const stages = ['lobby', 'setup', 'arena', 'recap']
+    const currentIndex = stages.indexOf(currentStage)
+    const nextIndex = (currentIndex + 1) % stages.length
+    setCurrentStage(stages[nextIndex])
+  }
 
   const sendMessage = (message) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -162,21 +175,15 @@ function CrossClue() {
         )
       case 'setup':
         return (
-          <CrossClueSetup
-            gameState={gameState}
-            userId={userId}
-            sendMessage={sendMessage}
-            onTransitionToArena={() => setCurrentStage('arena')}
-          />
+          <SetupStage />
         )
       case 'arena':
         return (
-          <CrossClueArena
-            gameState={gameState}
-            userId={userId}
-            sendMessage={sendMessage}
-            secretCard={secretCard}
-          />
+          <ArenaStage isSpectator={false} />
+        )
+      case 'recap':
+        return (
+          <RecapStage />
         )
       default:
         return <div>Loading...</div>
@@ -184,14 +191,47 @@ function CrossClue() {
   }
 
   return (
-    <ModuxLayout
-      appName="Cross Clue"
-      sessionId={sessionId}
-      players={playerArray}
-      onLeave={handleLeave}
-    >
-      {renderStageContent()}
-    </ModuxLayout>
+    <>
+      <ModuxLayout
+        appName="Cross Clue"
+        sessionId={sessionId}
+        players={playerArray}
+        onLeave={handleLeave}
+      >
+        {renderStageContent()}
+      </ModuxLayout>
+      
+      {/* Dev Toggle Button */}
+      <button
+        onClick={handleDevToggle}
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          padding: '12px 20px',
+          background: '#667eea',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          fontSize: '0.9rem',
+          fontWeight: '600',
+          boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+          zIndex: 1000,
+          transition: 'all 0.2s'
+        }}
+        onMouseOver={(e) => {
+          e.target.style.transform = 'translateY(-2px)';
+          e.target.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.4)';
+        }}
+        onMouseOut={(e) => {
+          e.target.style.transform = 'translateY(0)';
+          e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.3)';
+        }}
+      >
+        Dev Toggle: {currentStage.toUpperCase()}
+      </button>
+    </>
   )
 }
 
