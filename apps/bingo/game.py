@@ -97,12 +97,20 @@ class BingoGameManager:
         
         if can_start:
             game_state.status = 'setup'
-            # Reset all players' ready and submitted status
+            
+            # Reset game state for new game
+            game_state.called_numbers = []
+            game_state.winner = None
+            game_state.current_turn_index = 0
+            
+            # Reset all players' game state
             for player_id in game_state.players:
                 game_state.players[player_id].is_ready = False
                 game_state.players[player_id].has_submitted = False
-                # Reset all players to recap stage (they'll be moved to setup by frontend)
-                game_state.players[player_id].player_stage = 'recap'
+                game_state.players[player_id].board = []
+                game_state.players[player_id].lines_completed = 0
+                # Reset all players to setup stage for new game
+                game_state.players[player_id].player_stage = 'setup'
         
         return game_state
 
