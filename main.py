@@ -228,6 +228,20 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
                             game_state = game_manager.submit_board(session_id, user_id, board)
                             await manager.broadcast_state(app_name, session_id, game_state.model_dump())
                     
+                    elif action == "start_game":
+                        game_state = game_manager.start_game(session_id, user_id)
+                        await manager.broadcast_state(app_name, session_id, game_state.model_dump())
+                    
+                    elif action == "play_again":
+                        game_state = game_manager.play_again(session_id, user_id)
+                        await manager.broadcast_state(app_name, session_id, game_state.model_dump())
+                    
+                    elif action == "leave_game":
+                        game_state = game_manager.leave_game(session_id, user_id)
+                        await manager.broadcast_state(app_name, session_id, game_state.model_dump())
+                        # Disconnect the user
+                        manager.disconnect(websocket, app_name, session_id)
+                    
                     elif action == "call_number":
                         number = message.get("number")
                         if number is not None:

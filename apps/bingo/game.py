@@ -47,6 +47,63 @@ class BingoGameManager:
         
         return game_state
 
+    def start_game(self, session_id: str, user_id: str) -> BingoGameState:
+        game_state = self.get_session(session_id)
+        
+        # Only host can start game
+        if len(game_state.turn_order) > 0 and user_id != game_state.turn_order[0]:
+            return game_state
+        
+        if game_state.status == 'waiting':
+            game_state.status = 'setup'
+        
+        return game_state
+
+    def play_again(self, session_id: str, user_id: str) -> BingoGameState:
+        game_state = self.get_session(session_id)
+        
+        # Only host can play again
+        if len(game_state.turn_order) > 0 and user_id != game_state.turn_order[0]:
+            return game_state
+        
+        # Reset game state but keep players
+        game_state.status = 'waiting'
+        game_state.called_numbers = []
+        game_state.winner = None
+        game_state.current_turn_index = 0
+        
+        # Reset player boards and ready status
+        for player_id in game_state.turn_order:
+            if player_id in game_state.players:
+                game_state.players[player_id].board = []
+                game_state.players[player_id].is_ready = False
+                game_state.players[player_id].lines_completed = 0
+        
+        return game_state
+
+    def leave_game(self, session_id: str, user_id: str) -> BingoGameState:
+        game_state = self.get_session(session_id)
+        
+        # Remove player from game
+        if user_id in game_state.players:
+            del game_state.players[user_id]
+        
+        # Remove from turn order
+        if user_id in game_state.turn_order:
+            player_index = game_state.turn_order.index(user_id)
+            game_state.turn_order.remove(user_id)
+            
+            # If it was their turn, advance to next player
+            if player_index == game_state.current_turn_index and game_state.turn_order:
+                game_state.current_turn_index = game_state.current_turn_index % len(game_state.turn_order)
+        
+        # If no players left, clean up session
+        if len(game_state.turn_order) == 0:
+            if session_id in self.sessions:
+                del self.sessions[session_id]
+        
+        return game_state
+
     def call_number(self, session_id: str, user_id: str, number: int) -> BingoGameState:
         game_state = self.get_session(session_id)
         
