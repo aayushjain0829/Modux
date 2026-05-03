@@ -110,29 +110,33 @@ function ModuxLayout({ appName, sessionId, players = [], gameState, onLeave, chi
                 No players yet
               </p>
             ) : (
-              players.map((player, index) => (
+              players.map((player, index) => {
+                const statusClass = 
+                  // Check individual player stage first
+                  player.player_stage === 'lobby'
+                    ? (player.is_ready ? 'ready' : 'not-ready')
+                    : gameState?.status === 'waiting'
+                      ? (player.is_ready ? 'ready' : 'not-ready')
+                      : player.is_spectator 
+                        ? 'spectator'
+                        : gameState?.status === 'setup' 
+                          ? (player.has_submitted ? 'submitted' : 'not-submitted')
+                          : gameState?.status === 'playing' 
+                            ? 'ready'  // All players are ready in Arena
+                            : gameState?.status === 'finished'
+                              ? 'ready'  // All players are ready in Recap
+                              : (player.is_ready ? 'ready' : 'not-ready');
+                
+                console.log('ModuxLayout: Status', {name: player.name, is_ready: player.is_ready, statusClass, gameStatus: gameState?.status});
+                
+                return (
                 <div
                   key={player.id || index}
                   className="modux-player-item"
                 >
                   {/* Status Indicator */}
                   <span
-                    className={`modux-player-status ${
-                      // Check individual player stage first
-                      player.player_stage === 'lobby'
-                        ? (player.is_ready ? 'ready' : 'not-ready')
-                        : gameState?.status === 'waiting'
-                          ? (player.is_ready ? 'ready' : 'not-ready')
-                          : player.is_spectator 
-                            ? 'spectator'
-                            : gameState?.status === 'setup' 
-                              ? (player.has_submitted ? 'submitted' : 'not-submitted')
-                              : gameState?.status === 'playing' 
-                                ? 'ready'  // All players are ready in Arena
-                                : gameState?.status === 'finished'
-                                  ? 'ready'  // All players are ready in Recap
-                                  : (player.is_ready ? 'ready' : 'not-ready')
-                    }`}
+                    className={`modux-player-status ${statusClass}`}
                   >
                     {
                       // Check individual player stage first
@@ -151,7 +155,8 @@ function ModuxLayout({ appName, sessionId, players = [], gameState, onLeave, chi
                     {player.name || 'Unknown'}
                   </span>
                 </div>
-              ))
+                );
+              })
             )}
           </div>
         </aside>

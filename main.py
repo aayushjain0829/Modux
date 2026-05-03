@@ -188,6 +188,16 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
                         game_state = game_manager.toggle_ready(session_id, user_id)
                         await manager.broadcast_state(app_name, session_id, game_state.model_dump())
                     
+                    elif action == "update_config":
+                        # Only host can update config
+                        game_state = game_manager.get_session(session_id)
+                        if game_state.host_id == user_id:
+                            turn_timer = message.get("turn_timer")
+                            game_timer = message.get("game_timer")
+                            result = game_manager.update_config(session_id, turn_timer, game_timer)
+                            if result:
+                                await manager.broadcast_state(app_name, session_id, result.model_dump())
+                    
                     elif action == "start_game":
                         game_state = game_manager.start_game(session_id, user_id)
                         await manager.broadcast_state(app_name, session_id, game_state.model_dump())
@@ -216,14 +226,14 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
                     
                     elif action == "submit_clue":
                         clue = message.get("clue")
-                        if clue and game_manager.submit_clue(session_id, clue):
+                        if clue and game_manager.submit_clue(session_id, user_id, clue):
                             await manager.broadcast_state(app_name, session_id, game_state.model_dump())
                     
                     elif action == "guess_coordinate":
                         # Support both "guess" and "coordinate" keys
                         guess = message.get("guess") or message.get("coordinate")
                         if guess:
-                            result = game_manager.guess_coordinate(session_id, guess)
+                            result = game_manager.guess_coordinate(session_id, user_id, guess)
                             if result:
                                 await manager.broadcast(json.dumps({
                                     "type": "guess_result",
@@ -231,6 +241,37 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
                                 }), app_name, session_id)
                                 # Broadcast updated state
                                 await manager.broadcast_state(app_name, session_id, game_state.model_dump())
+                    
+                    elif action == "action_timeout":
+                        result = game_manager.action_timeout(session_id)
+                        if result:
+                            await manager.broadcast(json.dumps({
+                                "type": "timeout_result",
+                                "data": result
+                            }), app_name, session_id)
+                            # Broadcast updated state
+                            await manager.broadcast_state(app_name, session_id, game_state.model_dump())
+                    
+                    elif action == "game_timeout":
+                        result = game_manager.game_timeout(session_id)
+                        if result:
+                            await manager.broadcast(json.dumps({
+                                "type": "game_timeout_result",
+                                "data": result
+                            }), app_name, session_id)
+                            # Broadcast updated state
+                            await manager.broadcast_state(app_name, session_id, game_state.model_dump())
+                    
+                    elif action == "submit_vote":
+                        coordinate = message.get("coordinate")
+                        result = game_manager.submit_vote(session_id, user_id, coordinate)
+                        if result:
+                            await manager.broadcast(json.dumps({
+                                "type": "vote_result",
+                                "data": result
+                            }), app_name, session_id)
+                            # Broadcast updated state
+                            await manager.broadcast_state(app_name, session_id, game_state.model_dump())
                 
                 elif app_name == "bingo" and game_manager:
                     if action == "join_game":

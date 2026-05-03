@@ -188,3 +188,8 @@ To access the platform from a mobile device on the same Wi-Fi network:
 - [ ] Implement session creator as 'Host Node' for state management
 - [ ] Replace WebSockets with WebRTC for direct device-to-device communication
 - [ ] Ensure ultra-low latency and true offline local network play
+
+## 📋 TODO
+
+### CrossClue Game Issues
+- [ ] **Game Duration Display**: Fix game duration showing "0m 0s" on recap screen. The issue appears to be with timestamp handling between backend (Unix timestamps in seconds) and frontend (JavaScript timestamps in milliseconds). Need to ensure proper timestamp conversion and storage when game ends.

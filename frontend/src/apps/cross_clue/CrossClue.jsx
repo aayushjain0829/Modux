@@ -51,30 +51,26 @@ function CrossClue() {
     websocket.onmessage = (event) => {
       try {
         const parsed = JSON.parse(event.data)
-        console.log('CrossClue: Received WebSocket message:', parsed)
         
         // Handle secret_update messages (private secret card)
         if (parsed.type === 'secret_update') {
           const coordinate = parsed.secret_card
-          console.log('CrossClue: Received secret card:', coordinate)
           setSecretCard(coordinate)
         }
         // Handle state_update messages (public game state)
         else if (parsed.type === 'state_update' && parsed.data) {
-          console.log('CrossClue: Received state update:', parsed.data)
           // Force new object reference to trigger React re-render
           setGameState({ ...parsed.data });
         }
         // Handle guess_result messages
         else if (parsed.type === 'guess_result' && parsed.data) {
-          console.log('CrossClue: Received guess result:', parsed.data)
           setGameState(prev => ({
             ...prev,
             grid_state: parsed.data.grid_state
           }))
         }
       } catch (e) {
-        console.error('CrossClue: WebSocket message parse error:', e)
+        // Ignore JSON parse errors
       }
     }
 
@@ -114,7 +110,7 @@ function CrossClue() {
   // Derive players array from gameState.players object
   const playerArray = Object.keys(gameState?.players || {}).map(id => {
     const player = gameState.players[id];
-    return {
+    const playerData = {
       id,
       name: player?.username || id,
       is_ready: player?.is_ready || false,
@@ -122,6 +118,8 @@ function CrossClue() {
       is_spectator: player?.is_spectator || false,
       player_stage: player?.player_stage || 'recap'
     };
+    console.log('CrossClue: Player data', {id, is_ready: playerData.is_ready, name: playerData.name});
+    return playerData;
   });
 
   const isHost = gameState?.turn_order?.[0] === userId
@@ -145,16 +143,8 @@ function CrossClue() {
   
   // Render based on backend game state status and individual player stage
   const renderStageContent = () => {
-    console.log('CrossClue: renderStageContent called', {
-      gameState: gameState,
-      gameStateStatus: gameState?.status,
-      userId: userId,
-      isHost: isHost
-    });
-    
     // Guard clause for null gameState
     if (!gameState) {
-      console.log('CrossClue: gameState is null, rendering Loading');
       return <div>Loading game state...</div>;
     }
     
@@ -163,50 +153,42 @@ function CrossClue() {
     const isSpectator = currentPlayer?.is_spectator || false;
     const playerStage = currentPlayer?.player_stage;
     
-    console.log('CrossClue: Player checks', {
-      currentPlayer: currentPlayer,
-      isSpectator: isSpectator,
-      playerStage: playerStage
-    });
-    
     // If game is finished and player is in lobby stage, show lobby
     if (gameState.status === 'finished' && playerStage === 'lobby') {
-      console.log('CrossClue: Rendering Lobby stage (finished + player in lobby)');
       return (
         <LobbyStage
           isHost={isHost}
           players={playerArray}
-          gameConfig={{ mode: 'cooperative', grid: '5x5' }}
+          gameConfig={{ mode: 'cooperative', grid: '4x4' }}
           onToggleReady={handleToggleReady}
           onStartGame={handleStartGame}
           currentUserId={userId}
+          gameState={gameState}
+          sendMessage={sendMessage}
         />
       )
     }
     
     // Show spectator view for spectators in playing stage
     if (isSpectator && gameState.status === 'playing') {
-      console.log('CrossClue: Rendering Spectator view');
       return <SpectatorView />;
     }
     
-    console.log('CrossClue: Rendering based on status:', gameState.status);
-    
     switch (gameState.status) {
       case 'waiting':
-        console.log('CrossClue: Rendering Lobby stage (waiting)');
         return (
           <LobbyStage
             isHost={isHost}
             players={playerArray}
-            gameConfig={{ mode: 'cooperative', grid: '5x5' }}
+            gameConfig={{ mode: 'cooperative', grid: '4x4' }}
             onToggleReady={handleToggleReady}
             onStartGame={handleStartGame}
             currentUserId={userId}
+            gameState={gameState}
+            sendMessage={sendMessage}
           />
         )
       case 'playing':
-        console.log('CrossClue: Rendering CrossClueArena stage (playing)');
         return (
           <CrossClueArena
             gameState={gameState}
@@ -216,7 +198,6 @@ function CrossClue() {
           />
         )
       case 'finished':
-        console.log('CrossClue: Rendering Recap stage');
         return (
           <CrossClueRecap
             gameState={gameState}
@@ -226,7 +207,6 @@ function CrossClue() {
           />
         )
       default:
-        console.log('CrossClue: Rendering Loading state');
         return <div>Loading...</div>
     }
   }
@@ -236,6 +216,7 @@ function CrossClue() {
       appName="Cross Clue"
       sessionId={sessionId}
       players={playerArray}
+      gameState={gameState}
       onLeave={handleLeave}
     >
       {renderStageContent()}

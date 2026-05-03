@@ -1,6 +1,12 @@
 import random
+import time
 from typing import Dict, Optional, List
 from .models import CrossClueGameState, CrossCluePlayer
+
+
+def get_current_timestamp() -> float:
+    """Get current Unix timestamp"""
+    return time.time()
 
 # Word bank for Cross Clue game
 WORD_BANK = [
@@ -58,7 +64,9 @@ class CrossClueGameManager:
         
         # Add player if not already in game
         if user_id not in game_state.players:
+            # Create player and set as ready by default (cooperative game)
             player = CrossCluePlayer(username=username)
+            player.is_ready = True  # Explicitly set ready status
             
             # Mark as spectator if game not in waiting status
             if game_state.status != 'waiting':
@@ -84,6 +92,21 @@ class CrossClueGameManager:
         
         return game_state
 
+    def update_config(self, session_id: str, turn_timer: int = 60, game_timer: int = 300) -> CrossClueGameState:
+        """Update game configuration (host only, in waiting or finished stage)"""
+        game_state = self.get_session(session_id)
+        
+        if game_state.status not in ['waiting', 'finished']:
+            return game_state
+        
+        # Update timers if provided
+        if turn_timer is not None:
+            game_state.turn_timer = turn_timer
+        if game_timer is not None:
+            game_state.game_timer = game_timer
+        
+        return game_state
+
     def start_game(self, session_id: str, user_id: str) -> CrossClueGameState:
         """Start the game"""
         game_state = self.get_session(session_id)
@@ -99,22 +122,47 @@ class CrossClueGameManager:
         )
         
         if can_start:
-            game_state.status = 'playing'  # CrossClue goes directly to playing (no setup needed)
             # Initialize game content
             self.init_game(session_id)
-            # Reset all players to recap stage
+            
+            # Set initial roles (need at least 2 players)
+            if len(game_state.turn_order) >= 2:
+                # Set initial turn
+                game_state.active_giver_id = game_state.turn_order[0]
+                game_state.active_guesser_id = game_state.turn_order[1] if len(game_state.turn_order) > 1 else game_state.turn_order[0]
+                game_state.turn_phase = 'giving_clue'
+                
+                # Set initial action deadline for entire turn
+                game_state.action_deadline = get_current_timestamp() + game_state.turn_timer
+            
+            # Reset game variables
+            game_state.score = 0
+            game_state.misses = 0
+            
+            # Set game start time
+            game_state.game_start_time = get_current_timestamp()
+            
+            # Transition to playing
+            game_state.status = 'playing'
+            
+            # Reset all players to playing stage
             for player_id in game_state.players:
-                game_state.players[player_id].is_ready = False
-                game_state.players[player_id].player_stage = 'recap'
+                game_state.players[player_id].player_stage = 'playing'
         
         return game_state
 
     def draw_card(self, session_id: str, user_id: str) -> Optional[str]:
         """Draw a card from the deck for a user"""
         game_state = self.get_session(session_id)
+        
         if not game_state or not game_state.deck:
             return None
         
+        # Only allow active giver to draw card
+        if game_state.active_giver_id != user_id:
+            return None
+        
+        # Allow drawing a new card even if active_turn exists (for new turns)
         coordinate = game_state.deck.pop()
         game_state.active_turn = {
             'user_id': user_id,
@@ -123,19 +171,33 @@ class CrossClueGameManager:
         }
         return coordinate
 
-    def submit_clue(self, session_id: str, clue: str) -> bool:
-        """Submit a clue from the active player"""
+    def submit_clue(self, session_id: str, user_id: str, clue: str) -> bool:
+        """Submit a clue (optional for local games)"""
         game_state = self.get_session(session_id)
-        if not game_state or not game_state.active_turn:
+        
+        # Check if it's the clue giver's turn
+        if (game_state.status != 'playing' or 
+            game_state.active_giver_id != user_id or 
+            not game_state.active_turn):
             return False
         
+        # Store the clue (optional, for reference)
         game_state.active_turn['clue'] = clue
+        game_state.current_clue = clue  # Make visible to all players
+        
+        # Don't transition to guessing phase - let players communicate vocally
+        # The turn continues with the same timer
+        
         return True
 
-    def guess_coordinate(self, session_id: str, guess: str) -> Optional[Dict]:
-        """Process a coordinate guess and return result"""
+    def guess_coordinate(self, session_id: str, user_id: str, guess: str) -> Optional[Dict]:
+        """Process a coordinate guess and rotate turns"""
         game_state = self.get_session(session_id)
-        if not game_state or not game_state.active_turn:
+        
+        # Check if it's the guesser's turn (no phase restriction for local games)
+        if (game_state.status != 'playing' or 
+            game_state.active_guesser_id != user_id or 
+            not game_state.active_turn):
             return None
         
         secret = game_state.active_turn['secret_coordinate']
@@ -144,15 +206,168 @@ class CrossClueGameManager:
         # Update grid state
         game_state.grid_state[secret] = 'success' if is_correct else 'fail'
         
+        # Track guess history
+        if not hasattr(game_state, 'guess_history') or game_state.guess_history is None:
+            game_state.guess_history = {}
+        game_state.guess_history[secret] = user_id
+        
+        # Update score and misses
+        if is_correct:
+            game_state.score += 1
+        else:
+            game_state.misses += 1
+        
+        # Prepare result
         result = {
-            'guess': guess,
-            'secret': secret,
+            'coordinate': secret,
             'is_correct': is_correct,
+            'score': game_state.score,
+            'misses': game_state.misses,
             'grid_state': game_state.grid_state
         }
         
-        # Clear active turn
+        # Check if game is complete
+        if self._is_game_complete(game_state):
+            game_state.status = 'finished'
+            game_state.game_end_time = get_current_timestamp()
+            # Move all players to recap stage
+            for player_id in game_state.players:
+                game_state.players[player_id].player_stage = 'recap'
+            result['game_complete'] = True
+        else:
+            # Rotate roles for next turn
+            self._rotate_turns(game_state)
+        
+        return result
+
+    def _is_game_complete(self, game_state: CrossClueGameState) -> bool:
+        """Check if all coordinates have been guessed"""
+        # Game is complete if all 16 coordinates are revealed
+        revealed_count = len([coord for coord, state in game_state.grid_state.items() 
+                            if state in ['success', 'fail']])
+        return revealed_count >= 16
+
+    def game_timeout(self, session_id: str) -> Optional[Dict]:
+        """Handle game timeout - end game and move to recap"""
+        game_state = self.get_session(session_id)
+        
+        if not game_state or game_state.status != 'playing':
+            return None
+        
+        # Mark any remaining secret coordinate as failed
+        if game_state.active_turn and 'secret_coordinate' in game_state.active_turn:
+            secret = game_state.active_turn['secret_coordinate']
+            if secret not in game_state.grid_state:
+                game_state.grid_state[secret] = 'fail'
+                game_state.misses += 1
+                
+                # Track guess history (nobody guessed it correctly)
+                if not hasattr(game_state, 'guess_history') or game_state.guess_history is None:
+                    game_state.guess_history = {}
+                game_state.guess_history[secret] = game_state.active_guesser_id  # Current guesser gets credit for attempt
+        
+        # End the game
+        game_state.status = 'finished'
+        game_state.game_end_time = get_current_timestamp()
+        
+        # Move all players to recap stage
+        for player_id in game_state.players:
+            game_state.players[player_id].player_stage = 'recap'
+        
+        return {
+            'type': 'game_timeout',
+            'reason': 'game_timer_expired',
+            'score': game_state.score,
+            'misses': game_state.misses,
+            'grid_state': game_state.grid_state,
+            'message': 'Game time expired! Moving to recap stage.'
+        }
+
+    def _rotate_turns(self, game_state: CrossClueGameState):
+        """Rotate roles and set up next turn"""
+        turn_order = game_state.turn_order
+        
+        # Find current giver index and move to next giver
+        current_giver_index = turn_order.index(game_state.active_giver_id)
+        next_giver_index = (current_giver_index + 1) % len(turn_order)
+        
+        # Set next giver
+        game_state.active_giver_id = turn_order[next_giver_index]
+        
+        # Set guesser as the next player after giver (skip the giver themselves)
+        next_guesser_index = (next_giver_index + 1) % len(turn_order)
+        game_state.active_guesser_id = turn_order[next_guesser_index]
+        
+        game_state.turn_phase = 'giving_clue'
+        
+        # Set new action deadline for entire turn
+        game_state.action_deadline = get_current_timestamp() + game_state.turn_timer
+        
+        # Clear active turn, current clue, and votes for new turn
         game_state.active_turn = None
+        game_state.current_clue = None
+        game_state.votes = None
+
+    def submit_vote(self, session_id: str, user_id: str, coordinate: str) -> Optional[Dict]:
+        """Submit a vote from a voter"""
+        game_state = self.get_session(session_id)
+        
+        if not game_state or game_state.status != 'playing':
+            return None
+        
+        # Check if user is a voter (not giver or guesser)
+        if (user_id == game_state.active_giver_id or 
+            user_id == game_state.active_guesser_id):
+            return None
+        
+        # Initialize votes dict if not exists
+        if not hasattr(game_state, 'votes') or game_state.votes is None:
+            game_state.votes = {}
+        
+        # Add or update vote
+        game_state.votes[user_id] = coordinate
+        
+        return {
+            'type': 'vote',
+            'voter_id': user_id,
+            'coordinate': coordinate,
+            'total_votes': len(game_state.votes)
+        }
+
+    def action_timeout(self, session_id: str) -> Optional[Dict]:
+        """Handle action timeout - skip current phase and rotate turns"""
+        game_state = self.get_session(session_id)
+        
+        if game_state.status != 'playing' or not game_state.action_deadline:
+            return None
+        
+        current_time = get_current_timestamp()
+        if current_time < game_state.action_deadline:
+            return None  # Not timed out yet
+        
+        # Handle timeout for entire turn
+        result = {
+            'timeout': True,
+            'phase': 'turn',
+            'score': game_state.score,
+            'misses': game_state.misses,
+            'reason': 'turn_timeout'
+        }
+        
+        # Mark the secret coordinate as failed since it wasn't guessed
+        if game_state.active_turn and 'secret_coordinate' in game_state.active_turn:
+            secret = game_state.active_turn['secret_coordinate']
+            game_state.grid_state[secret] = 'fail'
+            result['grid_state'] = game_state.grid_state
+            game_state.misses += 1
+            
+            # Track guess history (timeout - current guesser gets credit)
+            if not hasattr(game_state, 'guess_history') or game_state.guess_history is None:
+                game_state.guess_history = {}
+            game_state.guess_history[secret] = game_state.active_guesser_id
+        
+        # Rotate turns
+        self._rotate_turns(game_state)
         
         return result
 
