@@ -100,7 +100,18 @@ To access the platform from a mobile device on the same Wi-Fi network:
 - **[Cross Clue](./apps/cross_clue/README.md)** - A cooperative word-association party game (Phase 1: Game Logic & State Management complete)
 - **[Bingo (1-25 Variant)](./apps/bingo/README.md)** - A turn-based 5x5 number grid game with real-time multiplayer sync (All 4 Phases Complete)
 
-## 🔌 Adding a New App
+## �️ Standardized UI Lifecycle
+
+| Stage | Former Name | Description |
+|-------|-------------|-------------|
+| **Dashboard** | Home | The primary landing page for game selection and user profile management. |
+| **Portal** | Create / Join | The entry gate where users input session IDs or initialize new game rooms. |
+| **Lobby** | - | The universal gathering point where players sync and signal readiness. |
+| **Setup** | Prepare | Optional game-specific configuration (e.g., Bingo board generation). |
+| **Arena** | Action | The core gameplay container and real-time interface. |
+| **Recap** | Result | The post-game summary with unified routing back to the Lobby or Dashboard. |
+
+## � Adding a New App
 
 1. Create a new directory in `apps/your_app_name/`
 2. Add `__init__.py` and `game.py` with your app's GameStateManager
@@ -149,10 +160,10 @@ To access the platform from a mobile device on the same Wi-Fi network:
 - [x] Implement persistent Left-Sidebar Player List (tracks real-time connections, readiness, and active turns)
 - [x] Standardize platform header (Room Code, App Name, and 'Copy Invite Link' utility)
 - [x] Build **Lobby** stage: Universal gathering point with Host-controlled, transparent game configurations
+- [x] Implement visual 'Ready' toggle mechanics and Host-exclusive privileges ('Start Game')
 - [ ] Build **Setup** stage: Optional dynamic routing for game-specific loadouts (e.g., Bingo boards)
 - [ ] Build **Arena** stage: Core gameplay container with global Spectator Mode for late-joiners
 - [ ] Build **Recap** stage: Shared post-game screen with unified "Next Game" and "Return to Lobby" routing
-- [ ] Implement visual 'Ready' toggle mechanics and Host-exclusive privileges ('Start Game')
 - [ ] Refactor existing apps (Cross Clue, Bingo) to consume the unified 4-stage pipeline
 
 ### Phase 5: Platform Portability & Mobile Encapsulation (Planned)
