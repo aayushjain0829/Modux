@@ -5,6 +5,10 @@ function LobbyStage({ isHost, players, gameConfig, onToggleReady, onStartGame })
   const readyCount = players.filter(p => p.isReady).length
   const totalPlayers = players.length
   const allReady = totalPlayers > 0 && readyCount === totalPlayers
+  
+  // For demo purposes, assume first player is the current user
+  const currentUser = players[0]
+  const isCurrentUserReady = currentUser?.isReady || false
 
   return (
     <div className="lobby-stage">
@@ -40,9 +44,9 @@ function LobbyStage({ isHost, players, gameConfig, onToggleReady, onStartGame })
       <div className="lobby-actions">
         <button
           onClick={onToggleReady}
-          className={`ready-toggle ${players.find(p => p.id === 'current')?.isReady ? 'ready' : ''}`}
+          className={`ready-toggle ${isCurrentUserReady ? 'btn-danger' : 'btn-success-soft'}`}
         >
-          {players.find(p => p.id === 'current')?.isReady ? 'Cancel Ready' : 'I am Ready'}
+          {isCurrentUserReady ? 'Not Ready' : 'I am Ready'}
         </button>
 
         {isHost && (

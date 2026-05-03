@@ -34,10 +34,14 @@
 }
 
 .ready-count {
-  color: #28a745;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
   font-size: 2rem;
   font-weight: 700;
-  text-shadow: 0 0 8px rgba(40, 167, 69, 0.3);
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .ready-label {
@@ -121,29 +125,32 @@
   letter-spacing: 1px;
 }
 
-.ready-toggle:not(.ready) {
-  background: rgba(255, 255, 255, 0.2);
+.ready-toggle.btn-success-soft {
+  background: #48bb78;
   color: white;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid #48bb78;
+  box-shadow: 0 0 12px rgba(72, 187, 120, 0.4);
 }
 
-.ready-toggle:not(.ready):hover {
-  background: rgba(255, 255, 255, 0.3);
+.ready-toggle.btn-success-soft:hover {
+  background: #38a169;
+  border-color: #38a169;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 16px rgba(72, 187, 120, 0.5);
 }
 
-.ready-toggle.ready {
-  background: #28a745;
+.ready-toggle.btn-danger {
+  background: #dc3545;
   color: white;
-  border: 2px solid #28a745;
-  box-shadow: 0 0 12px rgba(40, 167, 69, 0.4);
+  border: 2px solid #dc3545;
+  box-shadow: 0 0 12px rgba(220, 53, 69, 0.4);
 }
 
-.ready-toggle.ready:hover {
-  background: #218838;
+.ready-toggle.btn-danger:hover {
+  background: #c82333;
+  border-color: #c82333;
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(40, 167, 69, 0.5);
+  box-shadow: 0 4px 16px rgba(220, 53, 69, 0.5);
 }
 
 .start-game {
@@ -161,22 +168,26 @@
 }
 
 .start-game.enabled {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
   color: white;
   border: 2px solid transparent;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.5);
 }
 
 .start-game.enabled:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.7);
 }
 
 .start-game.disabled {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.5);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.1);
   cursor: not-allowed;
+  filter: grayscale(100%);
+  opacity: 0.5;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 /* Responsive Design */
