@@ -1,11 +1,13 @@
 import React from 'react';
+import SpectatorView from '../../../components/common/SpectatorView';
+import { useSpectator } from '../../../hooks/useSpectator';
 
 const BingoActive = ({ gameState, userId, sendMessage }) => {
   // Calculate if it's the current player's turn
   const isMyTurn = gameState.turn_order[gameState.current_turn_index] === userId;
   
-  // Get current player data
-  const currentPlayer = gameState.players[userId];
+  // Get current player data and spectator status
+  const { isSpectator, currentPlayer } = useSpectator(gameState, userId);
   const linesCompleted = currentPlayer?.lines_completed || 0;
   
   // Get the username of the player whose turn it is
@@ -27,6 +29,11 @@ const BingoActive = ({ gameState, userId, sendMessage }) => {
     });
   };
   
+  // Spectator view - show message throughout Arena stage
+  if (isSpectator) {
+    return <SpectatorView />;
+  }
+
   return (
     <div style={{
       padding: '20px',
@@ -51,14 +58,15 @@ const BingoActive = ({ gameState, userId, sendMessage }) => {
         {isMyTurn ? '🎯 Your Turn: Select a number!' : `⏳ Waiting for ${currentTurnUsername} to call...`}
       </div>
       
-      {/* B-I-N-G-O Tracker */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        gap: '12px',
-        marginBottom: '24px'
-      }}>
-        {bingoLetters.map((letter, index) => (
+      {/* B-I-N-G-O Tracker - hide for spectators */}
+      {!isSpectator && (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '12px',
+          marginBottom: '24px'
+        }}>
+          {bingoLetters.map((letter, index) => (
           <div
             key={letter}
             style={{
@@ -79,7 +87,8 @@ const BingoActive = ({ gameState, userId, sendMessage }) => {
             {letter}
           </div>
         ))}
-      </div>
+        </div>
+      )}
       
       {/* Called Numbers Display */}
       <div style={{
@@ -130,16 +139,15 @@ const BingoActive = ({ gameState, userId, sendMessage }) => {
             const canClick = isMyTurn && !isCalled;
             
             return (
-              <button
+              <div
                 key={`${rowIndex}-${colIndex}`}
                 onClick={() => canClick && handleNumberClick(number)}
-                disabled={!canClick}
                 style={{
-                  aspectRatio: '1',
+                  minHeight: '50px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '1.2rem',
+                  fontSize: '1.1rem',
                   fontWeight: '600',
                   borderRadius: '8px',
                   border: '2px solid',
@@ -169,23 +177,10 @@ const BingoActive = ({ gameState, userId, sendMessage }) => {
                 }}
               >
                 {number}
-              </button>
+              </div>
             );
           })
         )}
-      </div>
-      
-      {/* Game Info */}
-      <div style={{
-        marginTop: '20px',
-        padding: '12px',
-        background: '#f8f9fa',
-        borderRadius: '8px',
-        textAlign: 'center'
-      }}>
-        <p style={{ color: '#666', fontSize: '0.9rem' }}>
-          Lines completed: <strong>{linesCompleted}/5</strong>
-        </p>
       </div>
     </div>
   );

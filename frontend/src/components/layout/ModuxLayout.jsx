@@ -118,14 +118,31 @@ function ModuxLayout({ appName, sessionId, players = [], gameState, onLeave, chi
                   {/* Status Indicator */}
                   <span
                     className={`modux-player-status ${
-                      gameState?.status === 'setup' 
-                        ? (player.has_submitted ? 'submitted' : 'not-submitted')
-                        : (player.isReady ? 'ready' : 'not-ready')
+                      // Check individual player stage first
+                      player.player_stage === 'lobby'
+                        ? (player.is_ready ? 'ready' : 'not-ready')
+                        : gameState?.status === 'waiting'
+                          ? (player.is_ready ? 'ready' : 'not-ready')
+                          : player.is_spectator 
+                            ? 'spectator'
+                            : gameState?.status === 'setup' 
+                              ? (player.has_submitted ? 'submitted' : 'not-submitted')
+                              : gameState?.status === 'playing' 
+                                ? 'ready'  // All players are ready in Arena
+                                : gameState?.status === 'finished'
+                                  ? 'ready'  // All players are ready in Recap
+                                  : (player.is_ready ? 'ready' : 'not-ready')
                     }`}
                   >
-                    {gameState?.status === 'setup' 
-                      ? (player.has_submitted ? '✓' : '✗')
-                      : null
+                    {
+                      // Check individual player stage first
+                      player.player_stage === 'lobby'
+                        ? null
+                        : gameState?.status === 'waiting'
+                          ? null
+                          : player.is_spectator 
+                            ? '👁️'
+                            : null  // Other stages use dots, no text needed
                     }
                   </span>
                   

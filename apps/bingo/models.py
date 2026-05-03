@@ -6,8 +6,10 @@ class BingoPlayer(BaseModel):
     username: str
     is_ready: bool = False
     has_submitted: bool = False
+    is_spectator: bool = False
     board: List[List[int]] = []
     lines_completed: int = 0
+    player_stage: Literal['recap', 'lobby'] = 'recap'  # Individual player stage
 
 
 class BingoGameState(BaseModel):

@@ -1,14 +1,14 @@
 import React from 'react'
 import './LobbyStage.css'
 
-function LobbyStage({ isHost, players, gameConfig, onToggleReady, onStartGame }) {
-  const readyCount = players.filter(p => p.isReady).length
+function LobbyStage({ isHost, players, gameConfig, onToggleReady, onStartGame, currentUserId }) {
+  const readyCount = players.filter(p => p.is_ready).length
   const totalPlayers = players.length
   const allReady = totalPlayers > 0 && readyCount === totalPlayers
   
-  // For demo purposes, assume first player is the current user
-  const currentUser = players[0]
-  const isCurrentUserReady = currentUser?.isReady || false
+  // Find the current user in the players array
+  const currentUser = players.find(p => p.id === currentUserId)
+  const isCurrentUserReady = currentUser?.is_ready || false
 
   return (
     <div className="lobby-stage">
