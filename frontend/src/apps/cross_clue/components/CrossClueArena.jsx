@@ -150,15 +150,146 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
       }}>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(4, 60px)',
+          gridTemplateColumns: '60px repeat(4, 60px)',
           gap: '4px',
           justifyContent: 'center',
           marginBottom: '20px'
         }}>
-          {Array.from({ length: 4 }, (_, row) =>
-            Array.from({ length: 4 }, (_, col) => renderCell(row, col))
-          )}
+          {/* Empty corner */}
+          <div></div>
+          {/* Column headers */}
+          {gameState?.col_words?.map((word, col) => (
+            <div key={`col-${col}`} style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 'bold',
+              color: '#667eea',
+              fontSize: '0.9rem'
+            }}>
+              {col + 1}
+            </div>
+          ))}
+          {/* Grid rows with row headers */}
+          {Array.from({ length: 4 }, (_, row) => (
+            <React.Fragment key={`row-${row}`}>
+              {/* Row header */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 'bold',
+                color: '#667eea',
+                fontSize: '0.9rem'
+              }}>
+                {String.fromCharCode(65 + row)}
+              </div>
+              {/* Grid cells */}
+              {Array.from({ length: 4 }, (_, col) => renderCell(row, col))}
+            </React.Fragment>
+          ))}
         </div>
+        
+        {/* Word legends */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '20px',
+          marginTop: '20px'
+        }}>
+          <div>
+            <h4 style={{ color: '#667eea', marginBottom: '10px' }}>Row Words:</h4>
+            {gameState?.row_words?.map((word, index) => (
+              <div key={`row-word-${index}`} style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '5px'
+              }}>
+                <span style={{
+                  fontWeight: 'bold',
+                  color: '#667eea',
+                  marginRight: '10px',
+                  minWidth: '20px'
+                }}>
+                  {String.fromCharCode(65 + index)}:
+                </span>
+                <span>{word}</span>
+              </div>
+            ))}
+          </div>
+          <div>
+            <h4 style={{ color: '#667eea', marginBottom: '10px' }}>Column Words:</h4>
+            {gameState?.col_words?.map((word, index) => (
+              <div key={`col-word-${index}`} style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '5px'
+              }}>
+                <span style={{
+                  fontWeight: 'bold',
+                  color: '#667eea',
+                  marginRight: '10px',
+                  minWidth: '20px'
+                }}>
+                  {index + 1}:
+                </span>
+                <span>{word}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Game Actions */}
+      <div style={{
+        background: 'white',
+        padding: '20px',
+        borderRadius: '12px',
+        marginBottom: '20px'
+      }}>
+        <h3 style={{
+          fontSize: '1.1rem',
+          color: '#333',
+          marginBottom: '15px'
+        }}>
+          Game Actions
+        </h3>
+        
+        {/* Draw Card Button */}
+        <button
+          onClick={() => sendMessage({
+            action: 'draw_card',
+            user_id: userId
+          })}
+          style={{
+            padding: '12px 24px',
+            background: '#28a745',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '1rem',
+            fontWeight: '600',
+            marginBottom: '15px',
+            width: '100%'
+          }}
+        >
+          🎴 Draw Card
+        </button>
+        
+        {/* Current Clue Display */}
+        {gameState?.active_turn?.clue && (
+          <div style={{
+            background: '#e8f5e8',
+            border: '2px solid #28a745',
+            borderRadius: '8px',
+            padding: '15px',
+            marginBottom: '15px',
+            textAlign: 'center'
+          }}>
+            <strong>Current Clue:</strong> {gameState.active_turn.clue}
+          </div>
+        )}
       </div>
 
       {/* Clue Input */}
