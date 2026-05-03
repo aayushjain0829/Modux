@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useUser } from '../../context/UserContext';
-import { GAME_METADATA } from '../../constants/gameRegistry';
+import { useUser } from '../context/UserContext';
+import { GAME_METADATA } from '../constants/gameRegistry';
 
-const BingoLanding = () => {
+const Portal = () => {
   const { appName } = useParams();
   const navigate = useNavigate();
   const { username } = useUser();
@@ -201,4 +201,4 @@ const BingoLanding = () => {
   );
 };
 
-export default BingoLanding;
+export default Portal;
