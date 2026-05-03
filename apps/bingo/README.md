@@ -7,9 +7,9 @@ A turn-based, 5x5 grid game where players arrange numbers 1-25, take turns calli
 - **The Board:** Each player arranges numbers 1-25 on a personal 5x5 grid before the game begins.
 - **Setup Phase:** Players use 'Sequential Click' board setup—click empty cells to auto-assign the lowest available number (1-25). Clicking a filled cell reclaims the number for reuse. An 'Auto-Shuffle' button provides instant randomization for rapid testing.
 - **The Flow:**
-  1. All players submit their boards to enter the waiting room.
-  2. Once all players are ready, the game begins with round-robin turns.
-  3. On your turn, select any uncalled number from your own board to "call" it.
+  1. All players submit their boards in the **Setup** stage to enter the **Lobby**.
+  2. Once all players are ready in the **Lobby**, the game transitions to the **Arena** stage with round-robin turns.
+  3. On your turn in the **Arena**, select any uncalled number from your own board to "call" it.
   4. Called numbers are marked across all players' boards automatically.
   5. Complete 5 lines (rows, columns, or diagonals) to achieve BINGO.
 - **Tie-Breaker Rule:** If multiple players achieve 5 lines simultaneously, the active player (who called the current number) wins the tie.

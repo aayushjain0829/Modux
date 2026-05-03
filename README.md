@@ -161,10 +161,10 @@ To access the platform from a mobile device on the same Wi-Fi network:
 - [x] Standardize platform header (Room Code, App Name, and 'Copy Invite Link' utility)
 - [x] Build **Lobby** stage: Universal gathering point with Host-controlled, transparent game configurations
 - [x] Implement visual 'Ready' toggle mechanics and Host-exclusive privileges ('Start Game')
-- [ ] Build **Setup** stage: Optional dynamic routing for game-specific loadouts (e.g., Bingo boards)
-- [ ] Build **Arena** stage: Core gameplay container with global Spectator Mode for late-joiners
+- [x] Build **Setup** stage: Optional dynamic routing for game-specific loadouts (e.g., Bingo boards)
+- [x] Build **Arena** stage: Core gameplay container with global Spectator Mode for late-joiners
 - [ ] Build **Recap** stage: Shared post-game screen with unified "Next Game" and "Return to Lobby" routing
-- [ ] Refactor existing apps (Cross Clue, Bingo) to consume the unified 4-stage pipeline
+- [x] Refactor existing apps (Cross Clue, Bingo) to consume the unified 4-stage pipeline
 
 ### Phase 5: Platform Portability & Mobile Encapsulation (Planned)
 

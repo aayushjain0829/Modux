@@ -1,6 +1,6 @@
 # Cross Clue
 
-A digital adaptation of the cooperative party game "Cross Clue", hosted on the Modux platform.
+A digital adaptation of the cooperative party game "Cross Clue", hosted on the Modux platform with unified Phase 4.1 lifecycle integration.
 
 ## 🎮 Game Mechanics
 
@@ -13,7 +13,24 @@ A digital adaptation of the cooperative party game "Cross Clue", hosted on the M
   3. The rest of the team discusses and selects a coordinate on the shared grid.
   4. The system validates the guess, marks the grid (Success/Fail), and updates the shared state.
 
-## � Technical Breakdown
+## 🏗️ Phase 4.1 Integration
+
+Cross Clue now follows the standardized Modux platform lifecycle:
+
+- **Portal → Lobby → Setup → Arena**: Universal entry through shared Portal, then progresses through standardized stages
+- **ModuxLayout Shell**: Persistent platform UI with player sidebar and session management
+- **Modular Components**: Separated concerns with dedicated components for each stage
+
+## 🧩 Component Architecture
+
+**Main Container:**
+- `CrossClue.jsx` - Orchestrates stage transitions and WebSocket management
+
+**Stage Components:**
+- `CrossClueSetup.jsx` - Handles secret card distribution and game preparation
+- `CrossClueArena.jsx` - Manages active gameplay, grid interaction, and clue submission
+
+## 📡 Technical Breakdown
 
 **Real-Time Engine:** FastAPI WebSockets with session-based state management and targeted private messaging. The backend maintains separate public and private state channels to protect secret information (coordinates, active turn details) while broadcasting shared state to all players.
 
