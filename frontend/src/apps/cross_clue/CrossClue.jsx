@@ -206,9 +206,14 @@ function CrossClue() {
           />
         )
       case 'playing':
-        console.log('CrossClue: Rendering Arena stage (playing)');
+        console.log('CrossClue: Rendering CrossClueArena stage (playing)');
         return (
-          <ArenaStage isSpectator={false} />
+          <CrossClueArena
+            gameState={gameState}
+            userId={userId}
+            sendMessage={sendMessage}
+            secretCard={secretCard}
+          />
         )
       case 'finished':
         console.log('CrossClue: Rendering Recap stage');

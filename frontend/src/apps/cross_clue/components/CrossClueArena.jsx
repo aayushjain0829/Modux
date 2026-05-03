@@ -12,7 +12,7 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
     e.preventDefault()
     if (clueInput.trim()) {
       sendMessage({
-        type: 'submit_clue',
+        action: 'submit_clue',
         user_id: userId,
         clue: clueInput.trim()
       })
@@ -24,9 +24,9 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
   const handleCellClick = (coordinate) => {
     setSelectedCell(coordinate)
     sendMessage({
-      type: 'make_guess',
+      action: 'guess_coordinate',
       user_id: userId,
-      coordinate: coordinate
+      guess: coordinate
     })
   }
 
@@ -35,11 +35,22 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
     const coordinate = `${String.fromCharCode(65 + row)}${col + 1}`
     const cellState = gameState?.grid_state?.[coordinate]
     
-    if (cellState?.revealed) {
+    // Check if cell is marked as success/fail
+    if (cellState === 'success') {
       return {
         revealed: true,
-        content: cellState.content || '',
-        isSecret: coordinate === secretCard
+        content: coordinate,
+        isSecret: coordinate === secretCard,
+        isSuccess: true
+      }
+    }
+    
+    if (cellState === 'fail') {
+      return {
+        revealed: true,
+        content: coordinate,
+        isSecret: false,
+        isSuccess: false
       }
     }
     
@@ -63,13 +74,13 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: cellState.revealed 
-            ? (cellState.isSecret ? '#28a745' : '#f8f9fa')
+            ? (cellState.isSuccess ? '#28a745' : '#dc3545')
             : 'white',
           cursor: cellState.revealed ? 'default' : 'pointer',
           transition: 'all 0.2s',
           fontSize: '0.8rem',
           fontWeight: cellState.revealed ? 'bold' : 'normal',
-          color: cellState.revealed ? '#333' : '#666'
+          color: cellState.revealed ? 'white' : '#666'
         }}
         onMouseOver={(e) => {
           if (!cellState.revealed) {
@@ -82,7 +93,7 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
           }
         }}
       >
-        {cellState.revealed ? cellState.content : coordinate}
+        {cellState.revealed ? '' : coordinate}
       </div>
     )
   }
@@ -139,13 +150,13 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
       }}>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(5, 60px)',
+          gridTemplateColumns: 'repeat(4, 60px)',
           gap: '4px',
           justifyContent: 'center',
           marginBottom: '20px'
         }}>
-          {Array.from({ length: 5 }, (_, row) =>
-            Array.from({ length: 5 }, (_, col) => renderCell(row, col))
+          {Array.from({ length: 4 }, (_, row) =>
+            Array.from({ length: 4 }, (_, col) => renderCell(row, col))
           )}
         </div>
       </div>
