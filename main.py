@@ -228,6 +228,10 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
                             game_state = game_manager.submit_board(session_id, user_id, board)
                             await manager.broadcast_state(app_name, session_id, game_state.model_dump())
                     
+                    elif action == "toggle_ready":
+                        game_state = game_manager.toggle_ready(session_id, user_id)
+                        await manager.broadcast_state(app_name, session_id, game_state.model_dump())
+                    
                     elif action == "start_game":
                         game_state = game_manager.start_game(session_id, user_id)
                         await manager.broadcast_state(app_name, session_id, game_state.model_dump())

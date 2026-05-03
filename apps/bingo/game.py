@@ -39,11 +39,19 @@ class BingoGameManager:
         
         if user_id in game_state.players:
             game_state.players[user_id].board = board
-            game_state.players[user_id].is_ready = True
+            game_state.players[user_id].has_submitted = True
         
-        # Check if all players are ready
-        if self._all_players_ready(game_state):
+        # Check if all players have submitted boards
+        if self._all_players_submitted(game_state):
             game_state.status = 'playing'
+        
+        return game_state
+
+    def toggle_ready(self, session_id: str, user_id: str) -> BingoGameState:
+        game_state = self.get_session(session_id)
+        
+        if user_id in game_state.players:
+            game_state.players[user_id].is_ready = not game_state.players[user_id].is_ready
         
         return game_state
 
@@ -56,6 +64,9 @@ class BingoGameManager:
         
         if game_state.status == 'waiting':
             game_state.status = 'setup'
+            # Reset all players' has_submitted status
+            for player_id in game_state.players:
+                game_state.players[player_id].has_submitted = False
         
         return game_state
 
@@ -72,11 +83,12 @@ class BingoGameManager:
         game_state.winner = None
         game_state.current_turn_index = 0
         
-        # Reset player boards and ready status
+        # Reset player boards and statuses
         for player_id in game_state.turn_order:
             if player_id in game_state.players:
                 game_state.players[player_id].board = []
                 game_state.players[player_id].is_ready = False
+                game_state.players[player_id].has_submitted = False
                 game_state.players[player_id].lines_completed = 0
         
         return game_state
@@ -183,6 +195,12 @@ class BingoGameManager:
     def _all_players_ready(self, game_state: BingoGameState) -> bool:
         for player_id in game_state.turn_order:
             if player_id not in game_state.players or not game_state.players[player_id].is_ready:
+                return False
+        return True
+
+    def _all_players_submitted(self, game_state: BingoGameState) -> bool:
+        for player_id in game_state.turn_order:
+            if player_id not in game_state.players or not game_state.players[player_id].has_submitted:
                 return False
         return True
 

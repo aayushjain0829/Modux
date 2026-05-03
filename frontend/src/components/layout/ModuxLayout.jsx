@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import './ModuxLayout.css'
 
-function ModuxLayout({ appName, sessionId, players = [], onLeave, children }) {
+function ModuxLayout({ appName, sessionId, players = [], gameState, onLeave, children }) {
   const [copied, setCopied] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -117,8 +117,17 @@ function ModuxLayout({ appName, sessionId, players = [], onLeave, children }) {
                 >
                   {/* Status Indicator */}
                   <span
-                    className={`modux-player-status ${player.isReady ? 'ready' : 'not-ready'}`}
-                  />
+                    className={`modux-player-status ${
+                      gameState?.status === 'setup' 
+                        ? (player.has_submitted ? 'submitted' : 'not-submitted')
+                        : (player.isReady ? 'ready' : 'not-ready')
+                    }`}
+                  >
+                    {gameState?.status === 'setup' 
+                      ? (player.has_submitted ? '✓' : '✗')
+                      : null
+                    }
+                  </span>
                   
                   {/* Player Name */}
                   <span className="modux-player-name">

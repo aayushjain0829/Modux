@@ -17,7 +17,7 @@ const BingoGame = () => {
   
   const [gameState, setGameState] = useState({
     session_id: sessionId,
-    status: 'lobby',
+    status: 'waiting',
     turn_order: [],
     current_turn_index: 0,
     called_numbers: [],
@@ -166,6 +166,7 @@ const BingoGame = () => {
       appName="Bingo"
       sessionId={sessionId}
       players={playerArray}
+      gameState={gameState}
       onLeave={handleLeave}
     >
       {renderStageContent()}

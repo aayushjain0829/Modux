@@ -194,6 +194,22 @@
   box-shadow: 0 0 8px rgba(220, 53, 69, 0.5);
 }
 
+.modux-player-status.submitted {
+  background-color: #28a745;
+  box-shadow: 0 0 8px rgba(40, 167, 69, 0.5);
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.modux-player-status.not-submitted {
+  background-color: #dc3545;
+  box-shadow: 0 0 8px rgba(220, 53, 69, 0.5);
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+}
+
 .modux-player-name {
   color: white;
   font-size: 0.9rem;
