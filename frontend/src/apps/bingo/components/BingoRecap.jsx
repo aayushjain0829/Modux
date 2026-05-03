@@ -6,7 +6,7 @@ const BingoRecap = ({ gameState, userId, sendMessage, wsRef }) => {
 
   const handleReturnToLobby = () => {
     sendMessage({
-      action: 'play_again',
+      action: 'return_to_lobby',
       user_id: userId
     })
   }
@@ -29,6 +29,7 @@ const BingoRecap = ({ gameState, userId, sendMessage, wsRef }) => {
 
   const winner = gameState.players[gameState.winner]
   const currentPlayer = gameState.players[userId]
+  const isSpectator = currentPlayer?.is_spectator || false
 
   return (
     <div style={{
@@ -74,8 +75,8 @@ const BingoRecap = ({ gameState, userId, sendMessage, wsRef }) => {
           </div>
         </div>
 
-        {/* Final Board */}
-        {currentPlayer?.board && (
+        {/* Final Board - hide for spectators */}
+        {!isSpectator && currentPlayer?.board && (
           <div style={{
             background: '#f8f9fa',
             padding: '30px',

@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import SpectatorView from '../../../components/common/SpectatorView';
+import { useSpectator } from '../../../hooks/useSpectator';
 
 const BingoSetup = ({ gameState, userId, sendMessage }) => {
   // Initialize 5x5 grid with null values
@@ -6,6 +8,14 @@ const BingoSetup = ({ gameState, userId, sendMessage }) => {
     Array(5).fill(null).map(() => Array(5).fill(null))
   );
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  // Reset submitted state when game moves to setup stage
+  useEffect(() => {
+    if (gameState.status === 'setup') {
+      setIsSubmitted(false);
+      setGrid(Array(5).fill(null).map(() => Array(5).fill(null)));
+    }
+  }, [gameState.status]);
 
   // Helper function to find the lowest available number (1-25) not in use
   const getLowestAvailableNumber = () => {
@@ -72,54 +82,16 @@ const BingoSetup = ({ gameState, userId, sendMessage }) => {
     setIsSubmitted(true);
   };
 
-  // Check if current player is ready
-  const currentPlayer = gameState.players[userId];
-  const isPlayerReady = currentPlayer?.is_ready || false;
+  // Check spectator status
+  const { isSpectator } = useSpectator(gameState, userId);
 
-  // Waiting room state
-  if (isPlayerReady || isSubmitted) {
-    return (
-      <div style={{
-        textAlign: 'center',
-        padding: '40px',
-        background: 'white',
-        borderRadius: '16px',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-        maxWidth: '500px',
-        margin: '0 auto'
-      }}>
-        <h2 style={{ color: '#667eea', marginBottom: '20px' }}>
-          {gameState.status === 'playing' ? 'Game Starting!' : 'Waiting Room'}
-        </h2>
-        <p style={{ fontSize: '1.1rem', color: '#666', marginBottom: '20px' }}>
-          {gameState.status === 'playing' 
-            ? 'All players are ready. The game is about to begin!'
-            : 'Board Locked! Waiting for other players to submit their boards...'}
-        </p>
-        <div style={{ 
-          padding: '20px', 
-          background: '#f8f9fa', 
-          borderRadius: '8px',
-          marginBottom: '20px'
-        }}>
-          <h3 style={{ marginBottom: '15px', color: '#333' }}>Players Ready:</h3>
-          {Object.values(gameState.players).map((player, idx) => (
-            <div key={idx} style={{
-              padding: '10px',
-              margin: '5px 0',
-              background: player.is_ready ? '#d4edda' : '#f8d7da',
-              borderRadius: '4px',
-              color: player.is_ready ? '#155724' : '#721c24'
-            }}>
-              {player.username} {player.is_ready ? '✓' : '⏳'}
-            </div>
-          ))}
-        </div>
-      </div>
-    );
+  // Spectator view
+  if (isSpectator) {
+    return <SpectatorView />;
   }
 
-  // Setup grid state
+  // In Setup stage, always show the board interface
+  // No waiting room needed - sidebar shows submission status
   return (
     <div style={{
       padding: '20px',
@@ -181,38 +153,42 @@ const BingoSetup = ({ gameState, userId, sendMessage }) => {
           row.map((num, colIndex) => (
             <div
               key={`${rowIndex}-${colIndex}`}
-              onClick={() => handleCellClick(rowIndex, colIndex)}
+              onClick={() => !isSubmitted && handleCellClick(rowIndex, colIndex)}
               style={{
-                aspectRatio: '1',
+                background: isSubmitted ? '#e9ecef' : (num !== null ? '#d4edda' : '#f8f9fa'),
+                border: isSubmitted ? '2px solid #ced4da' : (num !== null ? '2px solid #28a745' : '2px solid #dee2e6'),
+                borderRadius: '8px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: num !== null ? '#d4edda' : '#f8f9fa',
-                border: '2px solid',
-                borderColor: num !== null ? '#28a745' : '#dee2e6',
-                borderRadius: '8px',
-                fontSize: '1.2rem',
+                fontSize: '1.1rem',
                 fontWeight: '600',
-                color: num !== null ? '#155724' : '#adb5bd',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
+                color: isSubmitted ? '#6c757d' : (num !== null ? '#155724' : '#6c757d'),
+                cursor: isSubmitted ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s',
+                minHeight: '50px',
+                opacity: isSubmitted ? 0.7 : 1
               }}
               onMouseOver={(e) => {
-                if (num !== null) {
-                  e.target.style.background = '#f8d7da';
-                  e.target.style.borderColor = '#dc3545';
-                } else {
-                  e.target.style.background = '#e9ecef';
-                  e.target.style.borderColor = '#667eea';
+                if (!isSubmitted) {
+                  if (num !== null) {
+                    e.target.style.background = '#f8d7da';
+                    e.target.style.borderColor = '#dc3545';
+                  } else {
+                    e.target.style.background = '#e9ecef';
+                    e.target.style.borderColor = '#667eea';
+                  }
                 }
               }}
               onMouseOut={(e) => {
-                if (num !== null) {
-                  e.target.style.background = '#d4edda';
-                  e.target.style.borderColor = '#28a745';
-                } else {
-                  e.target.style.background = '#f8f9fa';
-                  e.target.style.borderColor = '#dee2e6';
+                if (!isSubmitted) {
+                  if (num !== null) {
+                    e.target.style.background = '#d4edda';
+                    e.target.style.borderColor = '#28a745';
+                  } else {
+                    e.target.style.background = '#f8f9fa';
+                    e.target.style.borderColor = '#dee2e6';
+                  }
                 }
               }}
             >
@@ -223,28 +199,42 @@ const BingoSetup = ({ gameState, userId, sendMessage }) => {
       </div>
 
       <div style={{ textAlign: 'center' }}>
-        <button
-          onClick={submitBoard}
-          disabled={!isBoardComplete()}
-          style={{
+        {isSubmitted ? (
+          <div style={{
             padding: '12px 24px',
-            background: !isBoardComplete() ? '#ccc' : '#28a745',
+            background: '#6c757d',
             color: 'white',
             border: 'none',
             borderRadius: '8px',
             fontSize: '1rem',
-            cursor: !isBoardComplete() ? 'not-allowed' : 'pointer',
-            transition: 'background 0.2s'
-          }}
-          onMouseOver={(e) => {
-            if (isBoardComplete()) e.target.style.background = '#218838';
-          }}
-          onMouseOut={(e) => {
-            if (isBoardComplete()) e.target.style.background = '#28a745';
-          }}
-        >
-          Submit Board
-        </button>
+            display: 'inline-block'
+          }}>
+            ✓ Board Submitted - Waiting for others...
+          </div>
+        ) : (
+          <button
+            onClick={submitBoard}
+            disabled={!isBoardComplete()}
+            style={{
+              padding: '12px 24px',
+              background: !isBoardComplete() ? '#ccc' : '#28a745',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '1rem',
+              cursor: !isBoardComplete() ? 'not-allowed' : 'pointer',
+              transition: 'background 0.2s'
+            }}
+            onMouseOver={(e) => {
+              if (isBoardComplete()) e.target.style.background = '#218838';
+            }}
+            onMouseOut={(e) => {
+              if (isBoardComplete()) e.target.style.background = '#28a745';
+            }}
+          >
+            Submit Board
+          </button>
+        )}
       </div>
     </div>
   );
