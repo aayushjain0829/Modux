@@ -90,7 +90,7 @@ function Dashboard() {
           </p>
         )}
         <button
-          onClick={() => navigate('/lobby/cross-clue')}
+          onClick={() => navigate('/portal/cross-clue')}
           style={{
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             color: 'white',
@@ -116,7 +116,7 @@ function Dashboard() {
           Play Cross Clue
         </button>
         <button
-          onClick={() => navigate('/lobby/bingo')}
+          onClick={() => navigate('/portal/bingo')}
           style={{
             background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
             color: 'white',

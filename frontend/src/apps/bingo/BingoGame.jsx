@@ -21,10 +21,10 @@ const BingoGame = () => {
   });
   const wsRef = useRef(null);
 
-  // Security check: redirect to lobby if username is empty
+  // Security check: redirect to portal if username is empty
   useEffect(() => {
     if (!username || username.trim() === '') {
-      navigate('/lobby/bingo');
+      navigate('/portal/bingo');
     }
   }, [username, navigate]);
 
