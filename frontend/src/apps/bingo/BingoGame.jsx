@@ -26,12 +26,7 @@ const BingoGame = () => {
   });
   const wsRef = useRef(null);
 
-  // Security check: redirect to portal if username is empty
-  useEffect(() => {
-    if (!username || username.trim() === '') {
-      navigate('/portal/bingo');
-    }
-  }, [username, navigate]);
+  // Username will be handled with fallback in WebSocket join message
 
   // Handle leave game
   const handleLeave = () => {
@@ -39,11 +34,17 @@ const BingoGame = () => {
   };
 
   // Derive players array from gameState.players object
-  const playerArray = Object.keys(gameState.players).map(id => ({
-    id,
-    name: gameState.players[id]?.username || id,
-    isReady: gameState.players[id]?.is_ready || false
-  }));
+  const playerArray = Object.keys(gameState.players).map(id => {
+    const player = gameState.players[id];
+    return {
+      id,
+      name: player?.username || id,
+      is_ready: player?.is_ready || false,
+      has_submitted: player?.has_submitted || false,
+      is_spectator: player?.is_spectator || false,
+      player_stage: player?.player_stage || 'recap'
+    };
+  });
 
   const sendMessage = (message) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -106,20 +107,38 @@ const BingoGame = () => {
   // Handle stage transitions
   const handleToggleReady = () => {
     sendMessage({
-      type: 'toggle_ready',
+      action: 'toggle_ready',
       user_id: userId
     })
   }
 
   const handleStartGame = () => {
     sendMessage({
-      type: 'start_game',
+      action: 'start_game',
       user_id: userId
     })
   }
 
-  // Render based on backend game state status
+  // Render based on backend game state status and individual player stage
   const renderStageContent = () => {
+    // Check if player has individual stage override
+    const currentPlayer = gameState.players[userId];
+    const playerStage = currentPlayer?.player_stage;
+    
+    // If game is finished and player is in lobby stage, show lobby
+    if (gameState.status === 'finished' && playerStage === 'lobby') {
+      return (
+        <LobbyStage
+          isHost={gameState?.turn_order?.[0] === userId}
+          players={playerArray}
+          gameConfig={{}} // Empty config for Bingo
+          onToggleReady={handleToggleReady}
+          onStartGame={handleStartGame}
+          currentUserId={userId}
+        />
+      )
+    }
+    
     switch (gameState.status) {
       case 'waiting':
         return (
@@ -129,6 +148,7 @@ const BingoGame = () => {
             gameConfig={{}} // Empty config for Bingo
             onToggleReady={handleToggleReady}
             onStartGame={handleStartGame}
+            currentUserId={userId}
           />
         )
       case 'setup':
@@ -157,7 +177,7 @@ const BingoGame = () => {
           />
         )
       default:
-        return <div>Loading...</div>
+        return <div>Loading... Status: {gameState.status}</div>
     }
   }
 

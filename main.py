@@ -148,6 +148,7 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
     
     # Get singleton game manager for this app
     game_manager = get_game_manager(app_name)
+    user_id = None  # Initialize user_id at higher scope
     
     # Send current game state if it exists
     if game_manager:
@@ -240,6 +241,10 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
                         game_state = game_manager.play_again(session_id, user_id)
                         await manager.broadcast_state(app_name, session_id, game_state.model_dump())
                     
+                    elif action == "return_to_lobby":
+                        game_state = game_manager.return_to_lobby(session_id, user_id)
+                        await manager.broadcast_state(app_name, session_id, game_state.model_dump())
+                    
                     elif action == "leave_game":
                         game_state = game_manager.leave_game(session_id, user_id)
                         await manager.broadcast_state(app_name, session_id, game_state.model_dump())
@@ -263,7 +268,7 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
                 
     except WebSocketDisconnect:
         # Handle player disconnect - remove from game state and advance turn if needed
-        if game_manager and app_name == "bingo":
+        if game_manager and app_name == "bingo" and user_id:
             game_state = game_manager.get_session(session_id)
             
             # Remove player from game state
