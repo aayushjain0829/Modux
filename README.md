@@ -37,7 +37,11 @@ Modux/
 │       ├── apps/
 │       │   ├── cross_clue/  # Cross Clue React components
 │       │   └── bingo/       # Bingo React components
-│       └── components/      # Shared platform components
+│       ├── components/      # Shared platform components
+│       │   ├── common/      # Cross-game reusable components
+│       │   ├── layout/      # Layout and shell components
+│       │   └── stages/      # Universal stage components
+│       └── hooks/           # Reusable React hooks
 └── requirements.txt
 ```
 
@@ -98,7 +102,7 @@ To access the platform from a mobile device on the same Wi-Fi network:
 ## 🎮 Supported Apps
 
 - **[Cross Clue](./apps/cross_clue/README.md)** - A cooperative word-association party game (Phase 1: Game Logic & State Management complete)
-- **[Bingo (1-25 Variant)](./apps/bingo/README.md)** - A turn-based 5x5 number grid game with real-time multiplayer sync (All 4 Phases Complete)
+- **[Bingo (1-25 Variant)](./apps/bingo/README.md)** - A turn-based 5x5 number grid game with real-time multiplayer sync (All Phases including Phase 4.1 Complete)
 
 ## �️ Standardized UI Lifecycle
 
@@ -155,7 +159,7 @@ To access the platform from a mobile device on the same Wi-Fi network:
 - [x] Implement seamless handoff from lobby to app state engine
 - [x] Refactor all apps to consume global UserContext and remove isolated lobby logic
 
-### Phase 4.1: The Modux Platform Shell & Game Lifecycle
+### Phase 4.1: The Modux Platform Shell & Game Lifecycle (Complete)
 - [x] Develop `<ModuxLayout>` persistent platform shell to standardize UI rendering across all apps
 - [x] Implement persistent Left-Sidebar Player List (tracks real-time connections, readiness, and active turns)
 - [x] Standardize platform header (Room Code, App Name, and 'Copy Invite Link' utility)
@@ -164,7 +168,11 @@ To access the platform from a mobile device on the same Wi-Fi network:
 - [x] Build **Setup** stage: Optional dynamic routing for game-specific loadouts (e.g., Bingo boards)
 - [x] Build **Arena** stage: Core gameplay container with global Spectator Mode for late-joiners
 - [x] Build **Recap** stage: Shared post-game screen with unified "Next Game" and "Return to Lobby" routing
+- [x] Add centralized spectator components (`SpectatorView`, `useSpectator` hook)
+- [x] Implement individual player stages for mixed game state scenarios
+- [x] Add individual "Return to Lobby" action for Recap stage
 - [x] Refactor existing apps (Cross Clue, Bingo) to consume the unified 4-stage pipeline
+- [x] Ensure consistent UI/UX across all game stages with standardized status indicators
 
 ### Phase 5: Platform Portability & Mobile Encapsulation (Planned)
 
