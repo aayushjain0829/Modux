@@ -8,6 +8,8 @@ import ArenaStage from '../../components/stages/ArenaStage'
 import RecapStage from '../../components/stages/RecapStage'
 import CrossClueSetup from './components/CrossClueSetup'
 import CrossClueArena from './components/CrossClueArena'
+import CrossClueRecap from './components/CrossClueRecap'
+import SpectatorView from '../../components/common/SpectatorView'
 
 function CrossClue() {
   const { sessionId } = useParams()
@@ -16,33 +18,7 @@ function CrossClue() {
   const [connected, setConnected] = useState(false)
   const [gameState, setGameState] = useState(null)
   const [secretCard, setSecretCard] = useState(null)
-  const [currentStage, setCurrentStage] = useState('lobby') // lobby, setup, arena, recap
   const wsRef = useRef(null)
-
-  // Username will be handled with fallback in WebSocket join message
-
-  // Handle stage transitions based on game state
-  useEffect(() => {
-    if (gameState) {
-      if (gameState.status === 'lobby') {
-        setCurrentStage('lobby')
-      } else if (gameState.status === 'setup') {
-        setCurrentStage('setup')
-      } else if (gameState.status === 'active') {
-        setCurrentStage('arena')
-      } else if (gameState.status === 'completed') {
-        setCurrentStage('recap')
-      }
-    }
-  }, [gameState])
-
-  // Dev toggle functionality
-  const handleDevToggle = () => {
-    const stages = ['lobby', 'setup', 'arena', 'recap']
-    const currentIndex = stages.indexOf(currentStage)
-    const nextIndex = (currentIndex + 1) % stages.length
-    setCurrentStage(stages[nextIndex])
-  }
 
   const sendMessage = (message) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -65,35 +41,40 @@ function CrossClue() {
 
     websocket.onopen = () => {
       setConnected(true)
-    }
+      // Join game on connection using global username
+      sendMessage({
+        action: 'join_game',
+        username: username || `Player_${userId.substring(5, 9)}`
+      });
+    };
 
     websocket.onmessage = (event) => {
       try {
         const parsed = JSON.parse(event.data)
+        console.log('CrossClue: Received WebSocket message:', parsed)
         
-        // Handle card_drawn messages (private secret card)
-        if (parsed.type === 'card_drawn') {
-          const coordinate = parsed.data.coordinate
-          setSecretCard(coordinate)
-        }
-        // Handle secret_update messages (alternative private secret card format)
-        else if (parsed.type === 'secret_update') {
+        // Handle secret_update messages (private secret card)
+        if (parsed.type === 'secret_update') {
           const coordinate = parsed.secret_card
+          console.log('CrossClue: Received secret card:', coordinate)
           setSecretCard(coordinate)
         }
         // Handle state_update messages (public game state)
         else if (parsed.type === 'state_update' && parsed.data) {
-          setGameState(parsed.data)
+          console.log('CrossClue: Received state update:', parsed.data)
+          // Force new object reference to trigger React re-render
+          setGameState({ ...parsed.data });
         }
         // Handle guess_result messages
         else if (parsed.type === 'guess_result' && parsed.data) {
+          console.log('CrossClue: Received guess result:', parsed.data)
           setGameState(prev => ({
             ...prev,
             grid_state: parsed.data.grid_state
           }))
         }
       } catch (e) {
-        // Ignore JSON parse errors
+        console.error('CrossClue: WebSocket message parse error:', e)
       }
     }
 
@@ -114,14 +95,14 @@ function CrossClue() {
 
   const handleToggleReady = () => {
     sendMessage({
-      type: 'toggle_ready',
+      action: 'toggle_ready',
       user_id: userId
     })
   }
 
   const handleStartGame = () => {
     sendMessage({
-      type: 'start_game',
+      action: 'start_game',
       user_id: userId
     })
   }
@@ -138,11 +119,12 @@ function CrossClue() {
       name: player?.username || id,
       is_ready: player?.is_ready || false,
       has_submitted: player?.has_submitted || false,
-      is_spectator: player?.is_spectator || false
+      is_spectator: player?.is_spectator || false,
+      player_stage: player?.player_stage || 'recap'
     };
   });
 
-  const isHost = gameState?.host_id === userId
+  const isHost = gameState?.turn_order?.[0] === userId
 
   if (!connected) {
     return (
@@ -160,10 +142,59 @@ function CrossClue() {
     )
   }
 
-  // Render based on current stage
+  
+  // Render based on backend game state status and individual player stage
   const renderStageContent = () => {
-    switch (currentStage) {
-      case 'lobby':
+    console.log('CrossClue: renderStageContent called', {
+      gameState: gameState,
+      gameStateStatus: gameState?.status,
+      userId: userId,
+      isHost: isHost
+    });
+    
+    // Guard clause for null gameState
+    if (!gameState) {
+      console.log('CrossClue: gameState is null, rendering Loading');
+      return <div>Loading game state...</div>;
+    }
+    
+    // Check spectator status directly (no hook)
+    const currentPlayer = gameState.players[userId];
+    const isSpectator = currentPlayer?.is_spectator || false;
+    const playerStage = currentPlayer?.player_stage;
+    
+    console.log('CrossClue: Player checks', {
+      currentPlayer: currentPlayer,
+      isSpectator: isSpectator,
+      playerStage: playerStage
+    });
+    
+    // If game is finished and player is in lobby stage, show lobby
+    if (gameState.status === 'finished' && playerStage === 'lobby') {
+      console.log('CrossClue: Rendering Lobby stage (finished + player in lobby)');
+      return (
+        <LobbyStage
+          isHost={isHost}
+          players={playerArray}
+          gameConfig={{ mode: 'cooperative', grid: '5x5' }}
+          onToggleReady={handleToggleReady}
+          onStartGame={handleStartGame}
+          currentUserId={userId}
+        />
+      )
+    }
+    
+    // Show spectator view for spectators in playing stage
+    if (isSpectator && gameState.status === 'playing') {
+      console.log('CrossClue: Rendering Spectator view');
+      return <SpectatorView />;
+    }
+    
+    console.log('CrossClue: Rendering based on status:', gameState.status);
+    
+    switch (gameState.status) {
+      case 'waiting':
+        console.log('CrossClue: Rendering Lobby stage (waiting)');
         return (
           <LobbyStage
             isHost={isHost}
@@ -174,65 +205,36 @@ function CrossClue() {
             currentUserId={userId}
           />
         )
-      case 'setup':
-        return (
-          <SetupStage />
-        )
-      case 'arena':
+      case 'playing':
+        console.log('CrossClue: Rendering Arena stage (playing)');
         return (
           <ArenaStage isSpectator={false} />
         )
-      case 'recap':
+      case 'finished':
+        console.log('CrossClue: Rendering Recap stage');
         return (
-          <RecapStage />
+          <CrossClueRecap
+            gameState={gameState}
+            userId={userId}
+            sendMessage={sendMessage}
+            wsRef={wsRef}
+          />
         )
       default:
+        console.log('CrossClue: Rendering Loading state');
         return <div>Loading...</div>
     }
   }
 
   return (
-    <>
-      <ModuxLayout
-        appName="Cross Clue"
-        sessionId={sessionId}
-        players={playerArray}
-        onLeave={handleLeave}
-      >
-        {renderStageContent()}
-      </ModuxLayout>
-      
-      {/* Dev Toggle Button */}
-      <button
-        onClick={handleDevToggle}
-        style={{
-          position: 'fixed',
-          bottom: '20px',
-          right: '20px',
-          padding: '12px 20px',
-          background: '#667eea',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer',
-          fontSize: '0.9rem',
-          fontWeight: '600',
-          boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
-          zIndex: 1000,
-          transition: 'all 0.2s'
-        }}
-        onMouseOver={(e) => {
-          e.target.style.transform = 'translateY(-2px)';
-          e.target.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.4)';
-        }}
-        onMouseOut={(e) => {
-          e.target.style.transform = 'translateY(0)';
-          e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.3)';
-        }}
-      >
-        Dev Toggle: {currentStage.toUpperCase()}
-      </button>
-    </>
+    <ModuxLayout
+      appName="Cross Clue"
+      sessionId={sessionId}
+      players={playerArray}
+      onLeave={handleLeave}
+    >
+      {renderStageContent()}
+    </ModuxLayout>
   )
 }
 

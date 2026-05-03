@@ -8,8 +8,11 @@ import { useMemo } from 'react';
  */
 export const useSpectator = (gameState, userId) => {
   return useMemo(() => {
+    console.log('useSpectator: Called with', { gameState, userId });
     const currentPlayer = gameState?.players?.[userId];
     const isSpectator = currentPlayer?.is_spectator || false;
+    
+    console.log('useSpectator: Result', { currentPlayer, isSpectator });
     
     return {
       isSpectator,

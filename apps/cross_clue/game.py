@@ -99,7 +99,7 @@ class CrossClueGameManager:
         )
         
         if can_start:
-            game_state.status = 'setup'
+            game_state.status = 'playing'  # CrossClue goes directly to playing (no setup needed)
             # Initialize game content
             self.init_game(session_id)
             # Reset all players to recap stage
