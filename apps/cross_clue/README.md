@@ -1,25 +1,41 @@
 # Cross Clue
 
-A digital adaptation of the cooperative party game "Cross Clue", hosted on the Modux platform with unified Phase 4.1 lifecycle integration.
+A cooperative word-association party game where players work together to guess secret coordinates on a 4x4 grid based on verbal clues.
 
 ## 🎮 Game Mechanics
 
-- **The Board:** A 4x4 grid. Rows are labeled A-D, columns are labeled 1-4.
-- **The Words:** 8 unique nouns are assigned to the axes (4 for rows, 4 for columns).
-- **The Goal:** Players cooperate to guess all 16 coordinates.
-- **The Flow:**
-  1. The active player draws a coordinate card (e.g., `B3`). This is kept secret.
-  2. The active player broadcasts a 1-word clue that connects the word for Row B and the word for Column 3.
-  3. The rest of the team discusses and selects a coordinate on the shared grid.
-  4. The system validates the guess, marks the grid (Success/Fail), and updates the shared state.
+- **The Grid:** A 4x4 grid with coordinates A1-D4
+- **The Words:** 8 unique words are randomly selected - 4 for rows (A-D) and 4 for columns (1-4)
+- **Phase 4.1 Flow:** Portal → Lobby → Setup → Arena → Recap
+  1. **Portal**: Create or join a game session
+  2. **Lobby**: Players toggle ready status, host starts game
+  3. **Setup**: Game initialization and word selection
+  4. **Arena**: Cooperative clue-giving and guessing gameplay
+  5. **Recap**: View results and choose next action
+- **Spectator Mode**: Players joining after game starts become spectators
+- **Individual Actions**: Players can return to lobby independently from Recap
+- **Cooperative Gameplay**: All players work together to reveal the grid
+
+## 🔧 Technical Breakdown
+
+**Real-Time Engine:** FastAPI WebSockets with turn-based logic and private card distribution.
+
+**Individual Player Stages:** Support for mixed game states where players can be in different stages while sharing the same session.
+
+**Spectator System:** Centralized spectator mode with dedicated components. Late joiners automatically become spectators with consistent UI.
+
+**Private Card System:** Each player's secret coordinate is sent only to them via targeted WebSocket messages.
+
+**State Management:** Pydantic models for type safety and robust player state tracking.
 
 ## 🏗️ Phase 4.1 Integration
 
 Cross Clue now follows the standardized Modux platform lifecycle:
 
-- **Portal → Lobby → Setup → Arena**: Universal entry through shared Portal, then progresses through standardized stages
+- **Portal → Lobby → Setup → Arena → Recap**: Universal entry through shared Portal
 - **ModuxLayout Shell**: Persistent platform UI with player sidebar and session management
-- **Modular Components**: Separated concerns with dedicated components for each stage
+- **Universal Components**: Uses shared LobbyStage, SetupStage, ArenaStage, RecapStage components
+- **Spectator Support**: Centralized spectator components usable across all games
 
 ## 🧩 Component Architecture
 
@@ -27,65 +43,55 @@ Cross Clue now follows the standardized Modux platform lifecycle:
 - `CrossClue.jsx` - Orchestrates stage transitions and WebSocket management
 
 **Stage Components:**
-- `CrossClueSetup.jsx` - Handles secret card distribution and game preparation
-- `CrossClueArena.jsx` - Manages active gameplay, grid interaction, and clue submission
+- `CrossClueSetup.jsx` - Handles game initialization and word selection
+- `CrossClueArena.jsx` - Manages cooperative gameplay and clue interface
+- `CrossClueRecap.jsx` - Post-game results display with individual action buttons
 
-## 📡 Technical Breakdown
-
-**Real-Time Engine:** FastAPI WebSockets with session-based state management and targeted private messaging. The backend maintains separate public and private state channels to protect secret information (coordinates, active turn details) while broadcasting shared state to all players.
-
-**Grid-Based Coordinate Mapping:** 4x4 matrix with A-D row labels and 1-4 column labels. The system validates all coordinate guesses against the active secret card and updates the shared grid state in real-time.
-
-**State Synchronization:** Dual-channel architecture where public game state (grid markings, active clues, remaining deck) is broadcast to all players, while secret cards are delivered only to the requesting player via targeted WebSocket messages.
-
-**Scalable Sessions:** Support for dynamic, multi-user rooms with persistent session state. The game engine handles concurrent actions and maintains session integrity across multiple WebSocket connections.
+**Shared Components:**
+- `SpectatorView.jsx` - Centralized spectator UI component
+- `useSpectator.js` - Reusable spectator detection hook
 
 ## 🗺️ Application Execution Plan
 
-### Phase 1: Application Game Logic & State Management
-- [x] Implement GameStateManager class with session-based state storage
-- [x] Create hardcoded word bank of 100 nouns for word-association gameplay
-- [x] Build session initialization logic (4x4 grid generation, word assignment, coordinate deck shuffling)
-- [x] Implement backend WebSocket event handlers (`init_game`, `draw_card`, `submit_clue`, `guess_coordinate`, `get_state`)
-- [x] Establish public state filtering to protect secret information (coordinates, active turn details)
-- [x] Implement user_id to WebSocket mapping for targeted private messaging
-- [x] Debug and validate game state synchronization across multiple WebSocket clients
-- [x] Test edge cases (empty deck, invalid guesses, concurrent actions)
+- [x] **Phase 1: Game Logic & State Management**
+  - Define Pydantic models for the Cross Clue game state
+  - Implement WebSocket actions: 'join_game', 'draw_card', 'submit_clue', 'guess_coordinate'
+  - Add turn-based progression and grid state management
+  - Add spectator support and individual player stages
 
-### Phase 2: Interactive Real-time Interface (In Progress)
-- [x] Build 4x4 interactive grid component with coordinate selection
-- [x] Implement active player view (draw card button, secret coordinate display, clue input field)
-- [x] Implement team view (incoming clue display, grid clicking for coordinate guesses)
-- [x] Add dynamic styling for grid states (empty, success, fail visual indicators)
-- [x] Integrate real-time state updates via WebSocket message parsing
-- [x] Implement player role detection and UI state management
-- [x] Add responsive design for mobile device compatibility
-- [ ] Refine visual polish and animations
-- [ ] Add loading states and error handling
+- [x] **Phase 2: UI Components**
+  - Build React components for game board and clue interface
+  - Implement coordinate grid with visual feedback
+  - Add turn indicator and clue submission interface
+  - Add spectator mode for late joiners
 
-### Phase 3: Advanced Game State Loop (Planned)
-- [ ] Implement complete game cycle: Draw → Clue → Guess → Reset
-- [ ] Handle edge cases: empty deck, all coordinates guessed, game completion
-- [ ] Add turn rotation logic for multiple players
-- [ ] Implement score tracking and win conditions
-- [ ] Add game reset/restart functionality
-- [ ] Handle disconnection and reconnection scenarios
+- [x] **Phase 3: Real-Time Integration**
+  - Connect frontend to WebSocket backend
+  - Implement private card distribution system
+  - Add visual feedback for guesses and results
+  - Use centralized spectator components
 
-### Phase 4: Game Configurations & Extensibility (Planned)
-- [ ] Support for 5x5 grid configuration
-- [ ] Add in-game timer for clue submission
-- [ ] Implement custom word list support
-- [ ] Add preset word bank selection (categories: animals, food, technology, etc.)
-- [ ] Create game settings panel for configuration
-- [ ] Add game history and replay functionality
+- [x] **Phase 4.1: Platform Integration**
+  - Integrate with standardized Portal → Lobby → Setup → Arena → Recap flow
+  - Implement ModuxLayout with player sidebar and status indicators
+  - Add centralized spectator components (SpectatorView, useSpectator hook)
+  - Support mixed player stages (Lobby/Recap) in same session
+  - Ensure consistent UI/UX across all game stages
 
 ## 🧪 Testing
 
 To test the Cross Clue module locally:
 
-1. **Multi-Player Simulation:** Open two browser tabs and navigate to the same session URL (e.g., `/cross-clue/TEST01`). Each tab will generate a unique user ID via the global UserContext, simulating multiple players.
-2. **Game Initialization:** In one tab, click "Start Game" to initialize the grid with words and shuffle the coordinate deck. Verify both tabs receive the public game state with row and column words.
-3. **Card Drawing:** Click "Draw Card" to receive a secret coordinate. Verify the secret coordinate displays only in the active player's view.
-4. **Clue Submission:** Enter a 1-word clue and submit. Verify the clue appears in both tabs as the "Current Clue".
-5. **Coordinate Guessing:** In the second tab, click a coordinate on the grid to submit a guess. Verify the grid updates with success (green) or fail (red) indicators in both tabs.
-6. **Responsive Testing:** Resize the browser window or use mobile device emulation to verify the grid and UI adapt correctly to different screen sizes.
+1. **Multi-Player Simulation:** Open multiple browser tabs and navigate to the same session URL (e.g., `/cross-clue/TEST01`). Each tab generates a unique user ID via UserContext.
+
+2. **Lobby Flow:** Verify players start in Lobby stage, can toggle ready status, and host can start game when all are ready.
+
+3. **Spectator Mode:** Join a game after it has started. Verify spectator UI displays consistently across Setup and Arena stages.
+
+4. **Cooperative Gameplay:** Take turns drawing cards, giving clues, and guessing coordinates. Verify secret cards are sent privately and grid updates are synchronized.
+
+5. **Mixed Player Stages:** Have one player return to lobby from Recap while others remain in Recap. Verify individual stage management works correctly.
+
+6. **Individual Actions:** Test "Return to Lobby" and "Return to Dashboard" buttons. Verify they work correctly for individual players.
+
+7. **Cross-Game Compatibility:** Test with Bingo to ensure shared components work correctly.

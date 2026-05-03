@@ -111,8 +111,8 @@ def get_game_manager(app_name: str):
     """Get or create a singleton game manager for an app"""
     if app_name not in _game_managers:
         if app_name == "cross-clue":
-            from apps.cross_clue import GameStateManager
-            _game_managers[app_name] = GameStateManager()
+            from apps.cross_clue.game import CrossClueGameManager
+            _game_managers[app_name] = CrossClueGameManager()
         elif app_name == "bingo":
             from apps.bingo.game import BingoGameManager
             _game_managers[app_name] = BingoGameManager()
@@ -153,11 +153,17 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
     # Send current game state if it exists
     if game_manager:
         try:
-            public_state = game_manager.get_public_state(session_id)
-            if public_state:
-                await manager.send_personal_json({"type": "state_update", "data": public_state}, websocket)
+            if app_name == "cross-clue":
+                game_state = game_manager.get_session(session_id)
+                if game_state and game_state.players:
+                    await manager.send_personal_json({"type": "state_update", "data": game_state.model_dump()}, websocket)
+            else:
+                # For other apps like Bingo
+                game_state = game_manager.get_session(session_id)
+                if game_state and game_state.players:
+                    await manager.send_personal_json({"type": "state_update", "data": game_state.model_dump()}, websocket)
         except Exception:
-            # If get_public_state fails, continue without sending initial state
+            # If state sending fails, continue without sending initial state
             pass
     
     try:
@@ -173,11 +179,30 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
                 manager.register_user(websocket, session_id, user_id)
                 
                 if app_name == "cross-clue" and game_manager:
-                    if action == "init_game":
-                        game_state = game_manager.init_game(session_id)
-                        public_state = game_manager.get_public_state(session_id)
-                        await manager.broadcast_state(app_name, session_id, public_state)
+                    if action == "join_game":
+                        username = message.get("username", f"Player_{user_id[:4]}")
+                        game_state = game_manager.join_game(session_id, user_id, username)
+                        await manager.broadcast_state(app_name, session_id, game_state.model_dump())
                     
+                    elif action == "toggle_ready":
+                        game_state = game_manager.toggle_ready(session_id, user_id)
+                        await manager.broadcast_state(app_name, session_id, game_state.model_dump())
+                    
+                    elif action == "start_game":
+                        game_state = game_manager.start_game(session_id, user_id)
+                        await manager.broadcast_state(app_name, session_id, game_state.model_dump())
+                    
+                    elif action == "return_to_lobby":
+                        game_state = game_manager.return_to_lobby(session_id, user_id)
+                        await manager.broadcast_state(app_name, session_id, game_state.model_dump())
+                    
+                    elif action == "leave_game":
+                        game_state = game_manager.leave_game(session_id, user_id)
+                        await manager.broadcast_state(app_name, session_id, game_state.model_dump())
+                        # Disconnect the user
+                        manager.disconnect(websocket, app_name, session_id)
+                    
+                    # Cross Clue specific actions
                     elif action == "draw_card":
                         coordinate = game_manager.draw_card(session_id, user_id)
                         if coordinate:
@@ -187,14 +212,12 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
                                 "secret_card": coordinate
                             }, session_id, user_id)
                             # Broadcast public state update to everyone
-                            public_state = game_manager.get_public_state(session_id)
-                            await manager.broadcast_state(app_name, session_id, public_state)
+                            await manager.broadcast_state(app_name, session_id, game_state.model_dump())
                     
                     elif action == "submit_clue":
                         clue = message.get("clue")
                         if clue and game_manager.submit_clue(session_id, clue):
-                            public_state = game_manager.get_public_state(session_id)
-                            await manager.broadcast_state(app_name, session_id, public_state)
+                            await manager.broadcast_state(app_name, session_id, game_state.model_dump())
                     
                     elif action == "guess_coordinate":
                         # Support both "guess" and "coordinate" keys
@@ -207,13 +230,7 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
                                     "data": result
                                 }), app_name, session_id)
                                 # Broadcast updated state
-                                public_state = game_manager.get_public_state(session_id)
-                                await manager.broadcast_state(app_name, session_id, public_state)
-                    
-                    elif action == "get_state":
-                        public_state = game_manager.get_public_state(session_id)
-                        if public_state:
-                            await manager.send_personal_json({"type": "state_update", "data": public_state}, websocket)
+                                await manager.broadcast_state(app_name, session_id, game_state.model_dump())
                 
                 elif app_name == "bingo" and game_manager:
                     if action == "join_game":
