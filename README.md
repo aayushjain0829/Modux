@@ -148,10 +148,10 @@ To access the platform from a mobile device on the same Wi-Fi network:
 - [x] Develop `<ModuxLayout>` persistent platform shell to standardize UI rendering across all apps
 - [x] Implement persistent Left-Sidebar Player List (tracks real-time connections, readiness, and active turns)
 - [x] Standardize platform header (Room Code, App Name, and 'Copy Invite Link' utility)
-- [ ] Build **Lobby** stage: Universal gathering point with Host-controlled, transparent game configurations
-- [ ] Build **Prepare** stage: Optional dynamic routing for game-specific loadouts (e.g., Bingo boards)
-- [ ] Build **Action** stage: Core gameplay container with global Spectator Mode for late-joiners
-- [ ] Build **Result** stage: Shared post-game screen with unified "Next Game" and "Return to Lobby" routing
+- [x] Build **Lobby** stage: Universal gathering point with Host-controlled, transparent game configurations
+- [ ] Build **Setup** stage: Optional dynamic routing for game-specific loadouts (e.g., Bingo boards)
+- [ ] Build **Arena** stage: Core gameplay container with global Spectator Mode for late-joiners
+- [ ] Build **Recap** stage: Shared post-game screen with unified "Next Game" and "Return to Lobby" routing
 - [ ] Implement visual 'Ready' toggle mechanics and Host-exclusive privileges ('Start Game')
 - [ ] Refactor existing apps (Cross Clue, Bingo) to consume the unified 4-stage pipeline
 

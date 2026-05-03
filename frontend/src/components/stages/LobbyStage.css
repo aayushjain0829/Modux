@@ -1,0 +1,263 @@
+.lobby-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Status Area */
+.lobby-status {
+  text-align: center;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.lobby-title {
+  color: white;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.ready-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.ready-count {
+  color: #28a745;
+  font-size: 2rem;
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(40, 167, 69, 0.3);
+}
+
+.ready-label {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+/* Settings Preview */
+.lobby-settings {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 24px;
+}
+
+.settings-title {
+  color: white;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 12px;
+}
+
+.settings-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.setting-key {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.setting-value {
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.no-settings {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  text-align: center;
+  margin: 0;
+  font-style: italic;
+}
+
+/* Action Footer */
+.lobby-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.ready-toggle {
+  width: 100%;
+  max-width: 300px;
+  padding: 16px 24px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.ready-toggle:not(.ready) {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.ready-toggle:not(.ready):hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.ready-toggle.ready {
+  background: #28a745;
+  color: white;
+  border: 2px solid #28a745;
+  box-shadow: 0 0 12px rgba(40, 167, 69, 0.4);
+}
+
+.ready-toggle.ready:hover {
+  background: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(40, 167, 69, 0.5);
+}
+
+.start-game {
+  width: 100%;
+  max-width: 300px;
+  padding: 16px 24px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.start-game.enabled {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: 2px solid transparent;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.start-game.enabled:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.start-game.disabled {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .lobby-stage {
+    padding: 16px;
+    gap: 20px;
+  }
+
+  .lobby-status {
+    padding: 20px;
+  }
+
+  .lobby-title {
+    font-size: 1.5rem;
+  }
+
+  .ready-count {
+    font-size: 1.6rem;
+  }
+
+  .ready-label {
+    font-size: 1rem;
+  }
+
+  .lobby-settings {
+    padding: 20px;
+  }
+
+  .settings-title {
+    font-size: 1.1rem;
+  }
+
+  .setting-item {
+    padding: 6px 10px;
+  }
+
+  .setting-key {
+    font-size: 0.85rem;
+  }
+
+  .setting-value {
+    font-size: 0.9rem;
+  }
+
+  .ready-toggle,
+  .start-game {
+    padding: 14px 20px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .lobby-stage {
+    padding: 12px;
+    gap: 16px;
+  }
+
+  .lobby-status {
+    padding: 16px;
+  }
+
+  .lobby-title {
+    font-size: 1.3rem;
+  }
+
+  .ready-count {
+    font-size: 1.4rem;
+  }
+
+  .lobby-settings {
+    padding: 16px;
+  }
+
+  .settings-title {
+    font-size: 1rem;
+  }
+
+  .ready-toggle,
+  .start-game {
+    padding: 12px 16px;
+    font-size: 0.95rem;
+  }
+}
