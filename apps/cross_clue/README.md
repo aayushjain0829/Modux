@@ -6,14 +6,7 @@ A cooperative word-association party game where players work together to guess s
 
 - **The Grid:** A 4x4 grid with coordinates A1-D4
 - **The Words:** 8 unique words are randomly selected - 4 for rows (A-D) and 4 for columns (1-4)
-- **Phase 4.1 Flow:** Portal → Lobby → Setup → Arena → Recap
-  1. **Portal**: Create or join a game session
-  2. **Lobby**: Players toggle ready status, host starts game
-  3. **Setup**: Game initialization and word selection
-  4. **Arena**: Cooperative clue-giving and guessing gameplay
-  5. **Recap**: View results and choose next action
 - **Spectator Mode**: Players joining after game starts become spectators
-- **Individual Actions**: Players can return to lobby independently from Recap
 - **Cooperative Gameplay**: All players work together to reveal the grid
 
 ## 🔧 Technical Breakdown
@@ -36,20 +29,6 @@ Cross Clue now follows the standardized Modux platform lifecycle:
 - **ModuxLayout Shell**: Persistent platform UI with player sidebar and session management
 - **Universal Components**: Uses shared LobbyStage, SetupStage, ArenaStage, RecapStage components
 - **Spectator Support**: Centralized spectator components usable across all games
-
-## 🧩 Component Architecture
-
-**Main Container:**
-- `CrossClue.jsx` - Orchestrates stage transitions and WebSocket management
-
-**Stage Components:**
-- `CrossClueSetup.jsx` - Handles game initialization and word selection
-- `CrossClueArena.jsx` - Manages cooperative gameplay and clue interface
-- `CrossClueRecap.jsx` - Post-game results display with individual action buttons
-
-**Shared Components:**
-- `SpectatorView.jsx` - Centralized spectator UI component
-- `useSpectator.js` - Reusable spectator detection hook
 
 ## 🗺️ Application Execution Plan
 
