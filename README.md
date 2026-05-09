@@ -89,6 +89,39 @@ npm run dev
 npm run build
 ```
 
+### 🌐 Cloudflare Tunnel Setup
+
+For easy public access without port forwarding, Modux includes automatic Cloudflare tunnel hosting:
+
+1. **Install cloudflared** (included in requirements.txt):
+```bash
+pip install cloudflared
+```
+
+2. **Install xclip** for auto-copy functionality:
+```bash
+sudo apt-get install xclip
+```
+
+3. **Use the provided startup script**:
+```bash
+./HostModux.sh
+```
+
+**Features:**
+- 🚀 Automatic backend startup (port 8000)
+- 🎨 Automatic frontend dev server (port 5173)  
+- 🌐 Automatic Cloudflare tunnel (public URL)
+- 📋 Auto-copy tunnel URL to clipboard
+- 🔄 Smart process management (Ctrl+C to stop)
+
+**Manual tunnel creation** (if needed):
+```bash
+cloudflared tunnel --url http://localhost:8000
+```
+
+The tunnel provides a public `*.trycloudflare.com` URL that forwards to your local backend, making it accessible from anywhere without port forwarding or firewall configuration.
+
 The production build is served automatically by the FastAPI backend on port **8000**.
 
 ### Mobile Access
