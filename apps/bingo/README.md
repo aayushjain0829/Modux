@@ -6,14 +6,7 @@ A turn-based, 5x5 grid game where players arrange numbers 1-25, take turns calli
 
 - **The Board:** Each player arranges numbers 1-25 on a personal 5x5 grid before the game begins.
 - **Sequential Click Setup:** Click empty cells to auto-assign the lowest available number (1-25). Clicking a filled cell reclaims the number for reuse. An 'Auto-Shuffle' button provides instant randomization.
-- **Phase 4.1 Flow:** Portal → Lobby → Setup → Arena → Recap
-  1. **Portal**: Create or join a game session
-  2. **Lobby**: Players toggle ready status, host starts game
-  3. **Setup**: Players arrange their boards and submit
-  4. **Arena**: Round-robin number calling gameplay
-  5. **Recap**: View results and choose next action
 - **Spectator Mode**: Players joining after game starts become spectators
-- **Individual Actions**: Players can return to lobby independently from Recap
 - **Tie-Breaker Rule:** Active player wins ties when multiple players achieve 5 lines simultaneously
 - **Disconnect Safeguard:** Game automatically advances turn when player disconnects
 
@@ -39,20 +32,6 @@ Bingo now follows the standardized Modux platform lifecycle:
 - **ModuxLayout Shell**: Persistent platform UI with player sidebar and session management
 - **Universal Components**: Uses shared LobbyStage, SetupStage, ArenaStage, RecapStage components
 - **Spectator Support**: Centralized spectator components usable across all games
-
-## 🧩 Component Architecture
-
-**Main Container:**
-- `BingoGame.jsx` - Orchestrates stage transitions and WebSocket management
-
-**Stage Components:**
-- `BingoSetup.jsx` - Handles board generation and number selection with spectator support
-- `BingoActive.jsx` - Manages active gameplay, turn tracking, and number calling
-- `BingoRecap.jsx` - Post-game results display with individual action buttons
-
-**Shared Components:**
-- `SpectatorView.jsx` - Centralized spectator UI component
-- `useSpectator.js` - Reusable spectator detection hook
 
 ## 🗺️ Application Execution Plan
 
