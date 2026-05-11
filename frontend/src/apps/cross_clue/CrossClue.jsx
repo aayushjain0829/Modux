@@ -34,7 +34,15 @@ function CrossClue() {
       return
     }
 
-    const wsUrl = `ws://${window.location.hostname}:8000/ws/cross-clue/${sessionId}`
+    // Determine WebSocket URL - adapt for both local development and Cloudflare
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.hostname || 'localhost';
+    
+    // For Cloudflare production, don't specify port (uses 80/443)
+    // For local development, use port 8000
+    const isLocalhost = host === 'localhost' || host === '127.0.0.1';
+    const port = isLocalhost ? ':8000' : '';
+    const wsUrl = `${protocol}//${host}${port}/ws/cross-clue/${sessionId}`;
     
     const websocket = new WebSocket(wsUrl)
     wsRef.current = websocket

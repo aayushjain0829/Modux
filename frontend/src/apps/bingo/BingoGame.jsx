@@ -61,10 +61,15 @@ const BingoGame = () => {
       return;
     }
 
-    // Determine WebSocket URL - use backend port 8000
+    // Determine WebSocket URL - adapt for both local development and Cloudflare
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const host = window.location.hostname || 'localhost';
-    const wsUrl = `${protocol}//${host}:8000/ws/bingo/${sessionId}`;
+    
+    // For Cloudflare production, don't specify port (uses 80/443)
+    // For local development, use port 8000
+    const isLocalhost = host === 'localhost' || host === '127.0.0.1';
+    const port = isLocalhost ? ':8000' : '';
+    const wsUrl = `${protocol}//${host}${port}/ws/bingo/${sessionId}`;
 
     // Connect to WebSocket
     wsRef.current = new WebSocket(wsUrl);
