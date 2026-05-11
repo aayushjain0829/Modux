@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import './ModuxLayout.css'
 
-function ModuxLayout({ appName, sessionId, players = [], gameState, onLeave, children }) {
+function ModuxLayout({ appName, sessionId, players = [], gameState, onLeave, currentUserId, children }) {
   const [copied, setCopied] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -152,7 +152,7 @@ function ModuxLayout({ appName, sessionId, players = [], gameState, onLeave, chi
                   
                   {/* Player Name */}
                   <span className="modux-player-name">
-                    {player.name || 'Unknown'}
+                    {player.name || 'Unknown'}{player.id === currentUserId && ' (you)'}
                   </span>
                 </div>
                 );

@@ -226,6 +226,7 @@ function CrossClue() {
       players={playerArray}
       gameState={gameState}
       onLeave={handleLeave}
+      currentUserId={userId}
     >
       {renderStageContent()}
     </ModuxLayout>

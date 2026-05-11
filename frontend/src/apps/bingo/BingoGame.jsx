@@ -199,6 +199,7 @@ const BingoGame = () => {
       players={playerArray}
       gameState={gameState}
       onLeave={handleLeave}
+      currentUserId={userId}
     >
       {renderStageContent()}
     </ModuxLayout>
