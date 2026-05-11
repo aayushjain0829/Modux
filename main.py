@@ -194,7 +194,7 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
                     elif action == "update_config":
                         # Only host can update config
                         game_state = game_manager.get_session(session_id)
-                        if game_state.host_id == user_id:
+                        if len(game_state.turn_order) > 0 and user_id == game_state.turn_order[0]:
                             turn_timer = message.get("turn_timer")
                             game_timer = message.get("game_timer")
                             result = game_manager.update_config(session_id, turn_timer, game_timer)

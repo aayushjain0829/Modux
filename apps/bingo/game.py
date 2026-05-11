@@ -96,7 +96,7 @@ class BingoGameManager:
         game_state = self.get_session(session_id)
 
         # Only host can start game
-        if len(game_state.turn_order) > 0 and user_id != game_state.host_id:
+        if len(game_state.turn_order) > 0 and user_id != game_state.turn_order[0]:
             return game_state
 
         # Allow starting game if global status is waiting OR if host is in lobby stage
@@ -142,7 +142,7 @@ class BingoGameManager:
         game_state = self.get_session(session_id)
         
         # Only host can play again (reset entire game for everyone)
-        if len(game_state.turn_order) > 0 and user_id != game_state.host_id:
+        if len(game_state.turn_order) > 0 and user_id != game_state.turn_order[0]:
             return game_state
         
         # Reset game state but keep players
