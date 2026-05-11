@@ -363,20 +363,20 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
         manager.disconnect(websocket, app_name, session_id)
 
 
-# Serve static files from frontend build (must be after WebSocket routes)
-# Use a more specific path to avoid intercepting WebSocket connections
-app.mount("/static", StaticFiles(directory="frontend/dist", html=True), name="static")
+# Note: Static file serving disabled for Render deployment
+# Frontend is deployed separately to GitHub Pages
+# Uncomment these lines if you want to serve frontend from backend
+# app.mount("/static", StaticFiles(directory="frontend/dist", html=True), name="static")
 
-# Also mount at root for SPA routing, but with a check to avoid WebSocket interception
-@app.get("/{path:path}")
-async def serve_spa(path: str):
-    # Check if the requested path is an actual file
-    import os
-    file_path = f"frontend/dist/{path}"
-    if path and os.path.isfile(file_path):
-        return FileResponse(file_path)
-    # For all other paths, serve index.html (SPA routing)
-    return FileResponse("frontend/dist/index.html")
+# Simple health check endpoint
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "service": "modux-backend"}
+
+# Root endpoint
+@app.get("/")
+async def root():
+    return {"message": "Modux Backend API", "version": "1.0.0"}
 
 
 if __name__ == "__main__":
