@@ -56,19 +56,6 @@ The repository includes a `render.yaml` file that automatically configures the s
      - Deploy to GitHub Pages
    - Your site will be available at: `https://aayushjain0829.github.io/Modux/`
 
-### Option 2: Manual Deployment
-
-1. **Install Dependencies**
-   ```bash
-   cd frontend
-   npm install
-   npm install gh-pages --save-dev
-   ```
-
-2. **Deploy**
-   ```bash
-   npm run deploy
-   ```
 
 ## Configuration Details
 
