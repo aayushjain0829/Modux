@@ -15,9 +15,11 @@ const BingoGame = () => {
   const navigate = useNavigate();
   const { username, userId } = useUser();
   
+  const [connected, setConnected] = useState(false);
   const [gameState, setGameState] = useState({
     session_id: sessionId,
     status: 'waiting',
+    host_id: '',
     turn_order: [],
     current_turn_index: 0,
     called_numbers: [],
@@ -70,12 +72,13 @@ const BingoGame = () => {
     const isLocalhost = host === 'localhost' || host === '127.0.0.1';
     const wsUrl = isLocalhost 
       ? `${protocol}//${host}:8000/ws/bingo/${sessionId}`
-      : `wss://modux-backend.onrender.com/ws/bingo/${sessionId}`;
+      : `wss://modux.onrender.com/ws/bingo/${sessionId}`;
 
     // Connect to WebSocket
     wsRef.current = new WebSocket(wsUrl);
 
     wsRef.current.onopen = () => {
+      setConnected(true);
       // Join game on connection using global username
       sendMessage({
         action: 'join_game',
@@ -97,7 +100,7 @@ const BingoGame = () => {
     };
 
     wsRef.current.onclose = () => {
-      console.log('WebSocket disconnected');
+      setConnected(false);
     };
 
     return () => {
@@ -110,6 +113,24 @@ const BingoGame = () => {
   if (!sessionId) {
     navigate('/portal/bingo');
     return null;
+  }
+
+  const isHost = gameState?.host_id === userId
+
+  if (!connected) {
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white',
+        fontSize: '1.2rem'
+      }}>
+        Connecting to game...
+      </div>
+    )
   }
 
   // Handle stage transitions
@@ -137,7 +158,7 @@ const BingoGame = () => {
     if (gameState.status === 'finished' && playerStage === 'lobby') {
       return (
         <LobbyStage
-          isHost={gameState?.turn_order?.[0] === userId}
+          isHost={isHost}
           players={playerArray}
           gameConfig={{}} // Empty config for Bingo
           onToggleReady={handleToggleReady}
@@ -153,7 +174,7 @@ const BingoGame = () => {
       case 'waiting':
         return (
           <LobbyStage
-            isHost={gameState?.turn_order?.[0] === userId}
+            isHost={isHost}
             players={playerArray}
             gameConfig={{}} // Empty config for Bingo
             onToggleReady={handleToggleReady}

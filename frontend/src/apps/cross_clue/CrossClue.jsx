@@ -43,20 +43,18 @@ function CrossClue() {
     const isLocalhost = host === 'localhost' || host === '127.0.0.1';
     const wsUrl = isLocalhost 
       ? `${protocol}//${host}:8000/ws/cross-clue/${sessionId}`
-      : `wss://modux-backend.onrender.com/ws/cross-clue/${sessionId}`;
+      : `wss://modux.onrender.com/ws/cross-clue/${sessionId}`;
     
     const websocket = new WebSocket(wsUrl)
     wsRef.current = websocket
 
     websocket.onopen = () => {
       setConnected(true)
-      const joinMessage = {
+      // Join game on connection using global username
+      sendMessage({
         action: 'join_game',
         username: username || `Player_${userId.substring(5, 9)}`
-      };
-      console.log('CrossClue: Joining game with', { userId, username: joinMessage.username });
-      // Join game on connection using global username
-      sendMessage(joinMessage);
+      });
     };
 
     websocket.onmessage = (event) => {
@@ -70,12 +68,6 @@ function CrossClue() {
         }
         // Handle state_update messages (public game state)
         else if (parsed.type === 'state_update' && parsed.data) {
-          console.log('CrossClue: Received game state update', {
-            host_id: parsed.data.host_id,
-            turn_order: parsed.data.turn_order,
-            players: Object.keys(parsed.data.players || {}),
-            userId: userId
-          });
           // Force new object reference to trigger React re-render
           setGameState({ ...parsed.data });
         }

@@ -15,6 +15,7 @@ class BingoPlayer(BaseModel):
 class BingoGameState(BaseModel):
     session_id: str
     status: Literal['waiting', 'setup', 'playing', 'finished'] = 'waiting'
+    host_id: str = ""
     turn_order: List[str] = []
     current_turn_index: int = 0
     called_numbers: List[int] = []

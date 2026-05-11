@@ -184,9 +184,7 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
                 if app_name == "cross-clue" and game_manager:
                     if action == "join_game":
                         username = message.get("username", f"Player_{user_id[:4]}")
-                        print(f"WebSocket: Processing join_game for {user_id} ({username}) in session {session_id}")
                         game_state = game_manager.join_game(session_id, user_id, username)
-                        print(f"WebSocket: Broadcasting state with host_id: {game_state.host_id}")
                         await manager.broadcast_state(app_name, session_id, game_state.model_dump())
                     
                     elif action == "toggle_ready":

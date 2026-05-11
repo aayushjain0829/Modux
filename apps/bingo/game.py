@@ -24,7 +24,7 @@ class BingoGameManager:
     def join_game(self, session_id: str, user_id: str, username: str) -> BingoGameState:
         game_state = self.get_session(session_id)
         
-        # If this is the first player joining, ensure we start in waiting state
+        # If this is first player joining, ensure we start in waiting state
         # Also reset if session is in an unexpected state
         if len(game_state.turn_order) == 0 or game_state.status not in ['waiting', 'setup', 'playing', 'finished']:
             game_state.status = 'waiting'
@@ -51,6 +51,9 @@ class BingoGameManager:
             # Only add to turn order if not a spectator
             if not is_spectator:
                 game_state.turn_order.append(user_id)
+                # Set first player as host
+                if len(game_state.turn_order) == 1:
+                    game_state.host_id = user_id
         
         return game_state
 
@@ -93,7 +96,7 @@ class BingoGameManager:
         game_state = self.get_session(session_id)
 
         # Only host can start game
-        if len(game_state.turn_order) > 0 and user_id != game_state.turn_order[0]:
+        if len(game_state.turn_order) > 0 and user_id != game_state.host_id:
             return game_state
 
         # Allow starting game if global status is waiting OR if host is in lobby stage
@@ -139,7 +142,7 @@ class BingoGameManager:
         game_state = self.get_session(session_id)
         
         # Only host can play again (reset entire game for everyone)
-        if len(game_state.turn_order) > 0 and user_id != game_state.turn_order[0]:
+        if len(game_state.turn_order) > 0 and user_id != game_state.host_id:
             return game_state
         
         # Reset game state but keep players
