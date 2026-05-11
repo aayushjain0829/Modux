@@ -2,6 +2,30 @@
 
 Modux is a modular, session-based local web server designed to host interactive, real-time multiplayer applications. It is engineered to run locally and be accessible across a local Wi-Fi network, allowing users to join ephemeral sessions via their mobile browsers.
 
+## ⚡ Quickstart
+
+Get Modux running locally in minutes with these terminal commands:
+
+**Terminal 1 (Backend):**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python main.py
+```
+
+**Terminal 2 (Frontend):**
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+**Expose via Cloudflare Tunnel:**
+```bash
+cloudflared tunnel --url http://localhost:8000
+```
+
 ## 🏗 Architecture & Tech Stack
 
 - **Backend:** Python, FastAPI
@@ -124,6 +148,13 @@ The tunnel provides a public `*.trycloudflare.com` URL that forwards to your loc
 
 The production build is served automatically by the FastAPI backend on port **8000**.
 
+### 🔒 Security & Network
+
+Modux uses Cloudflare Tunnels to enable internet multiplayer without complex network configuration. This provides secure, encrypted tunneling through Cloudflare's global network.
+
+**Upcoming Security Feature:**
+To prevent unauthorized access via public tunnel URLs, game lobbies will require a Host-generated 4-digit PIN to join.
+
 ### Mobile Access
 
 To access the platform from a mobile device on the same Wi-Fi network:
@@ -221,4 +252,8 @@ To access the platform from a mobile device on the same Wi-Fi network:
 - [ ] Implement session creator as 'Host Node' for state management
 - [ ] Replace WebSockets with WebRTC for direct device-to-device communication
 - [ ] Ensure ultra-low latency and true offline local network play
+
+**Continuous Integration & Deployment**
+- [ ] Implement lightweight GitHub Actions to verify Python syntax and successful Vite frontend builds
+- [ ] Create docker-compose.yml for unified, single-command deployment of the entire stack
 
