@@ -38,7 +38,7 @@ echo
 echo "Waiting for backend and frontend to start..."
 sleep 1
 
-# Start cloudflared and capture the URL
+# Start cloudflared and capture URL
 echo
 echo "[3/3] Starting Cloudflare Tunnel..."
 cloudflared tunnel --url http://localhost:8000 > logs/tunnel.log 2>&1 &

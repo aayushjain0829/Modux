@@ -464,3 +464,56 @@
     font-size: 0.95rem;
   }
 }
+
+/* Bingo Configuration */
+.bingo-config {
+  width: 100%;
+}
+
+.bingo-settings-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.bingo-setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.bingo-setting-row:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.bingo-setting-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.bingo-setting-value {
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Bingo Configuration Select Styling */
+.bingo-settings-grid select.glass-input {
+  width: 120px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.bingo-settings-grid select.glass-input option {
+  background: #1a1a2e;
+  color: white;
+}

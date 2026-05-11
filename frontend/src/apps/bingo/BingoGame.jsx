@@ -22,7 +22,9 @@ const BingoGame = () => {
     current_turn_index: 0,
     called_numbers: [],
     winner: null,
-    players: {}
+    players: {},
+    config: { grid_size: 5, first_player_rule: 'random' },
+    last_called_number: null
   });
   const wsRef = useRef(null);
 
@@ -77,7 +79,7 @@ const BingoGame = () => {
 
     wsRef.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      
+
       if (data.type === 'state_update') {
         // Force new object reference to trigger React re-render
         setGameState({ ...data.data });
@@ -135,10 +137,12 @@ const BingoGame = () => {
           onToggleReady={handleToggleReady}
           onStartGame={handleStartGame}
           currentUserId={userId}
+          gameState={gameState}
+          sendMessage={sendMessage}
         />
       )
     }
-    
+
     switch (gameState.status) {
       case 'waiting':
         return (
@@ -149,6 +153,8 @@ const BingoGame = () => {
             onToggleReady={handleToggleReady}
             onStartGame={handleStartGame}
             currentUserId={userId}
+            gameState={gameState}
+            sendMessage={sendMessage}
           />
         )
       case 'setup':

@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Dict, Optional, Literal
+from typing import List, Dict, Optional, Literal, Any
 
 
 class BingoPlayer(BaseModel):
@@ -20,3 +20,5 @@ class BingoGameState(BaseModel):
     called_numbers: List[int] = []
     winner: Optional[str] = None
     players: Dict[str, BingoPlayer] = {}
+    config: Dict[str, Any] = {'grid_size': 5, 'first_player_rule': 'random'}
+    last_called_number: Optional[int] = None

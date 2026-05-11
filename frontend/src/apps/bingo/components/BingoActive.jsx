@@ -3,20 +3,33 @@ import SpectatorView from '../../../components/common/SpectatorView';
 import { useSpectator } from '../../../hooks/useSpectator';
 
 const BingoActive = ({ gameState, userId, sendMessage }) => {
+  // Read grid_size from config, default to 5
+  const gridSize = gameState?.config?.grid_size || 5;
+  const maxNumber = gridSize * gridSize;
+
   // Calculate if it's the current player's turn
   const isMyTurn = gameState.turn_order[gameState.current_turn_index] === userId;
-  
+
   // Get current player data and spectator status
   const { isSpectator, currentPlayer } = useSpectator(gameState, userId);
   const linesCompleted = currentPlayer?.lines_completed || 0;
-  
+
   // Get the username of the player whose turn it is
   const currentTurnPlayerId = gameState.turn_order[gameState.current_turn_index];
   const currentTurnPlayer = gameState.players[currentTurnPlayerId];
   const currentTurnUsername = currentTurnPlayer?.username || 'Unknown';
-  
-  // B-I-N-G-O letters
-  const bingoLetters = ['B', 'I', 'N', 'G', 'O'];
+
+  // Generate BINGO letters: B-I-N-G-O for 5x5, B-I-N-G-O-O for 6x6, etc.
+  const baseLetters = ['B', 'I', 'N', 'G', 'O'];
+  const bingoLetters = [];
+  for (let i = 0; i < gridSize; i++) {
+    if (i < baseLetters.length) {
+      bingoLetters.push(baseLetters[i]);
+    } else {
+      // Add extra 'O's for larger grids
+      bingoLetters.push('O');
+    }
+  }
   
   // Handle number click
   const handleNumberClick = (number) => {
@@ -130,47 +143,68 @@ const BingoActive = ({ gameState, userId, sendMessage }) => {
       {/* Interactive Grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(5, 1fr)',
+        gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
         gap: '8px'
       }}>
         {currentPlayer?.board?.map((row, rowIndex) =>
           row.map((number, colIndex) => {
             const isCalled = gameState.called_numbers.includes(number);
+            const isLastCalled = number === gameState.last_called_number;
             const canClick = isMyTurn && !isCalled;
-            
+
+            // Highlight style for last called number
+            const highlightStyle = isLastCalled ? {
+              background: '#fff9c4',
+              borderColor: '#ffc107',
+              color: '#333',
+              boxShadow: '0 0 10px rgba(255, 193, 7, 0.5), 0 0 20px rgba(255, 193, 7, 0.3)',
+              transform: 'scale(1.05)',
+              zIndex: 1
+            } : {};
+
             return (
               <div
                 key={`${rowIndex}-${colIndex}`}
                 onClick={() => canClick && handleNumberClick(number)}
                 style={{
-                  minHeight: '50px',
+                  aspectRatio: '1/1',
+                  minHeight: gridSize > 6 ? '35px' : '50px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '1.1rem',
+                  fontSize: gridSize > 6 ? '0.8rem' : '1.1rem',
                   fontWeight: '600',
                   borderRadius: '8px',
                   border: '2px solid',
-                  borderColor: isCalled ? '#28a745' : canClick ? '#667eea' : '#dee2e6',
-                  background: isCalled 
-                    ? '#d4edda' 
-                    : canClick 
-                      ? '#ffffff' 
-                      : '#f8f9fa',
-                  color: isCalled ? '#155724' : canClick ? '#333' : '#6c757d',
+                  borderColor: isLastCalled ? '#ffc107' : (isCalled ? '#28a745' : canClick ? '#667eea' : '#dee2e6'),
+                  background: isLastCalled
+                    ? '#fff9c4'
+                    : isCalled
+                      ? '#d4edda'
+                      : canClick
+                        ? '#ffffff'
+                        : '#f8f9fa',
+                  color: isLastCalled
+                    ? '#333'
+                    : isCalled
+                      ? '#155724'
+                      : canClick
+                        ? '#333'
+                        : '#6c757d',
                   cursor: canClick ? 'pointer' : 'default',
                   transition: 'all 0.2s ease',
-                  textDecoration: isCalled ? 'line-through' : 'none',
-                  opacity: isCalled ? 0.7 : 1
+                  textDecoration: isCalled && !isLastCalled ? 'line-through' : 'none',
+                  opacity: isCalled && !isLastCalled ? 0.7 : 1,
+                  ...highlightStyle
                 }}
                 onMouseOver={(e) => {
-                  if (canClick) {
+                  if (canClick && !isLastCalled) {
                     e.target.style.background = '#e9ecef';
                     e.target.style.transform = 'translateY(-2px)';
                   }
                 }}
                 onMouseOut={(e) => {
-                  if (canClick) {
+                  if (canClick && !isLastCalled) {
                     e.target.style.background = '#ffffff';
                     e.target.style.transform = 'translateY(0)';
                   }

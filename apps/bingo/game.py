@@ -1,4 +1,4 @@
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Any
 from .models import BingoGameState, BingoPlayer
 
 
@@ -44,7 +44,8 @@ class BingoGameManager:
                 has_submitted=False,
                 is_spectator=is_spectator,
                 board=[],
-                lines_completed=0
+                lines_completed=0,
+                player_stage='recap'
             )
             
             # Only add to turn order if not a spectator
@@ -55,54 +56,74 @@ class BingoGameManager:
 
     def submit_board(self, session_id: str, user_id: str, board: List[List[int]]) -> BingoGameState:
         game_state = self.get_session(session_id)
-        
+
         # Spectators cannot submit boards
         if user_id in game_state.players and game_state.players[user_id].is_spectator:
             return game_state
-        
-        # Validate board: must be 5x5 and contain exactly numbers 1-25 with no duplicates
-        if not self._validate_board(board):
+
+        # Validate board using dynamic grid_size from config
+        grid_size = game_state.config.get('grid_size', 5)
+        if not self._validate_board(board, grid_size):
             return game_state
-        
+
         if user_id in game_state.players:
             game_state.players[user_id].board = board
             game_state.players[user_id].has_submitted = True
-        
+
         # Check if all players have submitted boards (only non-spectators)
         if self._all_players_submitted(game_state):
             game_state.status = 'playing'
-        
+
         return game_state
 
     def toggle_ready(self, session_id: str, user_id: str) -> BingoGameState:
         game_state = self.get_session(session_id)
-        
+
         if user_id in game_state.players:
             game_state.players[user_id].is_ready = not game_state.players[user_id].is_ready
-        
+
+        return game_state
+
+    def update_config(self, session_id: str, config: Dict[str, Any]) -> BingoGameState:
+        game_state = self.get_session(session_id)
+        game_state.config = config
         return game_state
 
     def start_game(self, session_id: str, user_id: str) -> BingoGameState:
         game_state = self.get_session(session_id)
-        
+
         # Only host can start game
         if len(game_state.turn_order) > 0 and user_id != game_state.turn_order[0]:
             return game_state
-        
+
         # Allow starting game if global status is waiting OR if host is in lobby stage
         can_start = (
-            game_state.status == 'waiting' or 
+            game_state.status == 'waiting' or
             (game_state.status == 'finished' and game_state.players[user_id].player_stage == 'lobby')
         )
-        
+
         if can_start:
             game_state.status = 'setup'
-            
+
             # Reset game state for new game
             game_state.called_numbers = []
             game_state.winner = None
-            game_state.current_turn_index = 0
-            
+            game_state.last_called_number = None
+
+            # Determine first active player based on first_player_rule
+            grid_size = game_state.config.get('grid_size', 5)
+            first_player_rule = game_state.config.get('first_player_rule', 'random')
+
+            if first_player_rule == 'random':
+                import random
+                game_state.current_turn_index = random.randint(0, len(game_state.turn_order) - 1)
+            elif first_player_rule == 'host' and len(game_state.turn_order) > 0:
+                game_state.current_turn_index = 0  # Host is first in turn_order
+            elif first_player_rule in game_state.turn_order:
+                game_state.current_turn_index = game_state.turn_order.index(first_player_rule)
+            else:
+                game_state.current_turn_index = 0  # Fallback to host
+
             # Reset all players' game state
             for player_id in game_state.players:
                 game_state.players[player_id].is_ready = False
@@ -111,7 +132,7 @@ class BingoGameManager:
                 game_state.players[player_id].lines_completed = 0
                 # Reset all players to setup stage for new game
                 game_state.players[player_id].player_stage = 'setup'
-        
+
         return game_state
 
     def play_again(self, session_id: str, user_id: str) -> BingoGameState:
@@ -182,40 +203,44 @@ class BingoGameManager:
 
     def call_number(self, session_id: str, user_id: str, number: int) -> BingoGameState:
         game_state = self.get_session(session_id)
-        
+
         # Gatekeeper: verify game is playing and it's the user's turn
         if game_state.status != 'playing':
             return game_state
-        
+
         if user_id != game_state.turn_order[game_state.current_turn_index]:
             return game_state
-        
-        # Validate number is between 1-25 and not already called
-        if number < 1 or number > 25:
+
+        # Validate number is between 1 and grid_size*grid_size, and not already called
+        grid_size = game_state.config.get('grid_size', 5)
+        max_number = grid_size * grid_size
+
+        if number < 1 or number > max_number:
             return game_state
-        
+
         if number in game_state.called_numbers:
             return game_state
-        
-        # Add to called numbers
+
+        # Add to called numbers and track last called
         game_state.called_numbers.append(number)
-        
+        game_state.last_called_number = number
+
         # Recalculate lines completed for all players
         called_set: Set[int] = set(game_state.called_numbers)
         potential_winners: List[str] = []
-        
+
         for player_id, player in game_state.players.items():
             if player.board:
-                player.lines_completed = self._calculate_lines_completed(player.board, called_set)
-                
-                # Collect potential winners (5+ lines completed)
-                if player.lines_completed >= 5:
+                player.lines_completed = self._calculate_lines_completed(player.board, called_set, grid_size)
+
+                # Collect potential winners (grid_size+ lines completed)
+                if player.lines_completed >= grid_size:
                     potential_winners.append(player_id)
-        
+
         # Check win condition with tie-breaker logic
         if len(potential_winners) > 0:
             game_state.status = 'finished'
-            
+
             # Tie-breaker: If multiple winners, prioritize the active player (who called the number)
             if len(potential_winners) > 1:
                 if user_id in potential_winners:
@@ -227,33 +252,34 @@ class BingoGameManager:
             else:
                 # Single winner
                 game_state.winner = potential_winners[0]
-            
+
             return game_state
-        
+
         # Advance turn if game not finished
         if game_state.status == 'playing':
             game_state.current_turn_index = (game_state.current_turn_index + 1) % len(game_state.turn_order)
-        
+
         return game_state
 
-    def _validate_board(self, board: List[List[int]]) -> bool:
-        # Check if board is 5x5
-        if len(board) != 5:
+    def _validate_board(self, board: List[List[int]], grid_size: int = 5) -> bool:
+        # Check if board is grid_size x grid_size
+        if len(board) != grid_size:
             return False
-        
+
         for row in board:
-            if len(row) != 5:
+            if len(row) != grid_size:
                 return False
-        
-        # Flatten board and check for exactly numbers 1-25 with no duplicates
+
+        # Flatten board and check for exactly numbers 1 to grid_size*grid_size with no duplicates
         flat_board = [num for row in board for num in row]
-        
-        if len(flat_board) != 25:
+        max_number = grid_size * grid_size
+
+        if len(flat_board) != max_number:
             return False
-        
-        if set(flat_board) != set(range(1, 26)):
+
+        if set(flat_board) != set(range(1, max_number + 1)):
             return False
-        
+
         return True
 
     def _all_players_ready(self, game_state: BingoGameState) -> bool:
@@ -272,27 +298,27 @@ class BingoGameManager:
                 return False
         return True
 
-    def _calculate_lines_completed(self, board: List[List[int]], called_numbers: Set[int]) -> int:
+    def _calculate_lines_completed(self, board: List[List[int]], called_numbers: Set[int], grid_size: int = 5) -> int:
         lines_completed = 0
-        
-        # Check 5 rows
+
+        # Check rows
         for row in board:
             if all(num in called_numbers for num in row):
                 lines_completed += 1
-        
-        # Check 5 columns
-        for col_idx in range(5):
-            column = [board[row_idx][col_idx] for row_idx in range(5)]
+
+        # Check columns
+        for col_idx in range(grid_size):
+            column = [board[row_idx][col_idx] for row_idx in range(grid_size)]
             if all(num in called_numbers for num in column):
                 lines_completed += 1
-        
+
         # Check 2 major diagonals
-        diagonal1 = [board[i][i] for i in range(5)]
+        diagonal1 = [board[i][i] for i in range(grid_size)]
         if all(num in called_numbers for num in diagonal1):
             lines_completed += 1
-        
-        diagonal2 = [board[i][4 - i] for i in range(5)]
+
+        diagonal2 = [board[i][grid_size - 1 - i] for i in range(grid_size)]
         if all(num in called_numbers for num in diagonal2):
             lines_completed += 1
-        
+
         return lines_completed

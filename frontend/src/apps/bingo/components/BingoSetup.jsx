@@ -3,9 +3,13 @@ import SpectatorView from '../../../components/common/SpectatorView';
 import { useSpectator } from '../../../hooks/useSpectator';
 
 const BingoSetup = ({ gameState, userId, sendMessage }) => {
-  // Initialize 5x5 grid with null values
-  const [grid, setGrid] = useState(() => 
-    Array(5).fill(null).map(() => Array(5).fill(null))
+  // Read grid_size from config, default to 5
+  const gridSize = gameState?.config?.grid_size || 5;
+  const maxNumber = gridSize * gridSize;
+
+  // Initialize dynamic grid with null values
+  const [grid, setGrid] = useState(() =>
+    Array(gridSize).fill(null).map(() => Array(gridSize).fill(null))
   );
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -13,14 +17,14 @@ const BingoSetup = ({ gameState, userId, sendMessage }) => {
   useEffect(() => {
     if (gameState.status === 'setup') {
       setIsSubmitted(false);
-      setGrid(Array(5).fill(null).map(() => Array(5).fill(null)));
+      setGrid(Array(gridSize).fill(null).map(() => Array(gridSize).fill(null)));
     }
-  }, [gameState.status]);
+  }, [gameState.status, gridSize]);
 
-  // Helper function to find the lowest available number (1-25) not in use
+  // Helper function to find the lowest available number (1 to maxNumber) not in use
   const getLowestAvailableNumber = () => {
     const usedNumbers = new Set(grid.flat().filter(n => n !== null));
-    for (let i = 1; i <= 25; i++) {
+    for (let i = 1; i <= maxNumber; i++) {
       if (!usedNumbers.has(i)) {
         return i;
       }
@@ -33,20 +37,20 @@ const BingoSetup = ({ gameState, userId, sendMessage }) => {
     return grid.every(row => row.every(cell => cell !== null));
   };
 
-  // Auto-shuffle: populate grid with randomized 1-25
+  // Auto-shuffle: populate grid with randomized 1 to maxNumber
   const autoShuffle = () => {
-    const numbers = Array.from({ length: 25 }, (_, i) => i + 1);
+    const numbers = Array.from({ length: maxNumber }, (_, i) => i + 1);
     // Fisher-Yates shuffle
     for (let i = numbers.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
     }
-    // Convert to 5x5 array
-    const grid5x5 = [];
-    for (let i = 0; i < 5; i++) {
-      grid5x5.push(numbers.slice(i * 5, (i + 1) * 5));
+    // Convert to gridSize x gridSize array
+    const dynamicGrid = [];
+    for (let i = 0; i < gridSize; i++) {
+      dynamicGrid.push(numbers.slice(i * gridSize, (i + 1) * gridSize));
     }
-    setGrid(grid5x5);
+    setGrid(dynamicGrid);
   };
 
   // Sequential click handler: empty cell gets lowest available, filled cell becomes null
@@ -145,7 +149,7 @@ const BingoSetup = ({ gameState, userId, sendMessage }) => {
 
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(5, 1fr)',
+        gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
         gap: '8px',
         marginBottom: '20px'
       }}>
@@ -155,18 +159,19 @@ const BingoSetup = ({ gameState, userId, sendMessage }) => {
               key={`${rowIndex}-${colIndex}`}
               onClick={() => !isSubmitted && handleCellClick(rowIndex, colIndex)}
               style={{
+                aspectRatio: '1/1',
+                minHeight: gridSize > 6 ? '35px' : '50px',
                 background: isSubmitted ? '#e9ecef' : (num !== null ? '#d4edda' : '#f8f9fa'),
                 border: isSubmitted ? '2px solid #ced4da' : (num !== null ? '2px solid #28a745' : '2px solid #dee2e6'),
                 borderRadius: '8px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '1.1rem',
+                fontSize: gridSize > 6 ? '0.8rem' : '1.1rem',
                 fontWeight: '600',
                 color: isSubmitted ? '#6c757d' : (num !== null ? '#155724' : '#6c757d'),
                 cursor: isSubmitted ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s',
-                minHeight: '50px',
                 opacity: isSubmitted ? 0.7 : 1
               }}
               onMouseOver={(e) => {

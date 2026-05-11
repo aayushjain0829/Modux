@@ -14,30 +14,56 @@ function LobbyStage({ isHost, players, gameConfig, onToggleReady, onStartGame, c
   const [localTurnTimer, setLocalTurnTimer] = useState(gameState?.turn_timer || 60)
   const [localGameTimer, setLocalGameTimer] = useState(gameState?.game_timer || 300)
   const [isSaved, setIsSaved] = useState(false)
-  
+
+  // Configuration state for Bingo
+  const [localGridSize, setLocalGridSize] = useState(gameState?.config?.grid_size || 5)
+  const [localFirstPlayerRule, setLocalFirstPlayerRule] = useState(gameState?.config?.first_player_rule || 'random')
+
   // Check if this is CrossClue game
   const isCrossClue = gameConfig?.mode === 'cooperative' && gameConfig?.grid === '4x4'
+
+  // Check if this is Bingo game (Bingo has empty config, so we check it's NOT CrossClue)
+  const isBingo = !isCrossClue && (!gameConfig || Object.keys(gameConfig).length === 0)
   
   // Handle local configuration updates (draft state)
   const handleLocalConfigUpdate = (timerType, value) => {
     const newValue = parseInt(value) || 60
-    
+
     if (timerType === 'turn') {
       setLocalTurnTimer(newValue)
     } else if (timerType === 'game') {
       setLocalGameTimer(newValue)
     }
   }
-  
+
+  // Handle Bingo configuration updates
+  const handleBingoConfigUpdate = (configType, value) => {
+    if (configType === 'grid_size') {
+      setLocalGridSize(parseInt(value))
+    } else if (configType === 'first_player_rule') {
+      setLocalFirstPlayerRule(value)
+    }
+  }
+
   // Handle save rules function
   const handleSaveRules = () => {
-    sendMessage({
+    const configData = {
       action: 'update_config',
-      user_id: currentUserId,
-      turn_timer: localTurnTimer,
-      game_timer: localGameTimer
-    })
-    
+      user_id: currentUserId
+    }
+
+    if (isCrossClue) {
+      configData.turn_timer = localTurnTimer
+      configData.game_timer = localGameTimer
+    } else if (isBingo) {
+      configData.config = {
+        grid_size: localGridSize,
+        first_player_rule: localFirstPlayerRule
+      }
+    }
+
+    sendMessage(configData)
+
     // Show saved feedback
     setIsSaved(true)
     setTimeout(() => setIsSaved(false), 2000)
@@ -58,7 +84,7 @@ function LobbyStage({ isHost, players, gameConfig, onToggleReady, onStartGame, c
       <div className="lobby-settings">
         <div className="settings-header">
           <h3 className="settings-title">Game Rules</h3>
-          {isHost && isCrossClue && (
+          {isHost && (isCrossClue || isBingo) && (
             <button
               onClick={handleSaveRules}
               className={`save-rules-btn ${isSaved ? 'saved' : ''}`}
@@ -126,6 +152,70 @@ function LobbyStage({ isHost, players, gameConfig, onToggleReady, onStartGame, c
                     <div className="timer-value">
                       <span className="timer-number">{Math.floor((gameState?.game_timer || 300) / 60)}m {(gameState?.game_timer || 300) % 60}s</span>
                     </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : isBingo ? (
+            // Bingo configuration
+            <div className="bingo-config">
+              {isHost ? (
+                // Host can edit Bingo settings
+                <div className="bingo-settings-grid">
+                  <div className="bingo-setting-row">
+                    <label className="bingo-setting-label">
+                      Grid Size
+                    </label>
+                    <select
+                      value={localGridSize}
+                      onChange={(e) => handleBingoConfigUpdate('grid_size', e.target.value)}
+                      className="glass-input"
+                    >
+                      <option value={5}>5x5</option>
+                      <option value={6}>6x6</option>
+                      <option value={7}>7x7</option>
+                      <option value={8}>8x8</option>
+                    </select>
+                  </div>
+                  <div className="bingo-setting-row">
+                    <label className="bingo-setting-label">
+                      First Player
+                    </label>
+                    <select
+                      value={localFirstPlayerRule}
+                      onChange={(e) => handleBingoConfigUpdate('first_player_rule', e.target.value)}
+                      className="glass-input"
+                    >
+                      <option value="random">Random</option>
+                      <option value="host">Host</option>
+                      {players.map(player => (
+                        <option key={player.id} value={player.id}>
+                          {player.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              ) : (
+                // Non-host players see read-only settings from gameState
+                <div className="bingo-settings-grid">
+                  <div className="bingo-setting-row">
+                    <label className="bingo-setting-label">
+                      Grid Size
+                    </label>
+                    <span className="bingo-setting-value">
+                      {gameState?.config?.grid_size || 5}x{gameState?.config?.grid_size || 5}
+                    </span>
+                  </div>
+                  <div className="bingo-setting-row">
+                    <label className="bingo-setting-label">
+                      First Player
+                    </label>
+                    <span className="bingo-setting-value">
+                      {gameState?.config?.first_player_rule === 'random' ? 'Random' :
+                       gameState?.config?.first_player_rule === 'host' ? 'Host' :
+                       players.find(p => p.id === gameState?.config?.first_player_rule)?.name || gameState?.config?.first_player_rule}
+                    </span>
                   </div>
                 </div>
               )}

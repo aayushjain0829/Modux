@@ -290,7 +290,17 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
                     elif action == "toggle_ready":
                         game_state = game_manager.toggle_ready(session_id, user_id)
                         await manager.broadcast_state(app_name, session_id, game_state.model_dump())
-                    
+
+                    elif action == "update_config":
+                        # Only host can update config
+                        game_state = game_manager.get_session(session_id)
+                        if len(game_state.turn_order) > 0 and user_id == game_state.turn_order[0]:
+                            config = message.get("config")
+                            if config:
+                                result = game_manager.update_config(session_id, config)
+                                if result:
+                                    await manager.broadcast_state(app_name, session_id, result.model_dump())
+
                     elif action == "start_game":
                         game_state = game_manager.start_game(session_id, user_id)
                         await manager.broadcast_state(app_name, session_id, game_state.model_dump())
@@ -357,7 +367,13 @@ app.mount("/static", StaticFiles(directory="frontend/dist", html=True), name="st
 # Also mount at root for SPA routing, but with a check to avoid WebSocket interception
 @app.get("/{path:path}")
 async def serve_spa(path: str):
-    return FileResponse(f"frontend/dist/{path}" if path else "frontend/dist/index.html")
+    # Check if the requested path is an actual file
+    import os
+    file_path = f"frontend/dist/{path}"
+    if path and os.path.isfile(file_path):
+        return FileResponse(file_path)
+    # For all other paths, serve index.html (SPA routing)
+    return FileResponse("frontend/dist/index.html")
 
 
 if __name__ == "__main__":
