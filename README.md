@@ -21,9 +21,10 @@ npm install
 npm run dev
 ```
 
-**Expose via Cloudflare Tunnel:**
+**Access via Local Network:**
 ```bash
-cloudflared tunnel --url http://localhost:8000
+# Use your local IP address shown in backend logs
+# Example: http://192.168.1.100:8000
 ```
 
 ## 🏗 Architecture & Tech Stack
@@ -113,47 +114,28 @@ npm run dev
 npm run build
 ```
 
-### 🌐 Cloudflare Tunnel Setup
+### 🌐 Local Network Access
 
-For easy public access without port forwarding, Modux includes automatic Cloudflare tunnel hosting:
+Modux is designed to run on your local network. To access it from mobile devices:
 
-1. **Install cloudflared** (included in requirements.txt):
-```bash
-pip install cloudflared
-```
+1. **Find your local IP address** - The backend will display it on startup (e.g., `192.168.1.100`)
+2. **Connect from mobile devices** - Use `http://YOUR_IP:8000` on any device on the same Wi-Fi network
+3. **Manual startup** - Start both backend and frontend manually as described in the sections above
 
-2. **Install xclip** for auto-copy functionality:
-```bash
-sudo apt-get install xclip
-```
-
-3. **Use the provided startup script**:
-```bash
-./HostModux.sh
-```
-
-**Features:**
-- 🚀 Automatic backend startup (port 8000)
-- 🎨 Automatic frontend dev server (port 5173)  
-- 🌐 Automatic Cloudflare tunnel (public URL)
-- 📋 Auto-copy tunnel URL to clipboard
-- 🔄 Smart process management (Ctrl+C to stop)
-
-**Manual tunnel creation** (if needed):
-```bash
-cloudflared tunnel --url http://localhost:8000
-```
-
-The tunnel provides a public `*.trycloudflare.com` URL that forwards to your local backend, making it accessible from anywhere without port forwarding or firewall configuration.
+**Access Options:**
+- 🚀 Backend runs on port 8000
+- 🎨 Frontend dev server runs on port 5173  
+- 📱 Local network access for mobile devices
+- 🔄 Use Ctrl+C to stop individual services
 
 The production build is served automatically by the FastAPI backend on port **8000**.
 
 ### 🔒 Security & Network
 
-Modux uses Cloudflare Tunnels to enable internet multiplayer without complex network configuration. This provides secure, encrypted tunneling through Cloudflare's global network.
+Modux runs on your local network, providing secure access within your Wi-Fi network. This ensures that only devices on the same network can access your game sessions.
 
 **Upcoming Security Feature:**
-To prevent unauthorized access via public tunnel URLs, game lobbies will require a Host-generated 4-digit PIN to join.
+To enhance session security, game lobbies will require a Host-generated 4-digit PIN to join.
 
 ### Mobile Access
 

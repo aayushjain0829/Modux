@@ -2,5 +2,4 @@ fastapi==0.136.1
 uvicorn==0.46.0
 websockets==16.0
 pydantic==2.13.3
-cloudflared>=2023.3.0
 xclip>=0.13
