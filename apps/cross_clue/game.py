@@ -62,6 +62,9 @@ class CrossClueGameManager:
         """Join a game session"""
         game_state = self.get_session(session_id)
         
+        print(f"CrossClue: Player {user_id} ({username}) joining session {session_id}")
+        print(f"CrossClue: Current state - host_id: {game_state.host_id}, turn_order: {game_state.turn_order}")
+        
         # Add player if not already in game
         if user_id not in game_state.players:
             # Create player and set as ready by default (cooperative game)
@@ -71,6 +74,7 @@ class CrossClueGameManager:
             # Mark as spectator if game not in waiting status
             if game_state.status != 'waiting':
                 player.is_spectator = True
+                print(f"CrossClue: {user_id} marked as spectator (game status: {game_state.status})")
             else:
                 # Add to turn order if in waiting stage
                 if user_id not in game_state.turn_order:
@@ -78,9 +82,13 @@ class CrossClueGameManager:
                     # Set first player as host
                     if len(game_state.turn_order) == 1:
                         game_state.host_id = user_id
+                        print(f"CrossClue: {user_id} set as host (first player)")
             
             game_state.players[user_id] = player
+        else:
+            print(f"CrossClue: {user_id} already in game")
         
+        print(f"CrossClue: Updated state - host_id: {game_state.host_id}, turn_order: {game_state.turn_order}")
         return game_state
 
     def toggle_ready(self, session_id: str, user_id: str) -> CrossClueGameState:

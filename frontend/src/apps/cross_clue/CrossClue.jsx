@@ -50,11 +50,13 @@ function CrossClue() {
 
     websocket.onopen = () => {
       setConnected(true)
-      // Join game on connection using global username
-      sendMessage({
+      const joinMessage = {
         action: 'join_game',
         username: username || `Player_${userId.substring(5, 9)}`
-      });
+      };
+      console.log('CrossClue: Joining game with', { userId, username: joinMessage.username });
+      // Join game on connection using global username
+      sendMessage(joinMessage);
     };
 
     websocket.onmessage = (event) => {
@@ -68,6 +70,12 @@ function CrossClue() {
         }
         // Handle state_update messages (public game state)
         else if (parsed.type === 'state_update' && parsed.data) {
+          console.log('CrossClue: Received game state update', {
+            host_id: parsed.data.host_id,
+            turn_order: parsed.data.turn_order,
+            players: Object.keys(parsed.data.players || {}),
+            userId: userId
+          });
           // Force new object reference to trigger React re-render
           setGameState({ ...parsed.data });
         }
@@ -131,7 +139,7 @@ function CrossClue() {
     return playerData;
   });
 
-  const isHost = gameState?.turn_order?.[0] === userId
+  const isHost = gameState?.host_id === userId
 
   if (!connected) {
     return (
