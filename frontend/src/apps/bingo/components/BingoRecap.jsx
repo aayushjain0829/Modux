@@ -93,8 +93,8 @@ const BingoRecap = ({ gameState, userId, sendMessage, wsRef }) => {
             </h3>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(5, 50px)',
-              gridTemplateRows: 'repeat(5, 50px)',
+              gridTemplateColumns: `repeat(${gameState.config?.grid_size || 5}, 50px)`,
+              gridTemplateRows: `repeat(${gameState.config?.grid_size || 5}, 50px)`,
               gap: '4px',
               justifyContent: 'center',
               marginBottom: '20px'
@@ -127,7 +127,7 @@ const BingoRecap = ({ gameState, userId, sendMessage, wsRef }) => {
               fontSize: '1rem',
               color: '#666'
             }}>
-              Lines Completed: {currentPlayer.lines_completed}/12
+              Lines Completed: {currentPlayer.lines_completed}/{(gameState.config?.grid_size || 5) * 2 + 2}
             </div>
           </div>
         )}
