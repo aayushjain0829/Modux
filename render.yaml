@@ -1,0 +1,19 @@
+services:
+  # Backend API Service
+  - type: web
+    name: modux-backend
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: ALLOWED_ORIGINS
+        value: https://aayushjain0829.github.io
+      - key: PORT
+        value: 10000
+    healthCheck:
+      path: /
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3

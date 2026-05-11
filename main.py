@@ -8,10 +8,13 @@ from typing import Dict, List, Set, Optional
 
 app = FastAPI()
 
-# Add CORS middleware for local development
+# Add CORS middleware
+import os
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000,https://aayushjain0829.github.io").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
