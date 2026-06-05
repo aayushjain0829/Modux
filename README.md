@@ -11,8 +11,8 @@ Modux is a highly modular web application designed to host interactive, real-tim
 
 Play Modux online right now! Simply generate a session code and share the link with your friends on any device.
 
-- **Frontend Application**: `[Your GitHub Pages URL Here]`
-- **Backend API / WebSocket**: `[Your Render Backend URL Here]`
+- **Frontend Application**: `https://aayushjain0829.github.io/`
+- **Backend API / WebSocket**: `https://modux.onrender.com/`
 
 > **Note:** The backend is hosted on a free Render instance, which spins down after inactivity. It may take 30-60 seconds for the backend to wake up on your first connection.
 
