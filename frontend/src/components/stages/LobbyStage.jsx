@@ -2,9 +2,10 @@ import React, { useState } from 'react'
 import './LobbyStage.css'
 
 function LobbyStage({ gameType, isHost, players, gameConfig, onToggleReady, onStartGame, currentUserId, gameState, sendMessage }) {
-  const readyCount = players.filter(p => p.is_ready).length
-  const totalPlayers = players.length
-  const allReady = totalPlayers > 0 && readyCount === totalPlayers
+  const activePlayers = players.filter(p => !p.is_spectator)
+  const readyCount = activePlayers.filter(p => p.is_ready).length
+  const totalActive = activePlayers.length
+  const allReady = totalActive >= 2 && readyCount === totalActive
   
   // Find the current user in the players array
   const currentUser = players.find(p => p.id === currentUserId)
@@ -73,9 +74,11 @@ function LobbyStage({ gameType, isHost, players, gameConfig, onToggleReady, onSt
     <div className="lobby-stage">
       {/* Status Area */}
       <div className="lobby-status">
-        <h2 className="lobby-title">Waiting for Players...</h2>
+        <h2 className="lobby-title">
+          {totalActive < 2 ? "Waiting for 2nd Player..." : "Waiting for Players..."}
+        </h2>
         <div className="ready-status">
-          <span className="ready-count">{readyCount}/{totalPlayers}</span>
+          <span className="ready-count">{readyCount}/{totalActive}</span>
           <span className="ready-label">Ready</span>
         </div>
       </div>

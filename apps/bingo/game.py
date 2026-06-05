@@ -176,6 +176,11 @@ class BingoGameManager(BaseGameManager):
         if len(game_state.turn_order) > 0 and user_id != game_state.turn_order[0]:
             return game_state
 
+        # Need at least 2 active players
+        active_players = [p for p in game_state.players.values() if not p.is_spectator]
+        if len(active_players) < 2:
+            return game_state
+
         # Allow starting game if global status is waiting OR if host is in lobby stage
         can_start = (
             game_state.status == 'waiting' or
