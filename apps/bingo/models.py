@@ -12,5 +12,5 @@ class BingoGameState(BaseGameState):
     called_numbers: List[int] = []
     winner: Optional[str] = None
     players: Dict[str, BingoPlayer] = {}
-    config: Dict[str, Any] = {'grid_size': 5, 'first_player_rule': 'random'}
+    config: Dict[str, Any] = {"grid_size": 5, "first_player_rule": "random"}
     last_called_number: Optional[int] = None

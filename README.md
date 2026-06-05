@@ -161,43 +161,12 @@ To access the platform from a mobile device on the same Wi-Fi network:
 | **Arena** | Action | The core gameplay container and real-time interface. |
 | **Recap** | Result | The post-game summary with unified routing back to the Lobby or Dashboard. |
 
-## 🛠️ Backend Rules for Creating a New Game
+## 🛠️ Adding a New Game
 
-Modux is designed to be highly modular. To add a new game to the backend, you must follow these strict architectural rules to ensure seamless integration with the global WebSocket router.
+Modux is designed to be highly modular. If you want to build a new game on this platform, please refer to the specific architectural rules for the frontend and backend:
 
-### Rule 1: Directory Structure
-1. Create a new directory under `apps/your_app_name/`.
-2. This directory must contain `__init__.py` and `game.py`.
-3. (Optional) Define Pydantic models in `models.py` for rigid state typing.
-
-### Rule 2: The GameStateManager Interface
-Your `game.py` must define a `GameStateManager` class. The global WebSocket connection manager handles all I/O and simply passes the payload to your class via a single required method:
-
-```python
-async def handle_action(self, user_id: str, action: str, data: dict, session: dict) -> dict:
-    # Handle the action and return the mutated session state
-    return session
-```
-
-### Rule 3: Enforce the 4-Stage State Machine
-The returned `session` dictionary must possess a `status` key dictating the current phase of the game. You must utilize the standardized pipeline:
-1. `"waiting"`: The initial lobby phase.
-2. `"setup"`: (Optional) Configuration or board generation.
-3. `"playing"`: The active gameplay arena.
-4. `"finished"`: The post-game recap.
-
-### Rule 4: Global App Registry
-Once your `GameStateManager` is built, you must register it in `main.py` so the router knows where to direct traffic for `ws:///app/your_app_name/...`:
-
-```python
-from apps.your_app_name.game import GameStateManager as YourAppManager
-
-apps = {
-    "cross_clue": CrossClueManager(),
-    "bingo": BingoManager(),
-    "your_app_name": YourAppManager(),
-}
-```
+- **[Backend Architecture Rules](./apps/README.md)**: Guidelines for `GameStateManager`, the 4-stage pipeline, and WebSocket integration.
+- **[Frontend Architecture Rules](./frontend/README.md)**: Guidelines for the `<ModuxLayout>` shell, the stage components, and `useGameSocket`.
 
 ## 🗺️ Platform Execution Plan
 

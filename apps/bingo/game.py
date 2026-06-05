@@ -11,7 +11,7 @@ class BingoGameManager(BaseGameManager):
         if session_id not in self.sessions:
             self.sessions[session_id] = BingoGameState(session_id=session_id)
         return self.sessions[session_id]
-    
+
     def clear_session(self, session_id: str) -> None:
         """Completely remove a session - useful for testing"""
         if session_id in self.sessions:
@@ -24,21 +24,26 @@ class BingoGameManager(BaseGameManager):
 
     def join_game(self, session_id: str, user_id: str, username: str) -> BingoGameState:
         game_state = self.get_session(session_id)
-        
+
         # If this is first player joining, ensure we start in waiting state
         # Also reset if session is in an unexpected state
-        if len(game_state.turn_order) == 0 or game_state.status not in ['waiting', 'setup', 'playing', 'finished']:
-            game_state.status = 'waiting'
+        if len(game_state.turn_order) == 0 or game_state.status not in [
+            "waiting",
+            "setup",
+            "playing",
+            "finished",
+        ]:
+            game_state.status = "waiting"
             game_state.called_numbers = []
             game_state.winner = None
             game_state.current_turn_index = 0
             game_state.players = {}
             game_state.turn_order = []
-        
+
         if user_id not in game_state.players:
             # New players are spectators if game is not in waiting status
-            is_spectator = game_state.status != 'waiting'
-            
+            is_spectator = game_state.status != "waiting"
+
             game_state.players[user_id] = BingoPlayer(
                 username=username,
                 is_ready=False,
@@ -46,58 +51,64 @@ class BingoGameManager(BaseGameManager):
                 is_spectator=is_spectator,
                 board=[],
                 lines_completed=0,
-                player_stage='recap'
+                player_stage="recap",
             )
-            
+
             # Only add to turn order if not a spectator
             if not is_spectator:
                 game_state.turn_order.append(user_id)
                 # Set first player as host
                 if len(game_state.turn_order) == 1:
                     game_state.host_id = user_id
-        
+
         return game_state
 
     def remove_player(self, session_id: str, user_id: str) -> Optional[BingoGameState]:
         game_state = self.get_session(session_id)
-        
+
         # Remove player from game
         if user_id in game_state.players:
             del game_state.players[user_id]
-        
+
         # Remove from turn order
         if user_id in game_state.turn_order:
             player_index = game_state.turn_order.index(user_id)
             game_state.turn_order.remove(user_id)
-            
+
             # If it was their turn, advance to next player
             if player_index == game_state.current_turn_index and game_state.turn_order:
-                game_state.current_turn_index = game_state.current_turn_index % len(game_state.turn_order)
-        
+                game_state.current_turn_index = game_state.current_turn_index % len(
+                    game_state.turn_order
+                )
+
         # If no players left, clean up session
         if len(game_state.turn_order) == 0:
             if session_id in self.sessions:
                 del self.sessions[session_id]
             return None
-        
+
         return game_state
 
-    def handle_action(self, session_id: str, user_id: str, action: str, payload: Dict[str, Any]) -> Tuple[Optional[BingoGameState], Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
+    def handle_action(
+        self, session_id: str, user_id: str, action: str, payload: Dict[str, Any]
+    ) -> Tuple[
+        Optional[BingoGameState], Optional[Dict[str, Any]], Optional[Dict[str, Any]]
+    ]:
         if action == "join_game":
             username = payload.get("username", f"Player_{user_id[:4]}")
             state = self.join_game(session_id, user_id, username)
             return state, None, None
-            
+
         elif action == "submit_board":
             board = payload.get("board")
             if board:
                 state = self.submit_board(session_id, user_id, board)
                 return state, None, None
-                
+
         elif action == "toggle_ready":
             state = self.toggle_ready(session_id, user_id)
             return state, None, None
-            
+
         elif action == "update_config":
             state = self.get_session(session_id)
             if len(state.turn_order) > 0 and user_id == state.turn_order[0]:
@@ -105,36 +116,38 @@ class BingoGameManager(BaseGameManager):
                 if config:
                     state = self.update_config(session_id, config)
                     return state, None, None
-                    
+
         elif action == "start_game":
             state = self.start_game(session_id, user_id)
             return state, None, None
-            
+
         elif action == "play_again":
             state = self.play_again(session_id, user_id)
             return state, None, None
-            
+
         elif action == "return_to_lobby":
             state = self.return_to_lobby(session_id, user_id)
             return state, None, None
-            
+
         elif action == "leave_game":
             state = self.remove_player(session_id, user_id)
             return state, None, None
-            
+
         elif action == "call_number":
             number = payload.get("number")
             if number is not None:
                 state = self.call_number(session_id, user_id, number)
                 return state, None, None
-                
+
         elif action == "get_state":
             state = self.get_session(session_id)
             return None, None, {"type": "state_update", "data": state.model_dump()}
 
         return None, None, None
 
-    def submit_board(self, session_id: str, user_id: str, board: List[List[int]]) -> BingoGameState:
+    def submit_board(
+        self, session_id: str, user_id: str, board: List[List[int]]
+    ) -> BingoGameState:
         game_state = self.get_session(session_id)
 
         # Spectators cannot submit boards
@@ -142,7 +155,7 @@ class BingoGameManager(BaseGameManager):
             return game_state
 
         # Validate board using dynamic grid_size from config
-        grid_size = game_state.config.get('grid_size', 5)
+        grid_size = game_state.config.get("grid_size", 5)
         if not self._validate_board(board, grid_size):
             return game_state
 
@@ -152,7 +165,7 @@ class BingoGameManager(BaseGameManager):
 
         # Check if all players have submitted boards (only non-spectators)
         if self._all_players_submitted(game_state):
-            game_state.status = 'playing'
+            game_state.status = "playing"
 
         return game_state
 
@@ -160,7 +173,9 @@ class BingoGameManager(BaseGameManager):
         game_state = self.get_session(session_id)
 
         if user_id in game_state.players:
-            game_state.players[user_id].is_ready = not game_state.players[user_id].is_ready
+            game_state.players[user_id].is_ready = not game_state.players[
+                user_id
+            ].is_ready
 
         return game_state
 
@@ -182,13 +197,13 @@ class BingoGameManager(BaseGameManager):
             return game_state
 
         # Allow starting game if global status is waiting OR if host is in lobby stage
-        can_start = (
-            game_state.status == 'waiting' or
-            (game_state.status == 'finished' and game_state.players[user_id].player_stage == 'lobby')
+        can_start = game_state.status == "waiting" or (
+            game_state.status == "finished"
+            and game_state.players[user_id].player_stage == "lobby"
         )
 
         if can_start:
-            game_state.status = 'setup'
+            game_state.status = "setup"
 
             # Reset game state for new game
             game_state.called_numbers = []
@@ -196,16 +211,21 @@ class BingoGameManager(BaseGameManager):
             game_state.last_called_number = None
 
             # Determine first active player based on first_player_rule
-            grid_size = game_state.config.get('grid_size', 5)
-            first_player_rule = game_state.config.get('first_player_rule', 'random')
+            grid_size = game_state.config.get("grid_size", 5)
+            first_player_rule = game_state.config.get("first_player_rule", "random")
 
-            if first_player_rule == 'random':
+            if first_player_rule == "random":
                 import random
-                game_state.current_turn_index = random.randint(0, len(game_state.turn_order) - 1)
-            elif first_player_rule == 'host' and len(game_state.turn_order) > 0:
+
+                game_state.current_turn_index = random.randint(
+                    0, len(game_state.turn_order) - 1
+                )
+            elif first_player_rule == "host" and len(game_state.turn_order) > 0:
                 game_state.current_turn_index = 0  # Host is first in turn_order
             elif first_player_rule in game_state.turn_order:
-                game_state.current_turn_index = game_state.turn_order.index(first_player_rule)
+                game_state.current_turn_index = game_state.turn_order.index(
+                    first_player_rule
+                )
             else:
                 game_state.current_turn_index = 0  # Fallback to host
 
@@ -216,23 +236,23 @@ class BingoGameManager(BaseGameManager):
                 game_state.players[player_id].board = []
                 game_state.players[player_id].lines_completed = 0
                 # Reset all players to setup stage for new game
-                game_state.players[player_id].player_stage = 'setup'
+                game_state.players[player_id].player_stage = "setup"
 
         return game_state
 
     def play_again(self, session_id: str, user_id: str) -> BingoGameState:
         game_state = self.get_session(session_id)
-        
+
         # Only host can play again (reset entire game for everyone)
         if len(game_state.turn_order) > 0 and user_id != game_state.turn_order[0]:
             return game_state
-        
+
         # Reset game state but keep players
-        game_state.status = 'waiting'
+        game_state.status = "waiting"
         game_state.called_numbers = []
         game_state.winner = None
         game_state.current_turn_index = 0
-        
+
         # Reset player boards and statuses
         for player_id in game_state.players:
             game_state.players[player_id].board = []
@@ -240,41 +260,43 @@ class BingoGameManager(BaseGameManager):
             game_state.players[player_id].has_submitted = False
             game_state.players[player_id].is_spectator = False
             game_state.players[player_id].lines_completed = 0
-        
+
         return game_state
 
     def return_to_lobby(self, session_id: str, user_id: str) -> BingoGameState:
         game_state = self.get_session(session_id)
-        
+
         # Individual player returns to lobby
         if user_id in game_state.players:
             # If game is finished, move player to individual lobby stage
-            if game_state.status == 'finished':
-                game_state.players[user_id].player_stage = 'lobby'
+            if game_state.status == "finished":
+                game_state.players[user_id].player_stage = "lobby"
                 game_state.players[user_id].board = []
                 game_state.players[user_id].is_ready = False
                 game_state.players[user_id].has_submitted = False
-                game_state.players[user_id].is_spectator = False  # Reset spectator status
+                game_state.players[user_id].is_spectator = (
+                    False  # Reset spectator status
+                )
                 game_state.players[user_id].lines_completed = 0
-                
+
                 # Add back to turn order if they were a spectator
                 if user_id not in game_state.turn_order:
                     game_state.turn_order.append(user_id)
-        
+
         return game_state
 
     def call_number(self, session_id: str, user_id: str, number: int) -> BingoGameState:
         game_state = self.get_session(session_id)
 
         # Gatekeeper: verify game is playing and it's the user's turn
-        if game_state.status != 'playing':
+        if game_state.status != "playing":
             return game_state
 
         if user_id != game_state.turn_order[game_state.current_turn_index]:
             return game_state
 
         # Validate number is between 1 and grid_size*grid_size, and not already called
-        grid_size = game_state.config.get('grid_size', 5)
+        grid_size = game_state.config.get("grid_size", 5)
         max_number = grid_size * grid_size
 
         if number < 1 or number > max_number:
@@ -293,7 +315,9 @@ class BingoGameManager(BaseGameManager):
 
         for player_id, player in game_state.players.items():
             if player.board:
-                player.lines_completed = self._calculate_lines_completed(player.board, called_set, grid_size)
+                player.lines_completed = self._calculate_lines_completed(
+                    player.board, called_set, grid_size
+                )
 
                 # Collect potential winners (grid_size+ lines completed)
                 if player.lines_completed >= grid_size:
@@ -301,7 +325,7 @@ class BingoGameManager(BaseGameManager):
 
         # Check win condition with tie-breaker logic
         if len(potential_winners) > 0:
-            game_state.status = 'finished'
+            game_state.status = "finished"
 
             # Tie-breaker: If multiple winners, prioritize the active player (who called the number)
             if len(potential_winners) > 1:
@@ -318,8 +342,10 @@ class BingoGameManager(BaseGameManager):
             return game_state
 
         # Advance turn if game not finished
-        if game_state.status == 'playing':
-            game_state.current_turn_index = (game_state.current_turn_index + 1) % len(game_state.turn_order)
+        if game_state.status == "playing":
+            game_state.current_turn_index = (game_state.current_turn_index + 1) % len(
+                game_state.turn_order
+            )
 
         return game_state
 
@@ -346,7 +372,10 @@ class BingoGameManager(BaseGameManager):
 
     def _all_players_ready(self, game_state: BingoGameState) -> bool:
         for player_id in game_state.turn_order:
-            if player_id not in game_state.players or not game_state.players[player_id].is_ready:
+            if (
+                player_id not in game_state.players
+                or not game_state.players[player_id].is_ready
+            ):
                 return False
         return True
 
@@ -360,7 +389,9 @@ class BingoGameManager(BaseGameManager):
                 return False
         return True
 
-    def _calculate_lines_completed(self, board: List[List[int]], called_numbers: Set[int], grid_size: int = 5) -> int:
+    def _calculate_lines_completed(
+        self, board: List[List[int]], called_numbers: Set[int], grid_size: int = 5
+    ) -> int:
         lines_completed = 0
 
         # Check rows
