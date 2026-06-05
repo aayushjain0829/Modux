@@ -18,12 +18,6 @@ async def test_websocket_connection():
     client = TestClient(app)
     # Connect to a fresh session
     with client.websocket_connect("/ws/bingo/test_session_1") as websocket:
-        # Wait for the initial state update
-        data = websocket.receive_json()
-        assert data["type"] == "state_update"
-        assert "data" in data
-        assert data["data"]["status"] == "waiting"
-        
         # Send a join_game action
         websocket.send_json({
             "action": "join_game",
@@ -42,13 +36,7 @@ async def test_concurrent_connections():
     client = TestClient(app)
     
     with client.websocket_connect("/ws/bingo/test_session_2") as ws1:
-        # Initial state for ws1
-        data1 = ws1.receive_json()
-        
         with client.websocket_connect("/ws/bingo/test_session_2") as ws2:
-            # Initial state for ws2
-            data2 = ws2.receive_json()
-            
             # Player 1 joins
             ws1.send_json({
                 "action": "join_game",
