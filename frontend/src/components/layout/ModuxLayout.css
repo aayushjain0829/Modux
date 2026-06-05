@@ -252,7 +252,7 @@
   }
 
   .modux-menu-toggle {
-    display: flex;
+    display: none !important;
   }
 
   .modux-leave-button span {
@@ -278,34 +278,50 @@
 
   .modux-body {
     flex-direction: column;
-    padding: 16px;
-    gap: 16px;
+    padding: 8px;
+    gap: 8px;
   }
 
   .modux-sidebar {
-    display: none;
-    width: 90%;
-    max-width: 350px;
-    position: fixed;
-    top: 60px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 50;
-    max-height: 80vh;
-    overflow-y: auto;
+    width: 100%;
+    min-width: unset;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 12px;
+    overflow-x: auto;
+    border-radius: 12px;
     box-sizing: border-box;
+    position: static;
+    transform: none;
+    max-height: none;
+    /* Smooth scroll for iOS */
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Hide scrollbar for cleaner look on mobile */
+  .modux-sidebar::-webkit-scrollbar {
+    display: none;
   }
 
-  .modux-sidebar.open {
-    display: block;
+  .modux-sidebar-header {
+    display: none;
   }
 
-  .modux-sidebar-close {
-    display: block;
+  .modux-players-list {
+    flex-direction: row;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .modux-player-item {
+    padding: 8px 12px;
+    white-space: nowrap;
+    min-height: 36px;
   }
 
   .modux-main-content {
-    padding: 16px;
+    padding: 12px;
   }
 }
 
@@ -338,24 +354,23 @@
   }
 
   .modux-body {
-    padding: 12px;
-    gap: 12px;
+    padding: 8px;
+    gap: 8px;
   }
 
   .modux-sidebar {
-    width: 95%;
-    max-width: 320px;
-    top: 50px;
+    width: 100%;
+    padding: 10px;
   }
 
   .modux-main-content {
-    padding: 12px;
+    padding: 10px;
   }
 }
 
 /* QR Code Button */
 .modux-qr-button {
-  padding: 6px 10px;
+  padding: 8px 12px;
   background-color: #f1f3f5;
   color: #495057;
   border: 1px solid #ced4da;
@@ -365,6 +380,10 @@
   cursor: pointer;
   transition: all 0.2s;
   margin-left: 6px;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modux-qr-button:hover {
