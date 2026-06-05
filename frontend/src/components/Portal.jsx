@@ -124,7 +124,7 @@ const Portal = () => {
             type="text"
             value={sessionId}
             onChange={(e) => setSessionId(e.target.value.toUpperCase())}
-            placeholder="Enter session ID to join"
+            placeholder="Enter room ID to join"
             style={{
               width: '100%',
               padding: '12px 16px',
