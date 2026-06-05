@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import './LobbyStage.css'
 
-function LobbyStage({ isHost, players, gameConfig, onToggleReady, onStartGame, currentUserId, gameState, sendMessage }) {
+function LobbyStage({ gameType, isHost, players, gameConfig, onToggleReady, onStartGame, currentUserId, gameState, sendMessage }) {
   const readyCount = players.filter(p => p.is_ready).length
   const totalPlayers = players.length
   const allReady = totalPlayers > 0 && readyCount === totalPlayers
@@ -20,10 +20,10 @@ function LobbyStage({ isHost, players, gameConfig, onToggleReady, onStartGame, c
   const [localFirstPlayerRule, setLocalFirstPlayerRule] = useState(gameState?.config?.first_player_rule || 'random')
 
   // Check if this is CrossClue game
-  const isCrossClue = gameConfig?.mode === 'cooperative' && gameConfig?.grid === '4x4'
+  const isCrossClue = gameType === 'cross_clue' || (gameConfig?.mode === 'cooperative' && gameConfig?.grid === '4x4')
 
-  // Check if this is Bingo game (Bingo has empty config, so we check it's NOT CrossClue)
-  const isBingo = !isCrossClue && (!gameConfig || Object.keys(gameConfig).length === 0)
+  // Check if this is Bingo game
+  const isBingo = gameType === 'bingo' || (!isCrossClue && (!gameConfig || Object.keys(gameConfig).length === 0))
   
   // Handle local configuration updates (draft state)
   const handleLocalConfigUpdate = (timerType, value) => {

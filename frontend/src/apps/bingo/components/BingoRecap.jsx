@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const BingoRecap = ({ gameState, userId, sendMessage, wsRef }) => {
+const BingoRecap = ({ gameState, userId, sendMessage }) => {
   const navigate = useNavigate()
 
   const handleReturnToLobby = () => {
@@ -12,16 +12,11 @@ const BingoRecap = ({ gameState, userId, sendMessage, wsRef }) => {
   }
 
   const handleReturnToDashboard = () => {
-    // Tell backend to remove player
+    // Tell backend to leave game (socket closes handled in main)
     sendMessage({
       action: 'leave_game',
       user_id: userId
     })
-    
-    // Close WebSocket connection
-    if (wsRef.current) {
-      wsRef.current.close()
-    }
     
     // Navigate to dashboard
     navigate('/')

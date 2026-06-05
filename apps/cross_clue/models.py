@@ -1,22 +1,12 @@
 from typing import Dict, List, Optional, Literal
-from pydantic import BaseModel
+from apps.base import BasePlayer, BaseGameState
 
 
-class CrossCluePlayer(BaseModel):
-    username: str
-    is_ready: bool = False
-    has_submitted: bool = False
-    is_spectator: bool = False
-    player_stage: Literal['recap', 'lobby'] = 'recap'  # Individual player stage
+class CrossCluePlayer(BasePlayer):
+    pass
 
 
-class CrossClueGameState(BaseModel):
-    session_id: str
-    status: Literal['waiting', 'setup', 'playing', 'finished'] = 'waiting'
-    host_id: str = ""
-    turn_order: List[str] = []
-    current_turn_index: int = 0
-    
+class CrossClueGameState(BaseGameState):
     # Cross Clue specific fields
     row_words: List[str] = []
     col_words: List[str] = []

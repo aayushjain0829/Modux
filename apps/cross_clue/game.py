@@ -1,7 +1,8 @@
 import random
 import time
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Tuple, Any
 from .models import CrossClueGameState, CrossCluePlayer
+from apps.base import BaseGameManager
 
 
 def get_current_timestamp() -> float:
@@ -9,7 +10,7 @@ def get_current_timestamp() -> float:
     return time.time()
 
 # Word bank for Cross Clue game
-WORD_BANK = [
+WORD_BANK = list(set([
     "Apple", "Bear", "Cloud", "Dream", "Eagle", "Fire", "Ghost", "House",
     "Ice", "Jungle", "Key", "Light", "Moon", "Night", "Ocean", "Piano",
     "Queen", "Rain", "Star", "Tree", "Umbrella", "Volcano", "Water", "X-ray",
@@ -20,13 +21,13 @@ WORD_BANK = [
     "Guitar", "Helmet", "Igloo", "Jacket", "Kangaroo", "Lamp", "Mirror", "Needle",
     "Owl", "Pearl", "Question", "Rocket", "Sword", "Train", "Uniform", "Video",
     "Whale", "Yogurt", "Zero", "Ant", "Bee", "Cat", "Dog", "Egg", "Fish",
-    "Goat", "Hen", "Ink", "Jar", "Kite", "Leaf", "Milk", "Nest",
-    "Owl", "Pen", "Quill", "Rat", "Sun", "Tea", "Urn", "Vase",
+    "Goat", "Hen", "Ink", "Jar", "Leaf", "Milk", "Nest",
+    "Pen", "Quill", "Rat", "Sun", "Tea", "Vase",
     "Wolf", "Yak", "Zinc"
-]
+]))
 
 
-class CrossClueGameManager:
+class CrossClueGameManager(BaseGameManager):
     def __init__(self):
         # Store game states: {session_id: game_state}
         self.game_states: Dict[str, CrossClueGameState] = {}
@@ -82,6 +83,114 @@ class CrossClueGameManager:
             game_state.players[user_id] = player
         
         return game_state
+
+    def remove_player(self, session_id: str, user_id: str) -> Optional[CrossClueGameState]:
+        """Remove player from game"""
+        game_state = self.get_session(session_id)
+        
+        # Remove player from game
+        if user_id in game_state.players:
+            del game_state.players[user_id]
+        
+        # Remove from turn order
+        if user_id in game_state.turn_order:
+            game_state.turn_order.remove(user_id)
+            # Adjust current turn index if needed
+            if game_state.current_turn_index >= len(game_state.turn_order) and game_state.turn_order:
+                game_state.current_turn_index = 0
+                
+        # If no players left, clean up session
+        if len(game_state.turn_order) == 0:
+            if session_id in self.game_states:
+                del self.game_states[session_id]
+            return None
+        
+        return game_state
+
+    def handle_action(self, session_id: str, user_id: str, action: str, payload: Dict[str, Any]) -> Tuple[Optional[CrossClueGameState], Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
+        if action == "join_game":
+            username = payload.get("username", f"Player_{user_id[:4]}")
+            state = self.join_game(session_id, user_id, username)
+            return state, None, None
+            
+        elif action == "toggle_ready":
+            state = self.toggle_ready(session_id, user_id)
+            return state, None, None
+            
+        elif action == "update_config":
+            state = self.get_session(session_id)
+            if len(state.turn_order) > 0 and user_id == state.turn_order[0]:
+                config = payload.get("config", {})
+                state = self.update_config(
+                    session_id, 
+                    turn_timer=config.get("turn_timer", 60),
+                    game_timer=config.get("game_timer", 300)
+                )
+                return state, None, None
+                
+        elif action == "start_game":
+            state = self.start_game(session_id, user_id)
+            return state, None, None
+            
+        elif action == "return_to_lobby":
+            state = self.return_to_lobby(session_id, user_id)
+            return state, None, None
+            
+        elif action == "leave_game":
+            state = self.remove_player(session_id, user_id)
+            return state, None, None
+            
+        elif action == "draw_card":
+            coordinate = self.draw_card(session_id, user_id)
+            if coordinate:
+                personal_msg = {
+                    "type": "secret_update",
+                    "data": {"coordinate": coordinate}
+                }
+                state = self.get_session(session_id)
+                return state, None, personal_msg
+            
+        elif action == "submit_clue":
+            clue = payload.get("clue")
+            if clue and self.submit_clue(session_id, user_id, clue):
+                state = self.get_session(session_id)
+                return state, None, None
+                
+        elif action == "guess_coordinate":
+            guess = payload.get("guess")
+            if guess:
+                result = self.guess_coordinate(session_id, user_id, guess)
+                if result:
+                    result["type"] = "guess_result"
+                    state = self.get_session(session_id)
+                    return state, result, None
+                    
+        elif action == "action_timeout":
+            result = self.action_timeout(session_id)
+            if result:
+                result["type"] = "action_timeout_result"
+                state = self.get_session(session_id)
+                return state, result, None
+                
+        elif action == "game_timeout":
+            result = self.game_timeout(session_id)
+            if result:
+                state = self.get_session(session_id)
+                return state, result, None
+                
+        elif action == "submit_vote":
+            coordinate = payload.get("coordinate")
+            if coordinate:
+                result = self.submit_vote(session_id, user_id, coordinate)
+                if result:
+                    state = self.get_session(session_id)
+                    return state, result, None
+                    
+        elif action == "get_state":
+            state = self.get_session(session_id)
+            return None, None, {"type": "state_update", "data": state.model_dump()}
+            
+        return None, None, None
 
     def toggle_ready(self, session_id: str, user_id: str) -> CrossClueGameState:
         """Toggle player ready status"""
@@ -207,7 +316,7 @@ class CrossClueGameManager:
         game_state.grid_state[secret] = 'success' if is_correct else 'fail'
         
         # Track guess history
-        if not hasattr(game_state, 'guess_history') or game_state.guess_history is None:
+        if game_state.guess_history is None:
             game_state.guess_history = {}
         game_state.guess_history[secret] = user_id
         
@@ -262,7 +371,7 @@ class CrossClueGameManager:
                 game_state.misses += 1
                 
                 # Track guess history (nobody guessed it correctly)
-                if not hasattr(game_state, 'guess_history') or game_state.guess_history is None:
+                if game_state.guess_history is None:
                     game_state.guess_history = {}
                 game_state.guess_history[secret] = game_state.active_guesser_id  # Current guesser gets credit for attempt
         
@@ -321,7 +430,7 @@ class CrossClueGameManager:
             return None
         
         # Initialize votes dict if not exists
-        if not hasattr(game_state, 'votes') or game_state.votes is None:
+        if game_state.votes is None:
             game_state.votes = {}
         
         # Add or update vote
@@ -362,7 +471,7 @@ class CrossClueGameManager:
             game_state.misses += 1
             
             # Track guess history (timeout - current guesser gets credit)
-            if not hasattr(game_state, 'guess_history') or game_state.guess_history is None:
+            if game_state.guess_history is None:
                 game_state.guess_history = {}
             game_state.guess_history[secret] = game_state.active_guesser_id
         
@@ -384,22 +493,5 @@ class CrossClueGameManager:
                 # Add back to turn order if they were a spectator
                 if user_id not in game_state.turn_order:
                     game_state.turn_order.append(user_id)
-        
-        return game_state
-
-    def leave_game(self, session_id: str, user_id: str) -> CrossClueGameState:
-        """Remove player from game"""
-        game_state = self.get_session(session_id)
-        
-        # Remove player from game
-        if user_id in game_state.players:
-            del game_state.players[user_id]
-        
-        # Remove from turn order
-        if user_id in game_state.turn_order:
-            game_state.turn_order.remove(user_id)
-            # Adjust current turn index if needed
-            if game_state.current_turn_index >= len(game_state.turn_order) and game_state.turn_order:
-                game_state.current_turn_index = 0
         
         return game_state

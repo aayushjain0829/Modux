@@ -1,8 +1,9 @@
-from typing import Dict, List, Set, Any
+from typing import Dict, List, Set, Any, Optional, Tuple
 from .models import BingoGameState, BingoPlayer
+from apps.base import BaseGameManager
 
 
-class BingoGameManager:
+class BingoGameManager(BaseGameManager):
     def __init__(self):
         self.sessions: Dict[str, BingoGameState] = {}
 
@@ -56,6 +57,82 @@ class BingoGameManager:
                     game_state.host_id = user_id
         
         return game_state
+
+    def remove_player(self, session_id: str, user_id: str) -> Optional[BingoGameState]:
+        game_state = self.get_session(session_id)
+        
+        # Remove player from game
+        if user_id in game_state.players:
+            del game_state.players[user_id]
+        
+        # Remove from turn order
+        if user_id in game_state.turn_order:
+            player_index = game_state.turn_order.index(user_id)
+            game_state.turn_order.remove(user_id)
+            
+            # If it was their turn, advance to next player
+            if player_index == game_state.current_turn_index and game_state.turn_order:
+                game_state.current_turn_index = game_state.current_turn_index % len(game_state.turn_order)
+        
+        # If no players left, clean up session
+        if len(game_state.turn_order) == 0:
+            if session_id in self.sessions:
+                del self.sessions[session_id]
+            return None
+        
+        return game_state
+
+    def handle_action(self, session_id: str, user_id: str, action: str, payload: Dict[str, Any]) -> Tuple[Optional[BingoGameState], Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
+        if action == "join_game":
+            username = payload.get("username", f"Player_{user_id[:4]}")
+            state = self.join_game(session_id, user_id, username)
+            return state, None, None
+            
+        elif action == "submit_board":
+            board = payload.get("board")
+            if board:
+                state = self.submit_board(session_id, user_id, board)
+                return state, None, None
+                
+        elif action == "toggle_ready":
+            state = self.toggle_ready(session_id, user_id)
+            return state, None, None
+            
+        elif action == "update_config":
+            state = self.get_session(session_id)
+            if len(state.turn_order) > 0 and user_id == state.turn_order[0]:
+                config = payload.get("config")
+                if config:
+                    state = self.update_config(session_id, config)
+                    return state, None, None
+                    
+        elif action == "start_game":
+            state = self.start_game(session_id, user_id)
+            return state, None, None
+            
+        elif action == "play_again":
+            state = self.play_again(session_id, user_id)
+            return state, None, None
+            
+        elif action == "return_to_lobby":
+            state = self.return_to_lobby(session_id, user_id)
+            return state, None, None
+            
+        elif action == "leave_game":
+            state = self.remove_player(session_id, user_id)
+            return state, None, None
+            
+        elif action == "call_number":
+            number = payload.get("number")
+            if number is not None:
+                state = self.call_number(session_id, user_id, number)
+                return state, None, None
+                
+        elif action == "get_state":
+            state = self.get_session(session_id)
+            return None, None, {"type": "state_update", "data": state.model_dump()}
+
+        return None, None, None
 
     def submit_board(self, session_id: str, user_id: str, board: List[List[int]]) -> BingoGameState:
         game_state = self.get_session(session_id)
@@ -178,29 +255,6 @@ class BingoGameManager:
                 # Add back to turn order if they were a spectator
                 if user_id not in game_state.turn_order:
                     game_state.turn_order.append(user_id)
-        
-        return game_state
-
-    def leave_game(self, session_id: str, user_id: str) -> BingoGameState:
-        game_state = self.get_session(session_id)
-        
-        # Remove player from game
-        if user_id in game_state.players:
-            del game_state.players[user_id]
-        
-        # Remove from turn order
-        if user_id in game_state.turn_order:
-            player_index = game_state.turn_order.index(user_id)
-            game_state.turn_order.remove(user_id)
-            
-            # If it was their turn, advance to next player
-            if player_index == game_state.current_turn_index and game_state.turn_order:
-                game_state.current_turn_index = game_state.current_turn_index % len(game_state.turn_order)
-        
-        # If no players left, clean up session
-        if len(game_state.turn_order) == 0:
-            if session_id in self.sessions:
-                del self.sessions[session_id]
         
         return game_state
 

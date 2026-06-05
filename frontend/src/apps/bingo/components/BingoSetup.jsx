@@ -153,54 +153,56 @@ const BingoSetup = ({ gameState, userId, sendMessage }) => {
         gap: '8px',
         marginBottom: '20px'
       }}>
-        {grid.map((row, rowIndex) =>
-          row.map((num, colIndex) => (
-            <div
-              key={`${rowIndex}-${colIndex}`}
-              onClick={() => !isSubmitted && handleCellClick(rowIndex, colIndex)}
-              style={{
-                aspectRatio: '1/1',
-                minHeight: gridSize > 6 ? '35px' : '50px',
-                background: isSubmitted ? '#e9ecef' : (num !== null ? '#d4edda' : '#f8f9fa'),
-                border: isSubmitted ? '2px solid #ced4da' : (num !== null ? '2px solid #28a745' : '2px solid #dee2e6'),
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: gridSize > 6 ? '0.8rem' : '1.1rem',
-                fontWeight: '600',
-                color: isSubmitted ? '#6c757d' : (num !== null ? '#155724' : '#6c757d'),
-                cursor: isSubmitted ? 'not-allowed' : 'pointer',
-                transition: 'all 0.2s',
-                opacity: isSubmitted ? 0.7 : 1
-              }}
-              onMouseOver={(e) => {
-                if (!isSubmitted) {
-                  if (num !== null) {
-                    e.target.style.background = '#f8d7da';
-                    e.target.style.borderColor = '#dc3545';
-                  } else {
-                    e.target.style.background = '#e9ecef';
-                    e.target.style.borderColor = '#667eea';
+        {grid.map((row, rowIndex) => (
+          <React.Fragment key={`row-${rowIndex}`}>
+            {row.map((num, colIndex) => (
+              <div
+                key={`cell-${rowIndex}-${colIndex}`}
+                onClick={() => !isSubmitted && handleCellClick(rowIndex, colIndex)}
+                style={{
+                  aspectRatio: '1/1',
+                  minHeight: gridSize > 6 ? '35px' : '50px',
+                  background: isSubmitted ? '#e9ecef' : (num !== null ? '#d4edda' : '#f8f9fa'),
+                  border: isSubmitted ? '2px solid #ced4da' : (num !== null ? '2px solid #28a745' : '2px solid #dee2e6'),
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: gridSize > 6 ? '0.8rem' : '1.1rem',
+                  fontWeight: '600',
+                  color: isSubmitted ? '#6c757d' : (num !== null ? '#155724' : '#6c757d'),
+                  cursor: isSubmitted ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s',
+                  opacity: isSubmitted ? 0.7 : 1
+                }}
+                onMouseOver={(e) => {
+                  if (!isSubmitted) {
+                    if (num !== null) {
+                      e.target.style.background = '#f8d7da';
+                      e.target.style.borderColor = '#dc3545';
+                    } else {
+                      e.target.style.background = '#e9ecef';
+                      e.target.style.borderColor = '#667eea';
+                    }
                   }
-                }
-              }}
-              onMouseOut={(e) => {
-                if (!isSubmitted) {
-                  if (num !== null) {
-                    e.target.style.background = '#d4edda';
-                    e.target.style.borderColor = '#28a745';
-                  } else {
-                    e.target.style.background = '#f8f9fa';
-                    e.target.style.borderColor = '#dee2e6';
+                }}
+                onMouseOut={(e) => {
+                  if (!isSubmitted) {
+                    if (num !== null) {
+                      e.target.style.background = '#d4edda';
+                      e.target.style.borderColor = '#28a745';
+                    } else {
+                      e.target.style.background = '#f8f9fa';
+                      e.target.style.borderColor = '#dee2e6';
+                    }
                   }
-                }
-              }}
-            >
-              {num !== null ? num : '+'}
-            </div>
-          ))
-        )}
+                }}
+              >
+                {num !== null ? num : '+'}
+              </div>
+            ))}
+          </React.Fragment>
+        ))}
       </div>
 
       <div style={{ textAlign: 'center' }}>
