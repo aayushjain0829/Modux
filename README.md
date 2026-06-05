@@ -28,9 +28,9 @@ A fast-paced, cooperative word-association party game.
 - **Fair Play**: Features a mathematically-perfect rejection sampling algorithm to evenly distribute "Clue Giver" and "Guesser" roles among all players without back-to-back overlaps.
 - **Real-Time Synergy**: Players vote, guess, and communicate in real-time to solve the entire grid before the timer expires.
 
-### 2. Bingo (1-25 Variant)
-A classic, competitive 5x5 number grid game.
-- **Synchronized Boards**: Generates unique, shuffled 1-25 bingo cards for every player during the Setup stage.
+### 2. Bingo
+A highly customizable, turn-based number grid game. Hosts can dynamically adjust the grid size (ranging from classic 5x5 up to a massive 8x8 grid) for quick rounds or extended play.
+- **Synchronized Boards**: Generates unique, shuffled number cards for every player during the Setup stage.
 - **Live Competitor Tracking**: Visualizes which numbers opponents have struck off in real time.
 - **Auto-Win Detection**: The backend seamlessly calculates 5-in-a-row (horizontal, vertical, diagonal) and announces the winner instantly.
 
