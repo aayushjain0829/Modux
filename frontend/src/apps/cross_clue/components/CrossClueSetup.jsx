@@ -17,6 +17,12 @@ const CrossClueSetup = ({ gameState, userId, sendMessage }) => {
     sendMessage({ action: 'submit_setup' });
   };
 
+  const isHost = gameState.host_id === userId;
+
+  const handleReroll = (wordType, index) => {
+    sendMessage({ action: 'reroll_word', word_type: wordType, index });
+  };
+
   return (
     <div className="cc-setup-container">
       <div className="cc-setup-instructions">
@@ -30,7 +36,12 @@ const CrossClueSetup = ({ gameState, userId, sendMessage }) => {
           {col_words.map((word, idx) => (
             <div key={`col-${idx}`} className="cc-preview-cell label">
               <span className="cc-preview-index">{idx + 1}</span>
-              <span className="cc-preview-word">{word}</span>
+              <span className="cc-preview-word">
+                {word}
+                {isHost && (
+                  <button className="cc-reroll-btn" onClick={() => handleReroll('col', idx)} title="Reroll word">🔄</button>
+                )}
+              </span>
             </div>
           ))}
         </div>
@@ -39,7 +50,12 @@ const CrossClueSetup = ({ gameState, userId, sendMessage }) => {
           <div key={`row-${rowIdx}`} className="cc-preview-row">
             <div className="cc-preview-cell label">
               <span className="cc-preview-index">{['A', 'B', 'C', 'D'][rowIdx]}</span>
-              <span className="cc-preview-word">{rowWord}</span>
+              <span className="cc-preview-word">
+                {rowWord}
+                {isHost && (
+                  <button className="cc-reroll-btn" onClick={() => handleReroll('row', rowIdx)} title="Reroll word">🔄</button>
+                )}
+              </span>
             </div>
             {col_words.map((_, colIdx) => (
               <div key={`cell-${rowIdx}-${colIdx}`} className="cc-preview-cell inner">

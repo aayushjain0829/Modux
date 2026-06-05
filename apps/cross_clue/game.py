@@ -244,6 +244,12 @@ class CrossClueGameManager(BaseGameManager):
             state = self.submit_setup(session_id, user_id)
             return state, None, None
 
+        elif action == "reroll_word":
+            word_type = payload.get("word_type")
+            index = payload.get("index")
+            state = self.reroll_word(session_id, user_id, word_type, index)
+            return state, None, None
+
         elif action == "draw_card":
             coordinate = self.draw_card(session_id, user_id)
             if coordinate:
@@ -400,6 +406,39 @@ class CrossClueGameManager(BaseGameManager):
             game_state.status = "playing"
             for player_id in game_state.players:
                 game_state.players[player_id].player_stage = "playing"
+
+        return game_state
+
+    def reroll_word(
+        self, session_id: str, user_id: str, word_type: str, index: int
+    ) -> Optional[CrossClueGameState]:
+        """Reroll a specific word on the board (host only)"""
+        game_state = self.get_session(session_id)
+
+        # Only allow during setup stage and only by the host
+        if game_state.status != "setup" or game_state.host_id != user_id:
+            return game_state
+
+        if word_type not in ["row", "col"] or index is None or index < 0 or index > 3:
+            return game_state
+
+        current_words = set(game_state.row_words + game_state.col_words)
+        available_words = [w for w in WORD_BANK if w not in current_words]
+
+        if not available_words:
+            return game_state
+
+        new_word = random.choice(available_words)
+
+        if word_type == "row":
+            game_state.row_words[index] = new_word
+        else:
+            game_state.col_words[index] = new_word
+
+        # Un-ready all players so they notice the change
+        active_players = [p for p in game_state.players.values() if not p.is_spectator]
+        for p in active_players:
+            p.has_submitted = False
 
         return game_state
 
