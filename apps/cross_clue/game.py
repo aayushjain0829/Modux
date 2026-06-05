@@ -140,6 +140,10 @@ class CrossClueGameManager(BaseGameManager):
             state = self.remove_player(session_id, user_id)
             return state, None, None
             
+        elif action == "submit_setup":
+            state = self.submit_setup(session_id, user_id)
+            return state, None, None
+            
         elif action == "draw_card":
             coordinate = self.draw_card(session_id, user_id)
             if coordinate:
@@ -241,23 +245,45 @@ class CrossClueGameManager(BaseGameManager):
                 game_state.active_guesser_id = game_state.turn_order[1] if len(game_state.turn_order) > 1 else game_state.turn_order[0]
                 game_state.turn_phase = 'giving_clue'
                 
-                # Set initial action deadline for entire turn
-                game_state.action_deadline = get_current_timestamp() + game_state.turn_timer
+                game_state.turn_phase = 'giving_clue'
             
             # Reset game variables
             game_state.score = 0
             game_state.misses = 0
             
-            # Set game start time
+            # Transition to setup instead of playing
+            game_state.status = 'setup'
+            
+            # Move all players to setup stage and reset submission status
+            for player_id in game_state.players:
+                game_state.players[player_id].player_stage = 'setup'
+                game_state.players[player_id].has_submitted = False
+        
+        return game_state
+
+    def submit_setup(self, session_id: str, user_id: str) -> Optional[CrossClueGameState]:
+        """Submit setup (ready to play)"""
+        game_state = self.get_session(session_id)
+        
+        if game_state.status != 'setup' or user_id not in game_state.players:
+            return None
+            
+        # Set player as submitted
+        game_state.players[user_id].has_submitted = True
+        
+        # Check if all active players have submitted
+        active_players = [p for p in game_state.players.values() if not p.is_spectator]
+        if all(p.has_submitted for p in active_players):
+            # Set game start time and action deadline now
             game_state.game_start_time = get_current_timestamp()
+            if game_state.turn_timer:
+                game_state.action_deadline = get_current_timestamp() + game_state.turn_timer
             
             # Transition to playing
             game_state.status = 'playing'
-            
-            # Reset all players to playing stage
             for player_id in game_state.players:
                 game_state.players[player_id].player_stage = 'playing'
-        
+                
         return game_state
 
     def draw_card(self, session_id: str, user_id: str) -> Optional[str]:
@@ -489,6 +515,7 @@ class CrossClueGameManager(BaseGameManager):
             if game_state.status == 'finished':
                 game_state.players[user_id].player_stage = 'lobby'
                 game_state.players[user_id].is_spectator = False  # Reset spectator status
+                game_state.players[user_id].has_submitted = False # Reset submission status
                 
                 # Add back to turn order if they were a spectator
                 if user_id not in game_state.turn_order:

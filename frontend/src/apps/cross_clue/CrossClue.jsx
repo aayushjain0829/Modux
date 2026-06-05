@@ -6,6 +6,8 @@ import ModuxLayout from '../../components/layout/ModuxLayout';
 import LobbyStage from '../../components/stages/LobbyStage';
 import ArenaStage from '../../components/stages/ArenaStage';
 import RecapStage from '../../components/stages/RecapStage';
+import SetupStage from '../../components/stages/SetupStage';
+import CrossClueSetup from './components/CrossClueSetup';
 import CrossClueArena from './components/CrossClueArena';
 import CrossClueRecap from './components/CrossClueRecap';
 
@@ -125,6 +127,16 @@ function CrossClue() {
             gameState={gameState}
             sendMessage={(payload) => sendMessage(payload.action, payload)}
           />
+        );
+      case 'setup':
+        return (
+          <SetupStage title="Review Board" subtitle="Familiarize yourself with the grid before the timer starts">
+            <CrossClueSetup
+              gameState={gameState}
+              userId={userId}
+              sendMessage={(payload) => sendMessage(payload.action, payload)}
+            />
+          </SetupStage>
         );
       case 'playing':
         return (
