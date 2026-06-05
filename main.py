@@ -224,6 +224,10 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
 async def health_check():
     return {"status": "healthy", "service": "modux-backend"}
 
+@app.get("/network-ip")
+async def get_network_ip():
+    return {"ip": get_local_ip()}
+
 @app.get("/")
 async def root():
     return {"message": "Modux Backend API", "version": "1.0.0"}

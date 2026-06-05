@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import './ModuxLayout.css'
 
@@ -6,6 +6,24 @@ function ModuxLayout({ appName, sessionId, players = [], gameState, onLeave, cur
   const [copied, setCopied] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [qrOpen, setQrOpen] = useState(false)
+  const [networkIp, setNetworkIp] = useState(window.location.hostname)
+
+  useEffect(() => {
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      const fetchIp = async () => {
+        try {
+          const res = await fetch('http://localhost:8000/network-ip');
+          const data = await res.json();
+          if (data.ip) {
+            setNetworkIp(data.ip);
+          }
+        } catch (e) {
+          console.error('Failed to fetch network IP', e);
+        }
+      };
+      fetchIp();
+    }
+  }, []);
 
   const handleCopySession = () => {
     if (sessionId) {
@@ -188,10 +206,13 @@ function ModuxLayout({ appName, sessionId, players = [], gameState, onLeave, cur
               </button>
             </div>
             <div className="modux-qr-container">
-              <QRCodeSVG 
-                value={`${window.location.origin}/portal/${appName.toLowerCase().replace(' ', '-')}/${sessionId}`} 
-                size={200} 
-              />
+              {(() => {
+                const baseUrl = import.meta.env.BASE_URL || '/';
+                const formattedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+                const qrUrl = `${window.location.protocol}//${networkIp}:${window.location.port}${formattedBase}portal/${appName.toLowerCase().replace(' ', '-')}/${sessionId}`;
+                
+                return <QRCodeSVG value={qrUrl} size={200} />;
+              })()}
             </div>
             <p className="modux-modal-code">{sessionId}</p>
           </div>
