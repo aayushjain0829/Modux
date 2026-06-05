@@ -19,6 +19,7 @@ class CrossClueGameState(BaseGameState):
         None  # {coordinate: user_id} - who guessed what
     )
     word_history: List[Dict] = []  # Stack of dicts: {type: str, index: int, old_word: str}
+    role_queue: List[List[str]] = []  # Queue of [giver_id, guesser_id]
 
     # Game configuration
     turn_timer: int = 60  # seconds for entire turn (clue + guess)

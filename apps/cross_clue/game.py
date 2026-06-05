@@ -188,6 +188,9 @@ class CrossClueGameManager(BaseGameManager):
         # Remove from turn order
         if user_id in game_state.turn_order:
             game_state.turn_order.remove(user_id)
+            # Clear role queue so it regenerates properly without disconnected player
+            game_state.role_queue = []
+            
             # Adjust current turn index if needed
             if (
                 game_state.current_turn_index >= len(game_state.turn_order)
@@ -359,14 +362,19 @@ class CrossClueGameManager(BaseGameManager):
 
             # Set initial roles (need at least 2 players)
             if len(game_state.turn_order) >= 2:
-                # Set initial turn
-                game_state.active_giver_id = game_state.turn_order[0]
-                game_state.active_guesser_id = (
-                    game_state.turn_order[1]
-                    if len(game_state.turn_order) > 1
-                    else game_state.turn_order[0]
-                )
-                game_state.turn_phase = "giving_clue"
+                # Generate role queue
+                active_player_ids = [p_id for p_id, p in game_state.players.items() if not p.is_spectator]
+                game_state.role_queue = self._generate_role_queue(active_player_ids)
+                
+                # Pop first turn
+                if game_state.role_queue:
+                    first_turn = game_state.role_queue.pop(0)
+                    game_state.active_giver_id = first_turn[0]
+                    game_state.active_guesser_id = first_turn[1]
+                else:
+                    # Fallback
+                    game_state.active_giver_id = game_state.turn_order[0]
+                    game_state.active_guesser_id = game_state.turn_order[1]
 
                 game_state.turn_phase = "giving_clue"
 
@@ -623,20 +631,39 @@ class CrossClueGameManager(BaseGameManager):
             "message": "Game time expired! Moving to recap stage.",
         }
 
+    def _generate_role_queue(self, active_players: List[str]) -> List[List[str]]:
+        """Generate a shuffled queue of [giver, guesser] pairs ensuring everyone plays each role evenly."""
+        if len(active_players) < 2:
+            return []
+            
+        givers = list(active_players)
+        random.shuffle(givers)
+        
+        guessers = list(active_players)
+        random.shuffle(guessers)
+        
+        # Rejection sampling to ensure perfect derangement (giver != guesser)
+        while any(g == gu for g, gu in zip(givers, guessers)):
+            random.shuffle(guessers)
+            
+        return [[g, gu] for g, gu in zip(givers, guessers)]
+
     def _rotate_turns(self, game_state: CrossClueGameState):
-        """Rotate roles and set up next turn"""
-        turn_order = game_state.turn_order
+        """Rotate roles and set up next turn using randomized queue"""
+        active_player_ids = [p_id for p_id, p in game_state.players.items() if not p.is_spectator]
+        
+        if len(active_player_ids) < 2:
+            return
 
-        # Find current giver index and move to next giver
-        current_giver_index = turn_order.index(game_state.active_giver_id)
-        next_giver_index = (current_giver_index + 1) % len(turn_order)
+        # If queue is empty, regenerate it
+        if not game_state.role_queue:
+            game_state.role_queue = self._generate_role_queue(active_player_ids)
 
-        # Set next giver
-        game_state.active_giver_id = turn_order[next_giver_index]
-
-        # Set guesser as the next player after giver (skip the giver themselves)
-        next_guesser_index = (next_giver_index + 1) % len(turn_order)
-        game_state.active_guesser_id = turn_order[next_guesser_index]
+        # Pop next turn
+        if game_state.role_queue:
+            next_turn = game_state.role_queue.pop(0)
+            game_state.active_giver_id = next_turn[0]
+            game_state.active_guesser_id = next_turn[1]
 
         game_state.turn_phase = "giving_clue"
 
