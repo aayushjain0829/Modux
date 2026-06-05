@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
+import '../BingoGame.css';
 import SpectatorView from '../../../components/common/SpectatorView';
 import { useSpectator } from '../../../hooks/useSpectator';
 
@@ -74,7 +76,7 @@ const BingoSetup = ({ gameState, userId, sendMessage }) => {
   // Submit board
   const submitBoard = () => {
     if (!isBoardComplete()) {
-      alert('Please fill all cells in the grid');
+      toast.error('Please fill all cells in the grid');
       return;
     }
 
@@ -112,18 +114,7 @@ const BingoSetup = ({ gameState, userId, sendMessage }) => {
       <div style={{ textAlign: 'center', marginBottom: '20px' }}>
         <button
           onClick={autoShuffle}
-          style={{
-            padding: '12px 24px',
-            background: '#667eea',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '1rem',
-            cursor: 'pointer',
-            transition: 'background 0.2s'
-          }}
-          onMouseOver={(e) => e.target.style.background = '#5568d3'}
-          onMouseOut={(e) => e.target.style.background = '#667eea'}
+          className="bingo-btn bingo-btn-primary"
         >
           Auto-Shuffle Board
         </button>
@@ -159,43 +150,10 @@ const BingoSetup = ({ gameState, userId, sendMessage }) => {
               <div
                 key={`cell-${rowIndex}-${colIndex}`}
                 onClick={() => !isSubmitted && handleCellClick(rowIndex, colIndex)}
+                className={`bingo-setup-cell ${isSubmitted ? 'submitted' : (num !== null ? 'filled' : 'empty')}`}
                 style={{
-                  aspectRatio: '1/1',
                   minHeight: gridSize > 6 ? '35px' : '50px',
-                  background: isSubmitted ? '#e9ecef' : (num !== null ? '#d4edda' : '#f8f9fa'),
-                  border: isSubmitted ? '2px solid #ced4da' : (num !== null ? '2px solid #28a745' : '2px solid #dee2e6'),
-                  borderRadius: '8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
                   fontSize: gridSize > 6 ? '0.8rem' : '1.1rem',
-                  fontWeight: '600',
-                  color: isSubmitted ? '#6c757d' : (num !== null ? '#155724' : '#6c757d'),
-                  cursor: isSubmitted ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.2s',
-                  opacity: isSubmitted ? 0.7 : 1
-                }}
-                onMouseOver={(e) => {
-                  if (!isSubmitted) {
-                    if (num !== null) {
-                      e.target.style.background = '#f8d7da';
-                      e.target.style.borderColor = '#dc3545';
-                    } else {
-                      e.target.style.background = '#e9ecef';
-                      e.target.style.borderColor = '#667eea';
-                    }
-                  }
-                }}
-                onMouseOut={(e) => {
-                  if (!isSubmitted) {
-                    if (num !== null) {
-                      e.target.style.background = '#d4edda';
-                      e.target.style.borderColor = '#28a745';
-                    } else {
-                      e.target.style.background = '#f8f9fa';
-                      e.target.style.borderColor = '#dee2e6';
-                    }
-                  }
                 }}
               >
                 {num !== null ? num : '+'}
@@ -222,22 +180,7 @@ const BingoSetup = ({ gameState, userId, sendMessage }) => {
           <button
             onClick={submitBoard}
             disabled={!isBoardComplete()}
-            style={{
-              padding: '12px 24px',
-              background: !isBoardComplete() ? '#ccc' : '#28a745',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '1rem',
-              cursor: !isBoardComplete() ? 'not-allowed' : 'pointer',
-              transition: 'background 0.2s'
-            }}
-            onMouseOver={(e) => {
-              if (isBoardComplete()) e.target.style.background = '#218838';
-            }}
-            onMouseOut={(e) => {
-              if (isBoardComplete()) e.target.style.background = '#28a745';
-            }}
+            className={`bingo-btn ${!isBoardComplete() ? 'bingo-btn-disabled' : 'bingo-btn-success'}`}
           >
             Submit Board
           </button>

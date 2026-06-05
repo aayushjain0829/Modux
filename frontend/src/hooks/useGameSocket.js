@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import toast from 'react-hot-toast';
 
 export function useGameSocket(appName, sessionId, userId, username) {
   const [gameState, setGameState] = useState(null);
@@ -7,6 +8,19 @@ export function useGameSocket(appName, sessionId, userId, username) {
   const wsRef = useRef(null);
   const reconnectTimeoutRef = useRef(null);
   const isComponentMounted = useRef(true);
+  const toastIdRef = useRef(null);
+
+  useEffect(() => {
+    if (!isConnected && gameState !== null) {
+      if (!toastIdRef.current) {
+        toastIdRef.current = toast.loading('Reconnecting...', { style: { minWidth: '150px' } });
+      }
+    } else if (isConnected && toastIdRef.current) {
+      toast.dismiss(toastIdRef.current);
+      toast.success('Connected!', { id: toastIdRef.current });
+      toastIdRef.current = null;
+    }
+  }, [isConnected, gameState]);
 
   const sendMessageRaw = useCallback((wsInstance, message) => {
     if (wsInstance && wsInstance.readyState === WebSocket.OPEN) {

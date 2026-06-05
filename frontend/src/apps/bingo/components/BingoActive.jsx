@@ -1,4 +1,5 @@
 import React from 'react';
+import '../BingoGame.css';
 import SpectatorView from '../../../components/common/SpectatorView';
 import { useSpectator } from '../../../hooks/useSpectator';
 
@@ -152,62 +153,14 @@ const BingoActive = ({ gameState, userId, sendMessage }) => {
             const isLastCalled = number === gameState.last_called_number;
             const canClick = isMyTurn && !isCalled;
 
-            // Highlight style for last called number
-            const highlightStyle = isLastCalled ? {
-              background: '#fff9c4',
-              borderColor: '#ffc107',
-              color: '#333',
-              boxShadow: '0 0 10px rgba(255, 193, 7, 0.5), 0 0 20px rgba(255, 193, 7, 0.3)',
-              transform: 'scale(1.05)',
-              zIndex: 1
-            } : {};
-
             return (
               <div
                 key={`${rowIndex}-${colIndex}`}
                 onClick={() => canClick && handleNumberClick(number)}
+                className={`bingo-active-cell ${isLastCalled ? 'last-called' : isCalled ? 'called' : canClick ? 'clickable' : 'not-clickable'}`}
                 style={{
-                  aspectRatio: '1/1',
                   minHeight: gridSize > 6 ? '35px' : '50px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
                   fontSize: gridSize > 6 ? '0.8rem' : '1.1rem',
-                  fontWeight: '600',
-                  borderRadius: '8px',
-                  border: '2px solid',
-                  borderColor: isLastCalled ? '#ffc107' : (isCalled ? '#28a745' : canClick ? '#667eea' : '#dee2e6'),
-                  background: isLastCalled
-                    ? '#fff9c4'
-                    : isCalled
-                      ? '#d4edda'
-                      : canClick
-                        ? '#ffffff'
-                        : '#f8f9fa',
-                  color: isLastCalled
-                    ? '#333'
-                    : isCalled
-                      ? '#155724'
-                      : canClick
-                        ? '#333'
-                        : '#6c757d',
-                  cursor: canClick ? 'pointer' : 'default',
-                  transition: 'all 0.2s ease',
-                  textDecoration: isCalled && !isLastCalled ? 'line-through' : 'none',
-                  opacity: isCalled && !isLastCalled ? 0.7 : 1,
-                  ...highlightStyle
-                }}
-                onMouseOver={(e) => {
-                  if (canClick && !isLastCalled) {
-                    e.target.style.background = '#e9ecef';
-                    e.target.style.transform = 'translateY(-2px)';
-                  }
-                }}
-                onMouseOut={(e) => {
-                  if (canClick && !isLastCalled) {
-                    e.target.style.background = '#ffffff';
-                    e.target.style.transform = 'translateY(0)';
-                  }
                 }}
               >
                 {number}

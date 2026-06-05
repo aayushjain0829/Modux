@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from typing import Dict, List, Set, Optional
+import asyncio
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -32,6 +33,13 @@ class ConnectionManager:
         self.sessions: Dict[str, Dict[str, Set[WebSocket]]] = {}
         # Dictionary to store user_id to websocket mapping: {session_id: {user_id: websocket}}
         self.user_connections: Dict[str, Dict[str, WebSocket]] = {}
+        # Dictionary to store per-session locks for concurrency
+        self.session_locks: Dict[str, asyncio.Lock] = {}
+
+    def get_lock(self, session_id: str) -> asyncio.Lock:
+        if session_id not in self.session_locks:
+            self.session_locks[session_id] = asyncio.Lock()
+        return self.session_locks[session_id]
 
     async def connect(self, websocket: WebSocket, app_name: str, session_id: str):
         await websocket.accept()
@@ -170,25 +178,26 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
                 manager.register_user(websocket, session_id, user_id)
                 
                 if game_manager and action:
-                    updated_state, broadcast_msg, personal_msg = game_manager.handle_action(
-                        session_id, user_id, action, message
-                    )
-                    
-                    if broadcast_msg:
-                        await manager.broadcast(json.dumps(broadcast_msg), app_name, session_id)
+                    async with manager.get_lock(session_id):
+                        updated_state, broadcast_msg, personal_msg = game_manager.handle_action(
+                            session_id, user_id, action, message
+                        )
                         
-                    if personal_msg:
-                        if "user_id" in personal_msg:
-                            # if we want to send to specific user
-                            await manager.send_personal_message_by_user_id(personal_msg, session_id, personal_msg["user_id"])
-                        else:
-                            await manager.send_personal_json(personal_msg, websocket)
-                    
-                    if updated_state:
-                        await manager.broadcast_state(app_name, session_id, updated_state.model_dump())
+                        if broadcast_msg:
+                            await manager.broadcast(json.dumps(broadcast_msg), app_name, session_id)
+                            
+                        if personal_msg:
+                            if "user_id" in personal_msg:
+                                # if we want to send to specific user
+                                await manager.send_personal_message_by_user_id(personal_msg, session_id, personal_msg["user_id"])
+                            else:
+                                await manager.send_personal_json(personal_msg, websocket)
                         
-                    if action == "leave_game":
-                        manager.disconnect(websocket, app_name, session_id)
+                        if updated_state:
+                            await manager.broadcast_state(app_name, session_id, updated_state.model_dump())
+                            
+                        if action == "leave_game":
+                            manager.disconnect(websocket, app_name, session_id)
                         
             except json.JSONDecodeError:
                 logger.error("Invalid JSON received")
@@ -198,9 +207,10 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
     except WebSocketDisconnect:
         if game_manager and user_id:
             try:
-                updated_state = game_manager.remove_player(session_id, user_id)
-                if updated_state:
-                    await manager.broadcast_state(app_name, session_id, updated_state.model_dump())
+                async with manager.get_lock(session_id):
+                    updated_state = game_manager.remove_player(session_id, user_id)
+                    if updated_state:
+                        await manager.broadcast_state(app_name, session_id, updated_state.model_dump())
             except Exception as e:
                 logger.error(f"Error during disconnect cleanup: {e}")
         

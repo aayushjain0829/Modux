@@ -1,0 +1,124 @@
+/* BingoGame.css */
+
+/* Setup Board Buttons */
+.bingo-btn {
+  padding: 12px 24px;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: background 0.2s;
+}
+
+.bingo-btn-primary {
+  background: #667eea;
+  cursor: pointer;
+}
+.bingo-btn-primary:hover {
+  background: #5568d3;
+}
+
+.bingo-btn-success {
+  background: #28a745;
+  cursor: pointer;
+}
+.bingo-btn-success:hover {
+  background: #218838;
+}
+
+.bingo-btn-disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Setup Board Grid Cells */
+.bingo-setup-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s;
+  aspect-ratio: 1/1;
+}
+
+.bingo-setup-cell.submitted {
+  background: #e9ecef;
+  border: 2px solid #ced4da;
+  color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.bingo-setup-cell.filled {
+  background: #d4edda;
+  border: 2px solid #28a745;
+  color: #155724;
+  cursor: pointer;
+}
+.bingo-setup-cell.filled:hover {
+  background: #f8d7da;
+  border-color: #dc3545;
+}
+
+.bingo-setup-cell.empty {
+  background: #f8f9fa;
+  border: 2px solid #dee2e6;
+  color: #6c757d;
+  cursor: pointer;
+}
+.bingo-setup-cell.empty:hover {
+  background: #e9ecef;
+  border-color: #667eea;
+}
+
+/* Active Game Cells */
+.bingo-active-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 2px solid;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  aspect-ratio: 1/1;
+}
+
+.bingo-active-cell.clickable {
+  background: #ffffff;
+  border-color: #667eea;
+  color: #333;
+  cursor: pointer;
+}
+.bingo-active-cell.clickable:hover {
+  background: #e9ecef;
+  transform: translateY(-2px);
+}
+
+.bingo-active-cell.called {
+  background: #d4edda;
+  border-color: #28a745;
+  color: #155724;
+  text-decoration: line-through;
+  opacity: 0.7;
+  cursor: default;
+}
+
+.bingo-active-cell.last-called {
+  background: #fff9c4;
+  border-color: #ffc107;
+  color: #333;
+  box-shadow: 0 0 10px rgba(255, 193, 7, 0.5), 0 0 20px rgba(255, 193, 7, 0.3);
+  transform: scale(1.05);
+  z-index: 1;
+  text-decoration: none;
+  opacity: 1;
+  cursor: default;
+}
+
+.bingo-active-cell.not-clickable {
+  background: #f8f9fa;
+  border-color: #dee2e6;
+  color: #6c757d;
+  cursor: default;
+}

@@ -32,18 +32,38 @@ const BingoGame = () => {
     navigate('/');
   };
 
-  if (!isConnected || !gameState) {
+  if (!gameState) {
     return (
       <div style={{
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: '100vh',
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         color: 'white',
-        fontSize: '1.2rem'
+        fontFamily: 'system-ui, -apple-system, sans-serif'
       }}>
-        Connecting to game...
+        <div style={{
+          animation: 'pulse 1.5s infinite',
+          background: 'rgba(255, 255, 255, 0.2)',
+          padding: '40px',
+          borderRadius: '16px',
+          textAlign: 'center',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255,255,255,0.3)'
+        }}>
+          <style>{`
+            @keyframes pulse {
+              0% { opacity: 1; transform: scale(1); }
+              50% { opacity: 0.8; transform: scale(0.98); }
+              100% { opacity: 1; transform: scale(1); }
+            }
+          `}</style>
+          <div style={{ fontSize: '3rem', marginBottom: '20px' }}>🎲</div>
+          <h2 style={{ margin: '0 0 10px 0', fontSize: '1.5rem' }}>Waking up server...</h2>
+          <p style={{ margin: 0, opacity: 0.8 }}>This may take up to 30 seconds on the free tier.</p>
+        </div>
       </div>
     );
   }

@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
+import { QRCodeSVG } from 'qrcode.react'
 import './ModuxLayout.css'
 
 function ModuxLayout({ appName, sessionId, players = [], gameState, onLeave, currentUserId, children }) {
   const [copied, setCopied] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [qrOpen, setQrOpen] = useState(false)
 
   const handleCopySession = () => {
     if (sessionId) {
@@ -81,6 +83,12 @@ function ModuxLayout({ appName, sessionId, players = [], gameState, onLeave, cur
             className={`modux-copy-button ${copied ? 'copied' : ''}`}
           >
             {copied ? 'Copied!' : 'Copy'}
+          </button>
+          <button
+            onClick={() => setQrOpen(true)}
+            className="modux-qr-button"
+          >
+            QR
           </button>
         </div>
       </header>
@@ -166,6 +174,29 @@ function ModuxLayout({ appName, sessionId, players = [], gameState, onLeave, cur
           {children}
         </main>
       </div>
+
+      {/* QR Code Modal */}
+      {qrOpen && (
+        <div className="modux-modal-overlay" onClick={() => setQrOpen(false)}>
+          <div className="modux-modal" onClick={e => e.stopPropagation()}>
+            <div className="modux-modal-header">
+              <h3>Scan to Join</h3>
+              <button onClick={() => setQrOpen(false)} className="modux-modal-close-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+            <div className="modux-qr-container">
+              <QRCodeSVG 
+                value={`${window.location.origin}/portal/${appName.toLowerCase().replace(' ', '-')}/${sessionId}`} 
+                size={200} 
+              />
+            </div>
+            <p className="modux-modal-code">{sessionId}</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
