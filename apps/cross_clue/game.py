@@ -250,6 +250,10 @@ class CrossClueGameManager(BaseGameManager):
             state = self.reroll_word(session_id, user_id, word_type, index)
             return state, None, None
 
+        elif action == "undo_reroll":
+            state = self.undo_reroll(session_id, user_id)
+            return state, None, None
+
         elif action == "draw_card":
             coordinate = self.draw_card(session_id, user_id)
             if coordinate:
@@ -431,14 +435,46 @@ class CrossClueGameManager(BaseGameManager):
         new_word = random.choice(available_words)
 
         if word_type == "row":
+            old_word = game_state.row_words[index]
             game_state.row_words[index] = new_word
         else:
+            old_word = game_state.col_words[index]
             game_state.col_words[index] = new_word
+
+        # Push to history
+        game_state.word_history.append(
+            {"type": word_type, "index": index, "old_word": old_word}
+        )
 
         # Un-ready all players so they notice the change
         active_players = [p for p in game_state.players.values() if not p.is_spectator]
         for p in active_players:
             p.has_submitted = False
+
+        return game_state
+
+    def undo_reroll(
+        self, session_id: str, user_id: str
+    ) -> Optional[CrossClueGameState]:
+        """Undo the last rerolled word (host only)"""
+        game_state = self.get_session(session_id)
+
+        # Only allow during setup stage and only by the host
+        if game_state.status != "setup" or game_state.host_id != user_id:
+            return game_state
+
+        if not game_state.word_history:
+            return game_state
+
+        last_change = game_state.word_history.pop()
+        word_type = last_change["type"]
+        index = last_change["index"]
+        old_word = last_change["old_word"]
+
+        if word_type == "row":
+            game_state.row_words[index] = old_word
+        else:
+            game_state.col_words[index] = old_word
 
         return game_state
 

@@ -125,22 +125,41 @@
   to { transform: rotate(360deg); }
 }
 
-.cc-reroll-btn {
-  background: none;
-  border: none;
-  font-size: 1.1rem;
+.cc-preview-word.clickable {
   cursor: pointer;
-  padding: 4px;
-  margin-left: 4px;
-  opacity: 0.6;
   transition: all 0.2s;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-block;
+  border-bottom: 2px solid transparent;
 }
 
-.cc-reroll-btn:hover {
-  opacity: 1;
-  transform: rotate(45deg) scale(1.1);
+.cc-preview-word.clickable:hover {
+  color: #667eea;
+  border-bottom-color: #667eea;
+  transform: translateY(-1px);
+}
+
+.cc-setup-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.cc-undo-btn {
+  padding: 8px 16px;
+  background: transparent;
+  color: #6c757d;
+  border: 1px solid #6c757d;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cc-undo-btn:hover {
+  background: #f8f9fa;
+  color: #495057;
+  border-color: #495057;
 }
 
