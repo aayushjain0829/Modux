@@ -209,7 +209,7 @@ function ModuxLayout({ appName, sessionId, players = [], gameState, onLeave, cur
               {(() => {
                 const baseUrl = import.meta.env.BASE_URL || '/';
                 const formattedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-                const qrUrl = `${window.location.protocol}//${networkIp}:${window.location.port}${formattedBase}portal/${appName.toLowerCase().replace(' ', '-')}/${sessionId}`;
+                const qrUrl = `${window.location.protocol}//${networkIp}:${window.location.port}${formattedBase}${appName.toLowerCase().replace(' ', '-')}/${sessionId}`;
                 
                 return <QRCodeSVG value={qrUrl} size={200} />;
               })()}
