@@ -1,0 +1,160 @@
+.portal-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  position: relative;
+}
+
+.back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 12px 16px; /* Increased vertical padding for touch target */
+  font-size: 0.9rem;
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 10;
+  min-height: 48px; /* Enforce minimum 48x48px touch target */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.portal-card {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  max-width: 450px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.portal-welcome {
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+  color: #333;
+  text-transform: capitalize;
+}
+
+.portal-title {
+  font-size: 1.4rem;
+  margin-bottom: 12px;
+  color: #667eea;
+  font-weight: 600;
+}
+
+.portal-desc {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 30px;
+  line-height: 1.5;
+}
+
+.input-group {
+  margin-bottom: 25px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 600;
+}
+
+.session-input {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+  text-transform: uppercase;
+}
+
+.session-input:focus {
+  border-color: #667eea;
+  outline: none;
+}
+
+.portal-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 14px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 48px;
+}
+
+.join-btn {
+  background: #667eea;
+}
+
+.join-btn:hover:not(:disabled) {
+  background: #5568d3;
+  transform: translateY(-2px);
+}
+
+.join-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.create-btn {
+  background: #28a745;
+}
+
+.create-btn:hover {
+  background: #218838;
+  transform: translateY(-2px);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+  .portal-container {
+    padding: 16px;
+    padding-top: 80px; /* Make room for absolute back button */
+  }
+  
+  .portal-card {
+    padding: 24px;
+  }
+  
+  .portal-actions {
+    flex-direction: column; /* Stack buttons vertically on small screens */
+  }
+  
+  .action-btn {
+    width: 100%; /* Ensure full width when stacked */
+  }
+  
+  .back-btn {
+    /* Prevent notch/status bar collisions on iOS/Android */
+    top: env(safe-area-inset-top, 20px);
+    left: env(safe-area-inset-left, 16px);
+  }
+}

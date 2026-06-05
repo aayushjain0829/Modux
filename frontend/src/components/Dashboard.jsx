@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useUser } from '../context/UserContext.jsx'
+import './Dashboard.css'
 
 function Dashboard() {
   const navigate = useNavigate()
@@ -14,50 +15,14 @@ function Dashboard() {
   }
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      padding: '20px'
-    }}>
-      <div style={{
-        background: 'white',
-        padding: '40px',
-        borderRadius: '16px',
-        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-        textAlign: 'center',
-        maxWidth: '400px',
-        width: '100%',
-        position: 'relative'
-      }}>
+    <div className="dashboard-container">
+      <div className="dashboard-card">
         {/* Settings Gear Icon */}
         <button
+          className="settings-btn"
           onClick={() => {
             setTempUsername(username)
             setShowSettings(true)
-          }}
-          style={{
-            position: 'absolute',
-            top: '16px',
-            right: '16px',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: '8px',
-            borderRadius: '8px',
-            transition: 'all 0.2s',
-            color: '#666'
-          }}
-          onMouseOver={(e) => {
-            e.target.style.background = 'rgba(0, 0, 0, 0.05)'
-            e.target.style.color = '#333'
-          }}
-          onMouseOut={(e) => {
-            e.target.style.background = 'none'
-            e.target.style.color = '#666'
           }}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -66,77 +31,26 @@ function Dashboard() {
           </svg>
         </button>
 
-        <h1 style={{
-          fontSize: '2rem',
-          marginBottom: '10px',
-          color: '#333'
-        }}>
+        <h1 className="dashboard-title">
           Modux
         </h1>
-        <p style={{
-          fontSize: '1rem',
-          color: '#666',
-          marginBottom: '30px'
-        }}>
+        <p className="dashboard-subtitle">
           Modular Web Platform
         </p>
         {username && (
-          <p style={{
-            fontSize: '0.9rem',
-            color: '#888',
-            marginBottom: '20px'
-          }}>
+          <p className="welcome-text">
             Welcome, {username}!
           </p>
         )}
         <button
+          className="play-btn cross-clue"
           onClick={() => navigate('/portal/cross-clue')}
-          style={{
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            color: 'white',
-            border: 'none',
-            padding: '16px 32px',
-            fontSize: '1.1rem',
-            fontWeight: '600',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            transition: 'transform 0.2s, box-shadow 0.2s',
-            width: '100%',
-            marginBottom: '15px'
-          }}
-          onMouseOver={(e) => {
-            e.target.style.transform = 'translateY(-2px)'
-            e.target.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.4)'
-          }}
-          onMouseOut={(e) => {
-            e.target.style.transform = 'translateY(0)'
-            e.target.style.boxShadow = 'none'
-          }}
         >
           Play Cross Clue
         </button>
         <button
+          className="play-btn bingo"
           onClick={() => navigate('/portal/bingo')}
-          style={{
-            background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
-            color: 'white',
-            border: 'none',
-            padding: '16px 32px',
-            fontSize: '1.1rem',
-            fontWeight: '600',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            transition: 'transform 0.2s, box-shadow 0.2s',
-            width: '100%'
-          }}
-          onMouseOver={(e) => {
-            e.target.style.transform = 'translateY(-2px)'
-            e.target.style.boxShadow = '0 8px 20px rgba(40, 167, 69, 0.4)'
-          }}
-          onMouseOut={(e) => {
-            e.target.style.transform = 'translateY(0)'
-            e.target.style.boxShadow = 'none'
-          }}
         >
           Play BINGO
         </button>
@@ -144,54 +58,14 @@ function Dashboard() {
 
       {/* Settings Modal */}
       {showSettings && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: '20px'
-        }}>
-          <div style={{
-            background: 'white',
-            borderRadius: '16px',
-            width: '100%',
-            maxWidth: '500px',
-            maxHeight: '80vh',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
-          }}>
+        <div className="settings-modal-overlay">
+          <div className="settings-modal">
             {/* Modal Header */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '20px 24px',
-              borderBottom: '1px solid #eee'
-            }}>
-              <h2 style={{
-                margin: 0,
-                fontSize: '1.3rem',
-                color: '#333'
-              }}>
-                Settings
-              </h2>
+            <div className="settings-header">
+              <h2>Settings</h2>
               <button
+                className="close-btn"
                 onClick={() => setShowSettings(false)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '4px',
-                  borderRadius: '4px'
-                }}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#666" strokeWidth="2">
                   <path d="M18 6L6 18M6 6l12 12"/>
@@ -200,96 +74,31 @@ function Dashboard() {
             </div>
 
             {/* Modal Body - Two Column Layout */}
-            <div style={{
-              display: 'flex',
-              flex: 1,
-              minHeight: 0
-            }}>
+            <div className="settings-body">
               {/* Left Tabs */}
-              <div style={{
-                width: '120px',
-                background: '#f8f9fa',
-                borderRight: '1px solid #eee',
-                padding: '16px 0'
-              }}>
-                <button
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: 'white',
-                    border: 'none',
-                    borderLeft: '3px solid #667eea',
-                    color: '#333',
-                    fontWeight: '600',
-                    fontSize: '0.9rem',
-                    cursor: 'pointer',
-                    textAlign: 'left'
-                  }}
-                >
+              <div className="settings-sidebar">
+                <button className="settings-tab">
                   Profile
                 </button>
               </div>
 
               {/* Right Content Area */}
-              <div style={{
-                flex: 1,
-                padding: '24px',
-                overflow: 'auto'
-              }}>
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{
-                    display: 'block',
-                    marginBottom: '8px',
-                    fontSize: '0.9rem',
-                    fontWeight: '500',
-                    color: '#555'
-                  }}>
-                    Player Name
-                  </label>
+              <div className="settings-content">
+                <div className="input-group">
+                  <label>Player Name</label>
                   <input
                     type="text"
+                    className="settings-input"
                     value={tempUsername}
                     onChange={(e) => setTempUsername(e.target.value)}
                     placeholder="Enter your name"
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      border: '1px solid #ddd',
-                      borderRadius: '8px',
-                      fontSize: '1rem',
-                      outline: 'none',
-                      transition: 'border-color 0.2s'
-                    }}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = '#667eea'
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = '#ddd'
-                    }}
                   />
                 </div>
 
                 {/* Save/Close Button */}
                 <button
+                  className="save-btn"
                   onClick={handleSave}
-                  style={{
-                    width: '100%',
-                    padding: '12px 24px',
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '1rem',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'opacity 0.2s'
-                  }}
-                  onMouseOver={(e) => {
-                    e.target.style.opacity = '0.9'
-                  }}
-                  onMouseOut={(e) => {
-                    e.target.style.opacity = '1'
-                  }}
                 >
                   Save & Close
                 </button>
