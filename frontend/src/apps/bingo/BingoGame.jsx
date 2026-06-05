@@ -8,7 +8,7 @@ import SetupStage from '../../components/stages/SetupStage';
 import ArenaStage from '../../components/stages/ArenaStage';
 import RecapStage from '../../components/stages/RecapStage';
 import BingoSetup from './components/BingoSetup';
-import BingoActive from './components/BingoActive';
+import BingoArena from './components/BingoArena';
 import BingoRecap from './components/BingoRecap';
 
 const BingoGame = () => {
@@ -141,7 +141,7 @@ const BingoGame = () => {
       case 'playing':
         return (
           <ArenaStage isSpectator={isSpectator} spectatorMessage="The game has already started...">
-            <BingoActive
+            <BingoArena
               gameState={gameState}
               userId={userId}
               sendMessage={(payload) => sendMessage(payload.action, payload)}

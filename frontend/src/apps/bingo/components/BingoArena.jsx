@@ -3,7 +3,7 @@ import '../BingoGame.css';
 import SpectatorView from '../../../components/common/SpectatorView';
 import { useSpectator } from '../../../hooks/useSpectator';
 
-const BingoActive = ({ gameState, userId, sendMessage }) => {
+const BingoArena = ({ gameState, userId, sendMessage }) => {
   // Read grid_size from config, default to 5
   const gridSize = gameState?.config?.grid_size || 5;
   const maxNumber = gridSize * gridSize;
@@ -173,4 +173,4 @@ const BingoActive = ({ gameState, userId, sendMessage }) => {
   );
 };
 
-export default BingoActive;
+export default BingoArena;
