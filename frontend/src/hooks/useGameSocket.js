@@ -34,11 +34,13 @@ export function useGameSocket(appName, sessionId, userId, username) {
     if (!sessionId || !userId) return;
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     
-    // For local development, assuming backend runs on port 8000
+    // If the frontend is hosted on github pages, we are in production
+    const isProduction = window.location.hostname.includes('github.io');
+    
+    // For local development (including LAN access from mobile), use the current hostname with port 8000
     // For production, connect to the deployed Render backend
-    const host = isLocalhost ? `${window.location.hostname}:8000` : 'modux.onrender.com';
+    const host = isProduction ? 'modux.onrender.com' : `${window.location.hostname}:8000`;
     const wsUrl = `${protocol}//${host}/ws/${appName}/${sessionId}`;
 
     const ws = new WebSocket(wsUrl);
