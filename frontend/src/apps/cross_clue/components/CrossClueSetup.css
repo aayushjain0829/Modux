@@ -124,3 +124,42 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+.cc-preview-word.clickable {
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-block;
+  border-bottom: 2px solid transparent;
+}
+
+.cc-preview-word.clickable:hover {
+  color: #667eea;
+  border-bottom-color: #667eea;
+  transform: translateY(-1px);
+}
+
+.cc-setup-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.cc-undo-btn {
+  padding: 8px 16px;
+  background: transparent;
+  color: #6c757d;
+  border: 1px solid #6c757d;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cc-undo-btn:hover {
+  background: #f8f9fa;
+  color: #495057;
+  border-color: #495057;
+}
+

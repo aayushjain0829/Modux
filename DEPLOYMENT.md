@@ -1,134 +1,50 @@
-# Deployment Guide
+# Modux Deployment Architecture
 
-This guide explains how to deploy Modux with backend on Render and frontend on GitHub Pages.
+This document maps out the fully automated CI/CD deployment pipeline for Modux. This repository utilizes **Infrastructure as Code (IaC)**, meaning there are no manual deployment steps. Code is automatically built and shipped directly to production when merged into the `main` branch.
 
-## Architecture
+## 🚀 Live Environments
+- **Frontend SPA**: [https://aayushjain0829.github.io/](https://aayushjain0829.github.io/)
+- **Backend API**: [https://modux.onrender.com/](https://modux.onrender.com/)
 
-- **Backend**: FastAPI application hosted on Render
-- **Frontend**: React application hosted on GitHub Pages
-- **Communication**: WebSocket connections between frontend and backend
+---
 
-## Backend Deployment (Render)
+## 🏗️ Backend Pipeline (Render)
 
-### Prerequisites
-- Render account (free tier available)
-- GitHub repository connected to Render
+Our Python FastAPI backend is hosted on Render using a declarative configuration file.
 
-### Steps
+### Infrastructure Configuration
+The entire environment is configured via [`render.yaml`](./render.yaml) located in the root of the project.
+- **Trigger**: Render automatically listens to the `main` branch. Whenever code is merged into `main`, it spins up a new container.
+- **Environment**: Python.
+- **CORS Configuration**: It securely restricts API access specifically to your frontend URL using the `ALLOWED_ORIGINS` environment variable.
+- **WebSocket Protocol**: Secure Websockets (`wss://`) are fully supported out-of-the-box by Render.
 
-1. **Connect Repository to Render**
-   - Go to [Render Dashboard](https://dashboard.render.com/)
-   - Click "New +" → "Web Service"
-   - Connect your GitHub repository
-   - Select the root directory
+### Cold Starts
+Because we are utilizing the free tier, Render will spin the backend down to 0 replicas after 15 minutes of inactivity. When the first user tries to join a game after a period of dormancy, it may take `30-60 seconds` for the backend to wake up and accept the WebSocket connection.
 
-2. **Configure Service**
-   - **Name**: `modux-backend`
-   - **Environment**: `Python`
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT`
-   - **Plan**: Free
+---
 
-3. **Environment Variables**
-   - `ALLOWED_ORIGINS`: `https://aayushjain0829.github.io`
-   - `PORT`: `10000`
+## 🎨 Frontend Pipeline (GitHub Pages)
 
-4. **Deploy**
-   - Click "Create Web Service"
-   - Wait for deployment to complete
-   - Your backend will be available at: `https://modux-backend.onrender.com`
+Our React frontend is compiled using Vite and deployed instantly using GitHub Actions.
 
-### Alternative: Using render.yaml
-The repository includes a `render.yaml` file that automatically configures the service when you connect your repository to Render.
+### Continuous Deployment Action
+We use the modern GitHub Actions pipeline located at [`.github/workflows/deploy-frontend.yml`](./.github/workflows/deploy-frontend.yml).
+- **Trigger**: Any push or PR merge into the `main` branch.
+- **Build Process**: The action uses an Ubuntu runner to install `Node 20`, builds the React code (`npm run build`), and securely uploads the `dist` artifact directly into GitHub's internal Pages environment.
+- **No Orphan Branches**: Historically, GitHub Pages required a dirty `gh-pages` branch. **We do not use this.** Our Actions pipeline deploys securely without needing a dedicated tracking branch.
 
-## Frontend Deployment (GitHub Pages)
+### Client-Side Environment Variables
+The frontend application dynamically detects the environment it is running in (`useGameSocket.js`). 
+- If running locally (`localhost`), it points to `ws://localhost:8000`. 
+- If deployed on GitHub Pages, it automatically routes connections to the secure `wss://modux.onrender.com` endpoint.
 
-### Option 1: Automatic Deployment (Recommended)
+---
 
-1. **Enable GitHub Pages**
-   - Go to your repository on GitHub
-   - Navigate to Settings → Pages
-   - Source: Select "GitHub Actions"
+## ⚠️ Troubleshooting
 
-2. **Push Changes**
-   - The GitHub Actions workflow in `.github/workflows/deploy-frontend.yml` will automatically:
-     - Build the frontend on push to main branch
-     - Deploy to GitHub Pages
-   - Your site will be available at: `https://aayushjain0829.github.io/Modux/`
-
-
-## Configuration Details
-
-### Backend CORS Configuration
-The backend is configured to accept requests from:
-- Local development: `http://localhost:3000`, `http://127.0.0.1:3000`
-- Production: `https://aayushjain0829.github.io`
-
-### Frontend WebSocket URLs
-The frontend automatically detects the environment:
-- **Local**: Connects to `ws://localhost:8000`
-- **Production**: Connects to `wss://modux-backend.onrender.com`
-
-### Vite Configuration
-- **Base Path**: `/Modux/` (for GitHub Pages)
-- **Output Directory**: `dist`
-- **Assets Directory**: `assets`
-
-## Important Notes
-
-1. **WebSocket Connections**: Ensure your backend CORS settings allow your GitHub Pages domain
-2. **Free Tier Limitations**: 
-   - Render free tier spins down after 15 minutes of inactivity
-   - Cold starts may take 30-60 seconds
-3. **Environment Variables**: Update `ALLOWED_ORIGINS` if you change your GitHub Pages URL
-
-## Troubleshooting
-
-### Common Issues
-
-1. **WebSocket Connection Failed**
-   - Check CORS settings in backend
-   - Verify the backend URL in frontend code
-   - Ensure backend is deployed and running
-
-2. **Build Failures**
-   - Check Node.js version (requires v18+)
-   - Verify all dependencies are installed
-   - Check build logs for specific errors
-
-3. **Deployment Not Updating**
-   - Clear GitHub Pages cache in repository settings
-   - Wait for GitHub Actions to complete
-   - Check if you're on the correct branch
-
-### Testing Local Production Build
-
-1. **Build Frontend**
-   ```bash
-   cd frontend
-   npm run build
-   npm run preview
-   ```
-
-2. **Test with Production Backend**
-   - The preview will use the production backend URL
-   - Verify WebSocket connections work correctly
-
-## URLs After Deployment
-
-- **Frontend**: `https://aayushjain0829.github.io/Modux/`
-- **Backend API**: `https://modux-backend.onrender.com`
-- **Backend WebSocket**: `wss://modux-backend.onrender.com`
-
-## Security Considerations
-
-1. **CORS**: Only allow trusted origins
-2. **Environment Variables**: Don't commit sensitive data
-3. **WebSocket Security**: Use WSS in production
-4. **Rate Limiting**: Consider implementing rate limiting for production
-
-## Monitoring
-
-- **Render**: Check dashboard for logs and metrics
-- **GitHub Pages**: Check Actions tab for deployment status
-- **Frontend**: Use browser dev tools for WebSocket debugging
+1. **"The Frontend Deployed, but the layout is broken!"**
+   - Wait 2-3 minutes and perform a hard-refresh (`Ctrl+Shift+R` / `Cmd+Shift+R`). Browsers heavily cache GitHub Pages static assets.
+2. **"Connection Refused / WebSockets aren't connecting!"**
+   - The Render backend is likely experiencing a "cold start". Wait 60 seconds and refresh the page.
+   - If it persists, ensure that `ALLOWED_ORIGINS` in `render.yaml` exactly matches your frontend URL.

@@ -2,20 +2,23 @@ from typing import Dict, List, Literal, Optional, Any
 from pydantic import BaseModel
 import abc
 
+
 class BasePlayer(BaseModel):
     username: str
     is_ready: bool = False
     has_submitted: bool = False
     is_spectator: bool = False
-    player_stage: Literal['recap', 'lobby'] = 'recap'
+    player_stage: Literal["recap", "lobby"] = "recap"
+
 
 class BaseGameState(BaseModel):
     session_id: str
-    status: Literal['waiting', 'setup', 'playing', 'finished'] = 'waiting'
+    status: Literal["waiting", "setup", "playing", "finished"] = "waiting"
     host_id: str = ""
     turn_order: List[str] = []
     current_turn_index: int = 0
     players: Dict[str, BasePlayer] = {}
+
 
 class BaseGameManager(abc.ABC):
     @abc.abstractmethod
@@ -32,7 +35,11 @@ class BaseGameManager(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def handle_action(self, session_id: str, user_id: str, action: str, payload: Dict[str, Any]) -> tuple[Optional[BaseGameState], Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
+    def handle_action(
+        self, session_id: str, user_id: str, action: str, payload: Dict[str, Any]
+    ) -> tuple[
+        Optional[BaseGameState], Optional[Dict[str, Any]], Optional[Dict[str, Any]]
+    ]:
         """
         Handle a game-specific action.
         Returns a tuple: (

@@ -100,7 +100,7 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
       sendMessage({
         action: 'guess_coordinate',
         user_id: userId,
-        coordinate: coordinate
+        guess: coordinate
       })
     } else if (isVoter && gameState?.status === 'playing') {
       // Voter submits a vote
@@ -498,7 +498,7 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
         )}
 
         {/* Guesser View */}
-        {isGuesser && gameState?.turn_phase === 'guessing' && (
+        {isGuesser && (
           <div>
             <h3 style={{
               fontSize: '1.1rem',

@@ -16,7 +16,11 @@ app = FastAPI()
 
 # Add CORS middleware
 import os
-allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173,https://aayushjain0829.github.io").split(",")
+
+allowed_origins = os.getenv(
+    "ALLOWED_ORIGINS",
+    "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173,https://aayushjain0829.github.io",
+).split(",")
 
 app.add_middleware(
     CORSMiddleware,
@@ -48,7 +52,7 @@ class ConnectionManager:
         if app_name not in self.sessions[session_id]:
             self.sessions[session_id][app_name] = set()
         self.sessions[session_id][app_name].add(websocket)
-        
+
         # Initialize user connections for this session
         if session_id not in self.user_connections:
             self.user_connections[session_id] = {}
@@ -67,10 +71,14 @@ class ConnectionManager:
             # Clean up session_id if no apps left
             if not self.sessions[session_id]:
                 del self.sessions[session_id]
-        
+
         # Remove user mapping
         if session_id in self.user_connections:
-            to_remove = [uid for uid, ws in self.user_connections[session_id].items() if ws == websocket]
+            to_remove = [
+                uid
+                for uid, ws in self.user_connections[session_id].items()
+                if ws == websocket
+            ]
             for uid in to_remove:
                 del self.user_connections[session_id][uid]
             if not self.user_connections[session_id]:
@@ -92,8 +100,13 @@ class ConnectionManager:
         except Exception as e:
             logger.error(f"Error sending personal message: {e}")
 
-    async def send_personal_message_by_user_id(self, data: Dict, session_id: str, user_id: str):
-        if session_id in self.user_connections and user_id in self.user_connections[session_id]:
+    async def send_personal_message_by_user_id(
+        self, data: Dict, session_id: str, user_id: str
+    ):
+        if (
+            session_id in self.user_connections
+            and user_id in self.user_connections[session_id]
+        ):
             websocket = self.user_connections[session_id][user_id]
             try:
                 await websocket.send_text(json.dumps(data))
@@ -119,13 +132,16 @@ manager = ConnectionManager()
 # Singleton game managers for each app
 _game_managers = {}
 
+
 def get_game_manager(app_name: str):
     if app_name not in _game_managers:
         if app_name == "cross-clue":
             from apps.cross_clue.game import CrossClueGameManager
+
             _game_managers[app_name] = CrossClueGameManager()
         elif app_name == "bingo":
             from apps.bingo.game import BingoGameManager
+
             _game_managers[app_name] = BingoGameManager()
     return _game_managers.get(app_name)
 
@@ -154,66 +170,80 @@ async def startup_event():
 @app.websocket("/ws/{app_name}/{session_id}")
 async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: str):
     await manager.connect(websocket, app_name, session_id)
-    
+
     game_manager = get_game_manager(app_name)
     user_id = None
-    
+
     if game_manager:
         try:
             game_state = game_manager.get_session(session_id)
-            if game_state and getattr(game_state, 'players', None):
-                await manager.send_personal_json({"type": "state_update", "data": game_state.model_dump()}, websocket)
+            if game_state and getattr(game_state, "players", None):
+                await manager.send_personal_json(
+                    {"type": "state_update", "data": game_state.model_dump()}, websocket
+                )
         except Exception as e:
             logger.error(f"Error sending initial state: {e}")
-    
+
     try:
         while True:
             data = await websocket.receive_text()
-            
+
             try:
                 message = json.loads(data)
                 action = message.get("action")
                 user_id = message.get("user_id", "anonymous")
-                
+
                 manager.register_user(websocket, session_id, user_id)
-                
+
                 if game_manager and action:
                     async with manager.get_lock(session_id):
-                        updated_state, broadcast_msg, personal_msg = game_manager.handle_action(
-                            session_id, user_id, action, message
+                        updated_state, broadcast_msg, personal_msg = (
+                            game_manager.handle_action(
+                                session_id, user_id, action, message
+                            )
                         )
-                        
+
                         if broadcast_msg:
-                            await manager.broadcast(json.dumps(broadcast_msg), app_name, session_id)
-                            
+                            await manager.broadcast(
+                                json.dumps(broadcast_msg), app_name, session_id
+                            )
+
                         if personal_msg:
                             if "user_id" in personal_msg:
                                 # if we want to send to specific user
-                                await manager.send_personal_message_by_user_id(personal_msg, session_id, personal_msg["user_id"])
+                                await manager.send_personal_message_by_user_id(
+                                    personal_msg, session_id, personal_msg["user_id"]
+                                )
                             else:
-                                await manager.send_personal_json(personal_msg, websocket)
-                        
+                                await manager.send_personal_json(
+                                    personal_msg, websocket
+                                )
+
                         if updated_state:
-                            await manager.broadcast_state(app_name, session_id, updated_state.model_dump())
-                            
+                            await manager.broadcast_state(
+                                app_name, session_id, updated_state.model_dump()
+                            )
+
                         if action == "leave_game":
                             manager.disconnect(websocket, app_name, session_id)
-                        
+
             except json.JSONDecodeError:
                 logger.error("Invalid JSON received")
             except Exception as e:
                 logger.error(f"Error processing message: {e}\n{traceback.format_exc()}")
-                
+
     except WebSocketDisconnect:
         if game_manager and user_id:
             try:
                 async with manager.get_lock(session_id):
                     updated_state = game_manager.remove_player(session_id, user_id)
                     if updated_state:
-                        await manager.broadcast_state(app_name, session_id, updated_state.model_dump())
+                        await manager.broadcast_state(
+                            app_name, session_id, updated_state.model_dump()
+                        )
             except Exception as e:
                 logger.error(f"Error during disconnect cleanup: {e}")
-        
+
         manager.disconnect(websocket, app_name, session_id)
     except Exception as e:
         logger.error(f"Unexpected websocket error: {e}")
@@ -224,9 +254,11 @@ async def websocket_endpoint(websocket: WebSocket, app_name: str, session_id: st
 async def health_check():
     return {"status": "healthy", "service": "modux-backend"}
 
+
 @app.get("/network-ip")
 async def get_network_ip():
     return {"ip": get_local_ip()}
+
 
 @app.get("/")
 async def root():
@@ -235,4 +267,5 @@ async def root():
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
