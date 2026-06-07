@@ -64,7 +64,7 @@ Modux is designed to be infinitely expandable. If you want to build a new game o
 
 - **[Backend Architecture Rules](./apps/README.md)**: Guidelines for extending `BaseGameManager` and utilizing the 4-stage pipeline.
 - **[Frontend Architecture Rules](./frontend/README.md)**: Guidelines for wrapping your game in the `<ModuxLayout>` shell and integrating `useGameSocket`.
-- **[Testing Guide](./TESTING.md)**: Complete guide on how to run and write automated tests for Modux, including CI/CD automation rules.
+- **[Testing Guide](./tests/README.md)**: Complete guide on how to run and write automated tests for Modux, including CI/CD automation rules.
 
 ---
 
