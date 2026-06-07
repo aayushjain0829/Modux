@@ -91,6 +91,16 @@ npm run dev
 
 ---
 
+## 🔀 Git Branching Strategy & Workflow
+
+To maintain a highly stable, bug-free production environment, Modux enforces a strict **Environment Branching (GitFlow)** model:
+
+1. **`development`**: The active engineering sandbox. All feature implementation, bug fixes, and manual testing occur here.
+2. **`staging`**: The automated Quality Assurance checkpoint. Code is merged from `development` into `staging` to trigger the automated CI/CD `pytest` and `vitest` workflows. If tests fail, fixes must be made back on `development` and re-merged.
+3. **`main`**: The sacred production branch. Code is ONLY merged here via Pull Request from `staging` after all status checks successfully pass. Merging into `main` automatically triggers cloud deployments.
+
+---
+
 ## 🗺️ Platform Execution Plan (Completed)
 
 ### Phase 1: Core Infrastructure & Backend Foundation ✅
