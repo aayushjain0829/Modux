@@ -4,34 +4,36 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 20px;
 }
 
 .dashboard-card {
-  background: white;
-  padding: 40px;
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  padding: 48px 40px;
+  border-radius: 24px;
+  border: 1px solid var(--glass-border-highlight);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255,255,255,0.05);
   text-align: center;
-  max-width: 400px;
+  max-width: 450px;
   width: 100%;
   position: relative;
   box-sizing: border-box;
+  animation: slideUp var(--transition-normal);
 }
 
 .settings-btn {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  background: none;
-  border: none;
+  top: 24px;
+  right: 24px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   cursor: pointer;
-  padding: 12px; /* Increased padding for better touch target */
-  border-radius: 8px;
-  transition: all 0.2s;
-  color: #666;
-  min-width: 48px; /* Enforce 48x48px touch target */
+  padding: 12px;
+  border-radius: 12px;
+  transition: var(--transition-fast);
+  color: var(--text-muted);
+  min-width: 48px;
   min-height: 48px;
   display: flex;
   align-items: center;
@@ -39,111 +41,148 @@
 }
 
 .settings-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: #333;
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-highlight);
+  color: var(--text-high);
+  transform: rotate(90deg);
 }
 
 .dashboard-title {
-  font-size: 2rem;
-  margin-bottom: 10px;
-  color: #333;
+  font-size: 3.5rem;
+  margin-bottom: 8px;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  letter-spacing: -2px;
+  background: linear-gradient(to bottom right, #fff, #cbd5e1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .dashboard-subtitle {
-  font-size: 1rem;
-  color: #666;
-  margin-bottom: 30px;
+  font-size: 1.1rem;
+  color: var(--accent-cyan);
+  margin-bottom: 32px;
+  font-weight: 500;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px var(--accent-cyan-glow);
 }
 
 .welcome-text {
-  font-size: 0.9rem;
-  color: #888;
-  margin-bottom: 20px;
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  font-family: var(--font-heading);
 }
 
 .play-btn {
   color: white;
   border: none;
-  padding: 16px 32px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border-radius: 8px;
+  padding: 18px 32px;
+  font-size: 1.2rem;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  border-radius: 16px;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: var(--transition-normal);
   width: 100%;
-  margin-bottom: 15px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.play-btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease-out;
+}
+
+.play-btn:hover::before {
+  left: 100%;
 }
 
 .play-btn.cross-clue {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--accent-purple), #9333ea);
+  box-shadow: 0 8px 25px rgba(192, 132, 252, 0.4);
 }
 
 .play-btn.cross-clue:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(192, 132, 252, 0.6);
 }
 
 .play-btn.bingo {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  background: linear-gradient(135deg, var(--accent-cyan), #0d9488);
   margin-bottom: 0;
+  box-shadow: 0 8px 25px rgba(45, 212, 191, 0.4);
 }
 
 .play-btn.bingo:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(45, 212, 191, 0.6);
 }
 
 .settings-modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(2, 6, 23, 0.8);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   padding: 20px;
+  animation: fadeIn 0.2s ease-out;
 }
 
 .settings-modal {
-  background: white;
-  border-radius: 16px;
+  background: var(--bg-dark);
+  border: 1px solid var(--glass-border-highlight);
+  border-radius: 24px;
   width: 100%;
   max-width: 500px;
   max-height: 80vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  animation: modalPop var(--transition-normal);
 }
 
 .settings-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px;
-  border-bottom: 1px solid #eee;
+  padding: 24px;
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .settings-header h2 {
   margin: 0;
-  font-size: 1.3rem;
-  color: #333;
+  font-size: 1.4rem;
+  color: var(--text-high);
 }
 
 .close-btn {
-  background: none;
-  border: none;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
   cursor: pointer;
-  padding: 8px; /* Improved touch target */
-  border-radius: 4px;
+  padding: 8px;
+  border-radius: 8px;
   min-width: 44px;
   min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: var(--transition-fast);
+}
+
+.close-btn:hover {
+  background: var(--glass-bg-hover);
+  color: var(--text-high);
 }
 
 .settings-body {
@@ -153,83 +192,76 @@
 }
 
 .settings-sidebar {
-  width: 120px;
-  background: #f8f9fa;
-  border-right: 1px solid #eee;
+  width: 140px;
+  background: rgba(0, 0, 0, 0.2);
+  border-right: 1px solid var(--glass-border);
   padding: 16px 0;
 }
 
 .settings-tab {
   width: 100%;
-  padding: 12px 16px;
-  background: white;
+  padding: 14px 20px;
+  background: transparent;
   border: none;
-  border-left: 3px solid #667eea;
-  color: #333;
+  border-left: 3px solid var(--accent-cyan);
+  color: var(--text-high);
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  font-family: var(--font-heading);
   cursor: pointer;
   text-align: left;
 }
 
 .settings-content {
   flex: 1;
-  padding: 24px;
+  padding: 32px 24px;
   overflow: auto;
-}
-
-.input-group {
-  margin-bottom: 20px;
-}
-
-.input-group label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #555;
 }
 
 .settings-input {
   width: 100%;
-  padding: 12px 16px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  padding: 14px 16px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
   font-size: 1rem;
+  color: var(--text-high);
   outline: none;
-  transition: border-color 0.2s;
+  transition: var(--transition-fast);
   box-sizing: border-box;
 }
 
 .settings-input:focus {
-  border-color: #667eea;
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 3px var(--accent-cyan-glow);
 }
 
 .save-btn {
   width: 100%;
-  padding: 12px 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 14px 24px;
+  background: linear-gradient(135deg, var(--accent-cyan), #0d9488);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: var(--font-heading);
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: var(--transition-fast);
 }
 
 .save-btn:hover {
-  opacity: 0.9;
+  box-shadow: 0 0 20px var(--accent-cyan-glow);
 }
 
-/* Mobile Responsiveness */
 @media (max-width: 600px) {
-  .dashboard-container {
-    padding: 16px;
+  .dashboard-card {
+    padding: 32px 24px;
+    border-radius: 20px;
   }
   
-  .dashboard-card {
-    padding: 24px; /* Reduced padding to save space on mobile */
+  .dashboard-title {
+    font-size: 2.8rem;
   }
   
   .settings-body {
@@ -239,14 +271,14 @@
   .settings-sidebar {
     width: 100%;
     border-right: none;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--glass-border);
     padding: 0;
     display: flex;
   }
   
   .settings-tab {
     border-left: none;
-    border-bottom: 3px solid #667eea;
+    border-bottom: 3px solid var(--accent-cyan);
     text-align: center;
   }
 }
