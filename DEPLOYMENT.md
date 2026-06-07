@@ -36,7 +36,7 @@ This guide explains how to deploy Modux with backend on Render and frontend on G
 4. **Deploy**
    - Click "Create Web Service"
    - Wait for deployment to complete
-   - Your backend will be available at: `https://modux-backend.onrender.com`
+   - Your backend will be available at: `https://modux.onrender.com/`
 
 ### Alternative: Using render.yaml
 The repository includes a `render.yaml` file that automatically configures the service when you connect your repository to Render.
@@ -54,7 +54,7 @@ The repository includes a `render.yaml` file that automatically configures the s
    - The GitHub Actions workflow in `.github/workflows/deploy-frontend.yml` will automatically:
      - Build the frontend on push to main branch
      - Deploy to GitHub Pages
-   - Your site will be available at: `https://aayushjain0829.github.io/Modux/`
+   - Your site will be available at: `https://aayushjain0829.github.io/`
 
 
 ## Configuration Details
@@ -67,10 +67,10 @@ The backend is configured to accept requests from:
 ### Frontend WebSocket URLs
 The frontend automatically detects the environment:
 - **Local**: Connects to `ws://localhost:8000`
-- **Production**: Connects to `wss://modux-backend.onrender.com`
+- **Production**: Connects to `wss://modux.onrender.com`
 
 ### Vite Configuration
-- **Base Path**: `/Modux/` (for GitHub Pages)
+- **Base Path**: `/` (for GitHub Pages)
 - **Output Directory**: `dist`
 - **Assets Directory**: `assets`
 
@@ -116,9 +116,9 @@ The frontend automatically detects the environment:
 
 ## URLs After Deployment
 
-- **Frontend**: `https://aayushjain0829.github.io/Modux/`
-- **Backend API**: `https://modux-backend.onrender.com`
-- **Backend WebSocket**: `wss://modux-backend.onrender.com`
+- **Frontend**: `https://aayushjain0829.github.io/`
+- **Backend API**: `https://modux.onrender.com/`
+- **Backend WebSocket**: `wss://modux.onrender.com/`
 
 ## Security Considerations
 

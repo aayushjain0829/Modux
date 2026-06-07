@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import './CrossClueArena.css'
 
 function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
   const [clueInput, setClueInput] = useState('')
@@ -99,7 +100,7 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
       sendMessage({
         action: 'guess_coordinate',
         user_id: userId,
-        coordinate: coordinate
+        guess: coordinate
       })
     } else if (isVoter && gameState?.status === 'playing') {
       // Voter submits a vote
@@ -142,16 +143,13 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
       (isVoter && gameState?.status === 'playing')
     )
     
-    // Determine cell background based on state
-    const getBackground = () => {
-      if (cellState.revealed) {
-        if (cellState.isSuccess) {
-          return 'linear-gradient(135deg, #28a745, #20c997)'
-        } else {
-          return 'linear-gradient(135deg, #dc3545, #c82333)'
-        }
-      }
-      return '#fafafa'
+    // Determine cell classes
+    let cellClasses = ['cc-cell'];
+    if (cellState.revealed) {
+      cellClasses.push('revealed');
+      cellClasses.push(cellState.isSuccess ? 'success' : 'fail');
+    } else {
+      cellClasses.push(isClickable ? 'clickable' : 'not-clickable');
     }
     
     // Mobile-responsive sizing
@@ -164,61 +162,11 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
       <div
         key={coordinate}
         onClick={() => isClickable && handleCellClick(coordinate)}
+        className={cellClasses.join(' ')}
         style={{
           width: `${tileSize}px`,
           height: `${tileSize}px`,
-          border: cellState.revealed 
-            ? 'none' 
-            : isClickable
-              ? '3px solid rgba(102, 126, 234, 0.5)'
-              : '3px solid rgba(102, 126, 234, 0.2)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: getBackground(),
-          cursor: isClickable ? 'pointer' : (cellState.revealed ? 'default' : 'not-allowed'),
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          fontSize: fontSize,
-          fontWeight: cellState.revealed ? '700' : '600',
-          color: cellState.revealed ? 'white' : '#667eea',
-          borderRadius: '12px',
-          boxShadow: cellState.revealed
-            ? (cellState.isSuccess 
-                ? '0 4px 15px rgba(40, 167, 69, 0.4)' 
-                : '0 4px 15px rgba(220, 53, 69, 0.4)')
-            : isClickable
-              ? '0 4px 12px rgba(102, 126, 234, 0.2)'
-              : '0 4px 12px rgba(0, 0, 0, 0.1)',
-          transform: cellState.revealed ? 'scale(0.95)' : 'scale(1)',
-          position: 'relative',
-          overflow: 'hidden',
-          opacity: (!isClickable && !cellState.revealed) ? 0.7 : 1
-        }}
-        onMouseOver={(e) => {
-          if (isClickable && !isMobile) {
-            e.target.style.backgroundColor = '#f0f4ff';
-            e.target.style.borderColor = '#667eea';
-            e.target.style.transform = 'translateY(-3px) scale(1.02)';
-            e.target.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.3)';
-          }
-        }}
-        onMouseOut={(e) => {
-          if (isClickable && !isMobile) {
-            e.target.style.backgroundColor = '#fafafa';
-            e.target.style.borderColor = 'rgba(102, 126, 234, 0.5)';
-            e.target.style.transform = 'translateY(0) scale(1)';
-            e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.2)';
-          }
-        }}
-        onMouseDown={(e) => {
-          if (isClickable) {
-            e.target.style.transform = 'translateY(-1px) scale(0.98)';
-          }
-        }}
-        onMouseUp={(e) => {
-          if (isClickable) {
-            e.target.style.transform = isMobile ? 'scale(0.95)' : 'translateY(-3px) scale(1.02)';
-          }
+          fontSize: fontSize
         }}
       >
         {cellState.revealed ? (
@@ -263,18 +211,7 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
   }
 
   return (
-    <div style={{
-      padding: '10px',
-      maxWidth: '900px',
-      width: '100%',
-      margin: '0 auto',
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'flex-start',
-      boxSizing: 'border-box'
-    }}>
+    <div className="cc-arena-container">
       {/* Game Timer Component */}
       <div style={{
         background: gameTimerRemaining < 30000 
@@ -527,31 +464,11 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
                     />
                     <button
                       type="submit"
+                      className="cc-btn-primary"
                       style={{
                         padding: window.innerWidth <= 768 ? '10px 16px' : '12px 20px',
-                        background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '10px',
-                        cursor: 'pointer',
                         fontSize: window.innerWidth <= 768 ? '0.9rem' : '1rem',
-                        fontWeight: '600',
-                        boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)',
-                        transition: 'all 0.3s ease',
-                        whiteSpace: 'nowrap',
                         minWidth: window.innerWidth <= 768 ? '100px' : 'auto'
-                      }}
-                      onMouseOver={(e) => {
-                        if (window.innerWidth > 768) {
-                          e.target.style.transform = 'translateY(-1px)';
-                          e.target.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.4)';
-                        }
-                      }}
-                      onMouseOut={(e) => {
-                        if (window.innerWidth > 768) {
-                          e.target.style.transform = 'translateY(0)';
-                          e.target.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.3)';
-                        }
                       }}
                     >
                       Submit Clue
@@ -567,26 +484,11 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
                   action: 'draw_card',
                   user_id: userId
                 })}
+                className="cc-btn-success"
                 style={{
                   width: '100%',
                   padding: '16px 24px',
-                  background: 'linear-gradient(135deg, #28a745, #20c997)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '15px',
-                  cursor: 'pointer',
                   fontSize: '1.1rem',
-                  fontWeight: '700',
-                  boxShadow: '0 6px 20px rgba(40, 167, 69, 0.3)',
-                  transition: 'all 0.3s ease'
-                }}
-                onMouseOver={(e) => {
-                  e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.boxShadow = '0 8px 25px rgba(40, 167, 69, 0.4)';
-                }}
-                onMouseOut={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 6px 20px rgba(40, 167, 69, 0.3)';
                 }}
               >
                 🎴 Draw Card
@@ -596,7 +498,7 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
         )}
 
         {/* Guesser View */}
-        {isGuesser && gameState?.turn_phase === 'guessing' && (
+        {isGuesser && (
           <div>
             <h3 style={{
               fontSize: '1.1rem',

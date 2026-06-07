@@ -1,11 +1,11 @@
-# BINGO (1-25 Variant)
+# Bingo
 
-A turn-based, 5x5 grid game where players arrange numbers 1-25, take turns calling numbers, and compete to complete 5 lines (Rows, Columns, or Diagonals) to spell B-I-N-G-O.
+A customizable, turn-based number grid game where players arrange numbers, take turns calling them out, and compete to complete lines (Rows, Columns, or Diagonals) to spell B-I-N-G-O.
 
 ## 🎮 Game Mechanics
 
-- **The Board:** Each player arranges numbers 1-25 on a personal 5x5 grid before the game begins.
-- **Sequential Click Setup:** Click empty cells to auto-assign the lowest available number (1-25). Clicking a filled cell reclaims the number for reuse. An 'Auto-Shuffle' button provides instant randomization.
+- **The Board:** The Host can dynamically select the grid size (from classic 5x5 up to a massive 8x8). Each player arranges numbers on their personal grid before the game begins.
+- **Sequential Click Setup:** Click empty cells to auto-assign the lowest available number. Clicking a filled cell reclaims the number for reuse. An 'Auto-Shuffle' button provides instant randomization.
 - **Spectator Mode**: Players joining after game starts become spectators
 - **Tie-Breaker Rule:** Active player wins ties when multiple players achieve 5 lines simultaneously
 - **Disconnect Safeguard:** Game automatically advances turn when player disconnects
@@ -49,7 +49,7 @@ Bingo now follows the standardized Modux platform lifecycle:
   - Remove redundant waiting room, use sidebar for status tracking.
 
 - [x] **Phase 3: The Active Game (UI & Matrix Logic)**
-  - Render the 5x5 interactive grid with consistent styling.
+  - Render the dynamic interactive grid with consistent styling.
   - Build matrix-checking algorithm for completed lines and B-I-N-G-O progression.
   - Implement visual 'Active Caller' indicator.
   - Add spectator view without game controls.
@@ -76,7 +76,7 @@ To test the Bingo module locally:
 
 2. **Lobby Flow:** Verify players start in Lobby stage, can toggle ready status, and host can start game when all are ready.
 
-3. **Setup Phase:** Arrange 5x5 grids using sequential click setup or auto-shuffle. Verify submission status updates in sidebar and boards disable after submission.
+3. **Setup Phase:** Arrange the dynamic grids using sequential click setup or auto-shuffle. Verify submission status updates in sidebar and boards disable after submission.
 
 4. **Spectator Mode:** Join a game after it has started. Verify spectator UI displays consistently across Setup and Arena stages.
 

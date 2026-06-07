@@ -1,13 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useUser } from '../../context/UserContext';
+import { useGameSocket } from '../../hooks/useGameSocket';
 import ModuxLayout from '../../components/layout/ModuxLayout';
 import LobbyStage from '../../components/stages/LobbyStage';
 import SetupStage from '../../components/stages/SetupStage';
 import ArenaStage from '../../components/stages/ArenaStage';
 import RecapStage from '../../components/stages/RecapStage';
 import BingoSetup from './components/BingoSetup';
-import BingoActive from './components/BingoActive';
+import BingoArena from './components/BingoArena';
 import BingoRecap from './components/BingoRecap';
 
 const BingoGame = () => {
@@ -15,30 +16,60 @@ const BingoGame = () => {
   const navigate = useNavigate();
   const { username, userId } = useUser();
   
-  const [connected, setConnected] = useState(false);
-  const [gameState, setGameState] = useState({
-    session_id: sessionId,
-    status: 'waiting',
-    host_id: '',
-    turn_order: [],
-    current_turn_index: 0,
-    called_numbers: [],
-    winner: null,
-    players: {},
-    config: { grid_size: 5, first_player_rule: 'random' },
-    last_called_number: null
-  });
-  const wsRef = useRef(null);
+  const { gameState, isConnected, sendMessage } = useGameSocket(
+    'bingo', 
+    sessionId, 
+    userId, 
+    username || `Player_${userId.substring(5, 9)}`
+  );
 
-  // Username will be handled with fallback in WebSocket join message
+  if (!sessionId) {
+    navigate('/portal/bingo');
+    return null;
+  }
 
-  // Handle leave game
   const handleLeave = () => {
     navigate('/');
   };
 
+  if (!gameState) {
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white',
+        fontFamily: 'system-ui, -apple-system, sans-serif'
+      }}>
+        <div style={{
+          animation: 'pulse 1.5s infinite',
+          background: 'rgba(255, 255, 255, 0.2)',
+          padding: '40px',
+          borderRadius: '16px',
+          textAlign: 'center',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255,255,255,0.3)'
+        }}>
+          <style>{`
+            @keyframes pulse {
+              0% { opacity: 1; transform: scale(1); }
+              50% { opacity: 0.8; transform: scale(0.98); }
+              100% { opacity: 1; transform: scale(1); }
+            }
+          `}</style>
+          <div style={{ fontSize: '3rem', marginBottom: '20px' }}>🎲</div>
+          <h2 style={{ margin: '0 0 10px 0', fontSize: '1.5rem' }}>Waking up server...</h2>
+          <p style={{ margin: 0, opacity: 0.8 }}>This may take up to 30 seconds on the free tier.</p>
+        </div>
+      </div>
+    );
+  }
+
   // Derive players array from gameState.players object
-  const playerArray = Object.keys(gameState.players).map(id => {
+  const playerArray = Object.keys(gameState.players || {}).map(id => {
     const player = gameState.players[id];
     return {
       id,
@@ -50,114 +81,26 @@ const BingoGame = () => {
     };
   });
 
-  const sendMessage = (message) => {
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      const messageWithUserId = { ...message, user_id: userId };
-      wsRef.current.send(JSON.stringify(messageWithUserId));
-    }
+  const isHost = gameState?.host_id === userId;
+
+  const handleToggleReady = () => {
+    sendMessage('toggle_ready');
   };
 
-  useEffect(() => {
-    // Safety check for undefined sessionId
-    if (!sessionId) {
-      return;
-    }
-
-    // Determine WebSocket URL - adapt for both local development and production
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.hostname || 'localhost';
-    
-    // For GitHub Pages production, use Render backend URL
-    // For local development, use port 8000
-    const isLocalhost = host === 'localhost' || host === '127.0.0.1';
-    const wsUrl = isLocalhost 
-      ? `${protocol}//${host}:8000/ws/bingo/${sessionId}`
-      : `wss://modux.onrender.com/ws/bingo/${sessionId}`;
-
-    // Connect to WebSocket
-    wsRef.current = new WebSocket(wsUrl);
-
-    wsRef.current.onopen = () => {
-      setConnected(true);
-      // Join game on connection using global username
-      sendMessage({
-        action: 'join_game',
-        username: username || `Player_${userId.substring(5, 9)}`
-      });
-    };
-
-    wsRef.current.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-
-      if (data.type === 'state_update') {
-        // Force new object reference to trigger React re-render
-        setGameState({ ...data.data });
-      }
-    };
-
-    wsRef.current.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    };
-
-    wsRef.current.onclose = () => {
-      setConnected(false);
-    };
-
-    return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
-      }
-    };
-  }, [sessionId]);
-
-  if (!sessionId) {
-    navigate('/portal/bingo');
-    return null;
-  }
-
-  const isHost = gameState?.host_id === userId
-
-  if (!connected) {
-    return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        color: 'white',
-        fontSize: '1.2rem'
-      }}>
-        Connecting to game...
-      </div>
-    )
-  }
-
-  // Handle stage transitions
-  const handleToggleReady = () => {
-    sendMessage({
-      action: 'toggle_ready',
-      user_id: userId
-    })
-  }
-
   const handleStartGame = () => {
-    sendMessage({
-      action: 'start_game',
-      user_id: userId
-    })
-  }
+    sendMessage('start_game');
+  };
 
-  // Render based on backend game state status and individual player stage
   const renderStageContent = () => {
-    // Check if player has individual stage override
     const currentPlayer = gameState.players[userId];
     const playerStage = currentPlayer?.player_stage;
+    const isSpectator = currentPlayer?.is_spectator || false;
     
     // If game is finished and player is in lobby stage, show lobby
     if (gameState.status === 'finished' && playerStage === 'lobby') {
       return (
         <LobbyStage
+          gameType="bingo"
           isHost={isHost}
           players={playerArray}
           gameConfig={{}} // Empty config for Bingo
@@ -165,15 +108,16 @@ const BingoGame = () => {
           onStartGame={handleStartGame}
           currentUserId={userId}
           gameState={gameState}
-          sendMessage={sendMessage}
+          sendMessage={(payload) => sendMessage(payload.action, payload)}
         />
-      )
+      );
     }
 
     switch (gameState.status) {
       case 'waiting':
         return (
           <LobbyStage
+            gameType="bingo"
             isHost={isHost}
             players={playerArray}
             gameConfig={{}} // Empty config for Bingo
@@ -181,38 +125,48 @@ const BingoGame = () => {
             onStartGame={handleStartGame}
             currentUserId={userId}
             gameState={gameState}
-            sendMessage={sendMessage}
+            sendMessage={(payload) => sendMessage(payload.action, payload)}
           />
-        )
+        );
       case 'setup':
         return (
-          <BingoSetup
-            gameState={gameState}
-            userId={userId}
-            sendMessage={sendMessage}
-          />
-        )
+          <SetupStage title="Preparing Bingo..." subtitle="Arrange your board">
+            <BingoSetup
+              gameState={gameState}
+              userId={userId}
+              sendMessage={(payload) => sendMessage(payload.action, payload)}
+            />
+          </SetupStage>
+        );
       case 'playing':
         return (
-          <BingoActive
-            gameState={gameState}
-            userId={userId}
-            sendMessage={sendMessage}
-          />
-        )
+          <ArenaStage isSpectator={isSpectator} spectatorMessage="The game has already started...">
+            <BingoArena
+              gameState={gameState}
+              userId={userId}
+              sendMessage={(payload) => sendMessage(payload.action, payload)}
+            />
+          </ArenaStage>
+        );
       case 'finished':
         return (
-          <BingoRecap
-            gameState={gameState}
-            userId={userId}
-            sendMessage={sendMessage}
-            wsRef={wsRef}
-          />
-        )
+          <RecapStage 
+            title="BINGO!" 
+            subtitle={gameState.winner === userId ? "You won!" : "Game Over"}
+            onReturnToLobby={() => sendMessage('return_to_lobby')}
+            onPlayAgain={isHost ? () => sendMessage('play_again') : null}
+          >
+            <BingoRecap
+              gameState={gameState}
+              userId={userId}
+              sendMessage={(payload) => sendMessage(payload.action, payload)}
+            />
+          </RecapStage>
+        );
       default:
-        return <div>Loading... Status: {gameState.status}</div>
+        return <div>Loading... Status: {gameState.status}</div>;
     }
-  }
+  };
 
   return (
     <ModuxLayout

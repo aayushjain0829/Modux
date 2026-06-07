@@ -1,125 +1,85 @@
-import { useParams, useNavigate } from 'react-router-dom'
-import React, { useState, useEffect, useRef } from 'react'
-import { useUser } from '../../context/UserContext'
-import ModuxLayout from '../../components/layout/ModuxLayout'
-import LobbyStage from '../../components/stages/LobbyStage'
-import SetupStage from '../../components/stages/SetupStage'
-import ArenaStage from '../../components/stages/ArenaStage'
-import RecapStage from '../../components/stages/RecapStage'
-import CrossClueSetup from './components/CrossClueSetup'
-import CrossClueArena from './components/CrossClueArena'
-import CrossClueRecap from './components/CrossClueRecap'
-import SpectatorView from '../../components/common/SpectatorView'
+import React from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useUser } from '../../context/UserContext';
+import { useGameSocket } from '../../hooks/useGameSocket';
+import ModuxLayout from '../../components/layout/ModuxLayout';
+import LobbyStage from '../../components/stages/LobbyStage';
+import ArenaStage from '../../components/stages/ArenaStage';
+import RecapStage from '../../components/stages/RecapStage';
+import SetupStage from '../../components/stages/SetupStage';
+import CrossClueSetup from './components/CrossClueSetup';
+import CrossClueArena from './components/CrossClueArena';
+import CrossClueRecap from './components/CrossClueRecap';
 
 function CrossClue() {
-  const { sessionId } = useParams()
-  const navigate = useNavigate()
-  const { username, userId } = useUser()
-  const [connected, setConnected] = useState(false)
-  const [gameState, setGameState] = useState(null)
-  const [secretCard, setSecretCard] = useState(null)
-  const wsRef = useRef(null)
+  const { sessionId } = useParams();
+  const navigate = useNavigate();
+  const { username, userId } = useUser();
+  
+  const { gameState, isConnected, secretCard, sendMessage } = useGameSocket(
+    'cross-clue',
+    sessionId,
+    userId,
+    username || `Player_${userId.substring(5, 9)}`
+  );
 
-  const sendMessage = (message) => {
-    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      const messageWithUserId = { ...message, user_id: userId }
-      wsRef.current.send(JSON.stringify(messageWithUserId))
-    }
-  }
-
-  useEffect(() => {
-    // Skip WebSocket connection if no sessionId
-    if (!sessionId) {
-      navigate('/portal/cross-clue')
-      return
-    }
-
-    // Determine WebSocket URL - adapt for both local development and production
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.hostname || 'localhost';
-    
-    // For GitHub Pages production, use Render backend URL
-    // For local development, use port 8000
-    const isLocalhost = host === 'localhost' || host === '127.0.0.1';
-    const wsUrl = isLocalhost 
-      ? `${protocol}//${host}:8000/ws/cross-clue/${sessionId}`
-      : `wss://modux.onrender.com/ws/cross-clue/${sessionId}`;
-    
-    const websocket = new WebSocket(wsUrl)
-    wsRef.current = websocket
-
-    websocket.onopen = () => {
-      setConnected(true)
-      // Join game on connection using global username
-      sendMessage({
-        action: 'join_game',
-        username: username || `Player_${userId.substring(5, 9)}`
-      });
-    };
-
-    websocket.onmessage = (event) => {
-      try {
-        const parsed = JSON.parse(event.data)
-        
-        // Handle secret_update messages (private secret card)
-        if (parsed.type === 'secret_update') {
-          const coordinate = parsed.secret_card
-          setSecretCard(coordinate)
-        }
-        // Handle state_update messages (public game state)
-        else if (parsed.type === 'state_update' && parsed.data) {
-          // Force new object reference to trigger React re-render
-          setGameState({ ...parsed.data });
-        }
-        // Handle guess_result messages
-        else if (parsed.type === 'guess_result' && parsed.data) {
-          setGameState(prev => ({
-            ...prev,
-            grid_state: parsed.data.grid_state
-          }))
-        }
-      } catch (e) {
-        // Ignore JSON parse errors
-      }
-    }
-
-    websocket.onclose = () => {
-      setConnected(false)
-    }
-
-    websocket.onerror = () => {
-      setConnected(false)
-    }
-
-    return () => {
-      if (websocket && websocket.readyState === WebSocket.OPEN) {
-        websocket.close()
-      }
-    }
-  }, [sessionId])
-
-  const handleToggleReady = () => {
-    sendMessage({
-      action: 'toggle_ready',
-      user_id: userId
-    })
-  }
-
-  const handleStartGame = () => {
-    sendMessage({
-      action: 'start_game',
-      user_id: userId
-    })
+  if (!sessionId) {
+    navigate('/portal/cross-clue');
+    return null;
   }
 
   const handleLeave = () => {
-    navigate('/')
+    navigate('/');
+  };
+
+  if (!gameState) {
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white',
+        fontFamily: 'system-ui, -apple-system, sans-serif'
+      }}>
+        <div style={{
+          animation: 'pulse 1.5s infinite',
+          background: 'rgba(255, 255, 255, 0.2)',
+          padding: '40px',
+          borderRadius: '16px',
+          textAlign: 'center',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255,255,255,0.3)'
+        }}>
+          <style>{`
+            @keyframes pulse {
+              0% { opacity: 1; transform: scale(1); }
+              50% { opacity: 0.8; transform: scale(0.98); }
+              100% { opacity: 1; transform: scale(1); }
+            }
+          `}</style>
+          <div style={{ fontSize: '3rem', marginBottom: '20px' }}>🎲</div>
+          <h2 style={{ margin: '0 0 10px 0', fontSize: '1.5rem' }}>Waking up server...</h2>
+          <p style={{ margin: 0, opacity: 0.8 }}>This may take up to 30 seconds on the free tier.</p>
+        </div>
+      </div>
+    );
   }
+
+  const handleToggleReady = () => {
+    sendMessage('toggle_ready');
+  };
+
+  const handleStartGame = () => {
+    sendMessage('start_game');
+  };
 
   // Derive players array from gameState.players object
   const playerArray = Object.keys(gameState?.players || {}).map(id => {
     const player = gameState.players[id];
-    const playerData = {
+    return {
       id,
       name: player?.username || id,
       is_ready: player?.is_ready || false,
@@ -127,37 +87,11 @@ function CrossClue() {
       is_spectator: player?.is_spectator || false,
       player_stage: player?.player_stage || 'recap'
     };
-    console.log('CrossClue: Player data', {id, is_ready: playerData.is_ready, name: playerData.name});
-    return playerData;
   });
 
-  const isHost = gameState?.host_id === userId
+  const isHost = gameState?.host_id === userId;
 
-  if (!connected) {
-    return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        color: 'white',
-        fontSize: '1.2rem'
-      }}>
-        Connecting to game...
-      </div>
-    )
-  }
-
-  
-  // Render based on backend game state status and individual player stage
   const renderStageContent = () => {
-    // Guard clause for null gameState
-    if (!gameState) {
-      return <div>Loading game state...</div>;
-    }
-    
-    // Check spectator status directly (no hook)
     const currentPlayer = gameState.players[userId];
     const isSpectator = currentPlayer?.is_spectator || false;
     const playerStage = currentPlayer?.player_stage;
@@ -166,6 +100,7 @@ function CrossClue() {
     if (gameState.status === 'finished' && playerStage === 'lobby') {
       return (
         <LobbyStage
+          gameType="cross_clue"
           isHost={isHost}
           players={playerArray}
           gameConfig={{ mode: 'cooperative', grid: '4x4' }}
@@ -173,20 +108,16 @@ function CrossClue() {
           onStartGame={handleStartGame}
           currentUserId={userId}
           gameState={gameState}
-          sendMessage={sendMessage}
+          sendMessage={(payload) => sendMessage(payload.action, payload)}
         />
-      )
-    }
-    
-    // Show spectator view for spectators in playing stage
-    if (isSpectator && gameState.status === 'playing') {
-      return <SpectatorView />;
+      );
     }
     
     switch (gameState.status) {
       case 'waiting':
         return (
           <LobbyStage
+            gameType="cross_clue"
             isHost={isHost}
             players={playerArray}
             gameConfig={{ mode: 'cooperative', grid: '4x4' }}
@@ -194,31 +125,48 @@ function CrossClue() {
             onStartGame={handleStartGame}
             currentUserId={userId}
             gameState={gameState}
-            sendMessage={sendMessage}
+            sendMessage={(payload) => sendMessage(payload.action, payload)}
           />
-        )
+        );
+      case 'setup':
+        return (
+          <SetupStage title="Review Board" subtitle="Familiarize yourself with the grid before the timer starts">
+            <CrossClueSetup
+              gameState={gameState}
+              userId={userId}
+              sendMessage={(payload) => sendMessage(payload.action, payload)}
+            />
+          </SetupStage>
+        );
       case 'playing':
         return (
-          <CrossClueArena
-            gameState={gameState}
-            userId={userId}
-            sendMessage={sendMessage}
-            secretCard={secretCard}
-          />
-        )
+          <ArenaStage isSpectator={isSpectator} spectatorMessage="The game is in progress. You can observe the clues and guesses!">
+            <CrossClueArena
+              gameState={gameState}
+              userId={userId}
+              sendMessage={(payload) => sendMessage(payload.action, payload)}
+              secretCard={secretCard}
+            />
+          </ArenaStage>
+        );
       case 'finished':
         return (
-          <CrossClueRecap
-            gameState={gameState}
-            userId={userId}
-            sendMessage={sendMessage}
-            wsRef={wsRef}
-          />
-        )
+          <RecapStage
+            title="Game Complete!"
+            subtitle="Great teamwork!"
+            onReturnToLobby={() => sendMessage('return_to_lobby')}
+          >
+            <CrossClueRecap
+              gameState={gameState}
+              userId={userId}
+              sendMessage={(payload) => sendMessage(payload.action, payload)}
+            />
+          </RecapStage>
+        );
       default:
-        return <div>Loading...</div>
+        return <div>Loading... Status: {gameState.status}</div>;
     }
-  }
+  };
 
   return (
     <ModuxLayout
@@ -231,7 +179,7 @@ function CrossClue() {
     >
       {renderStageContent()}
     </ModuxLayout>
-  )
+  );
 }
 
-export default CrossClue
+export default CrossClue;

@@ -1,9 +1,29 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { QRCodeSVG } from 'qrcode.react'
 import './ModuxLayout.css'
 
 function ModuxLayout({ appName, sessionId, players = [], gameState, onLeave, currentUserId, children }) {
   const [copied, setCopied] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [qrOpen, setQrOpen] = useState(false)
+  const [networkIp, setNetworkIp] = useState(window.location.hostname)
+
+  useEffect(() => {
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      const fetchIp = async () => {
+        try {
+          const res = await fetch('http://localhost:8000/network-ip');
+          const data = await res.json();
+          if (data.ip) {
+            setNetworkIp(data.ip);
+          }
+        } catch (e) {
+          console.error('Failed to fetch network IP', e);
+        }
+      };
+      fetchIp();
+    }
+  }, []);
 
   const handleCopySession = () => {
     if (sessionId) {
@@ -81,6 +101,12 @@ function ModuxLayout({ appName, sessionId, players = [], gameState, onLeave, cur
             className={`modux-copy-button ${copied ? 'copied' : ''}`}
           >
             {copied ? 'Copied!' : 'Copy'}
+          </button>
+          <button
+            onClick={() => setQrOpen(true)}
+            className="modux-qr-button"
+          >
+            QR
           </button>
         </div>
       </header>
@@ -166,6 +192,32 @@ function ModuxLayout({ appName, sessionId, players = [], gameState, onLeave, cur
           {children}
         </main>
       </div>
+
+      {/* QR Code Modal */}
+      {qrOpen && (
+        <div className="modux-modal-overlay" onClick={() => setQrOpen(false)}>
+          <div className="modux-modal" onClick={e => e.stopPropagation()}>
+            <div className="modux-modal-header">
+              <h3>Scan to Join</h3>
+              <button onClick={() => setQrOpen(false)} className="modux-modal-close-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+            <div className="modux-qr-container">
+              {(() => {
+                const baseUrl = import.meta.env.BASE_URL || '/';
+                const formattedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+                const qrUrl = `${window.location.protocol}//${networkIp}:${window.location.port}${formattedBase}${appName.toLowerCase().replace(' ', '-')}/${sessionId}`;
+                
+                return <QRCodeSVG value={qrUrl} size={200} />;
+              })()}
+            </div>
+            <p className="modux-modal-code">{sessionId}</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

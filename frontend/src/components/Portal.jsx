@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
+import toast from 'react-hot-toast';
 import { GAME_METADATA } from '../constants/gameRegistry';
 
 const Portal = () => {
@@ -25,7 +26,7 @@ const Portal = () => {
 
   const handleJoinGame = () => {
     if (!sessionId.trim()) {
-      alert('Please enter a session ID');
+      toast.error('Please enter a session ID');
       return;
     }
     
@@ -123,7 +124,7 @@ const Portal = () => {
             type="text"
             value={sessionId}
             onChange={(e) => setSessionId(e.target.value.toUpperCase())}
-            placeholder="Enter session ID to join"
+            placeholder="Enter room ID to join"
             style={{
               width: '100%',
               padding: '12px 16px',

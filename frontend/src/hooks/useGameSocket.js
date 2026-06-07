@@ -1,0 +1,128 @@
+import { useState, useEffect, useCallback, useRef } from 'react';
+import toast from 'react-hot-toast';
+
+export function useGameSocket(appName, sessionId, userId, username) {
+  const [gameState, setGameState] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [secretCard, setSecretCard] = useState(null);
+  const wsRef = useRef(null);
+  const reconnectTimeoutRef = useRef(null);
+  const isComponentMounted = useRef(true);
+  const toastIdRef = useRef(null);
+
+  useEffect(() => {
+    if (!isConnected && gameState !== null) {
+      if (!toastIdRef.current) {
+        toastIdRef.current = toast.loading('Reconnecting...', { style: { minWidth: '150px' } });
+      }
+    } else if (isConnected && toastIdRef.current) {
+      toast.dismiss(toastIdRef.current);
+      toast.success('Connected!', { id: toastIdRef.current });
+      toastIdRef.current = null;
+    }
+  }, [isConnected, gameState]);
+
+  const sendMessageRaw = useCallback((wsInstance, message) => {
+    if (wsInstance && wsInstance.readyState === WebSocket.OPEN) {
+      wsInstance.send(JSON.stringify(message));
+    } else {
+      console.warn("Cannot send message, WebSocket is not open");
+    }
+  }, []);
+
+  const connect = useCallback(() => {
+    if (!sessionId || !userId) return;
+
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    
+    // If the frontend is hosted on github pages, we are in production
+    const isProduction = window.location.hostname.includes('github.io');
+    
+    // For local development (including LAN access from mobile), use the current hostname with port 8000
+    // For production, connect to the deployed Render backend
+    const host = isProduction ? 'modux.onrender.com' : `${window.location.hostname}:8000`;
+    const wsUrl = `${protocol}//${host}/ws/${appName}/${sessionId}`;
+
+    const ws = new WebSocket(wsUrl);
+
+    ws.onopen = () => {
+      if (!isComponentMounted.current) return;
+      setIsConnected(true);
+      // Automatically join game on connect
+      sendMessageRaw(ws, {
+        action: 'join_game',
+        user_id: userId,
+        username: username
+      });
+      
+      // Clear any reconnect timeout if we connected successfully
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
+      }
+    };
+
+    ws.onmessage = (event) => {
+      if (!isComponentMounted.current) return;
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'state_update') {
+          setGameState(data.data);
+        } else if (data.type === 'secret_update') {
+          setSecretCard(data.secret_card || data.data?.coordinate);
+        }
+      } catch (error) {
+        console.error("Error parsing websocket message", error);
+      }
+    };
+
+    ws.onclose = () => {
+      if (!isComponentMounted.current) return;
+      setIsConnected(false);
+      
+      // Auto-reconnection logic
+      reconnectTimeoutRef.current = setTimeout(() => {
+        if (isComponentMounted.current) {
+          connect();
+        }
+      }, 3000);
+    };
+
+    ws.onerror = (error) => {
+      console.error("WebSocket error", error);
+      // Don't close manually here, let it trigger onclose naturally
+    };
+
+    wsRef.current = ws;
+  }, [appName, sessionId, userId, username, sendMessageRaw]);
+
+  useEffect(() => {
+    isComponentMounted.current = true;
+    connect();
+
+    return () => {
+      isComponentMounted.current = false;
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
+  }, [connect]);
+
+  const sendAction = useCallback((action, payload = {}) => {
+    sendMessageRaw(wsRef.current, {
+      action,
+      user_id: userId,
+      ...payload
+    });
+  }, [userId, sendMessageRaw]);
+
+  return {
+    gameState,
+    isConnected,
+    secretCard,
+    sendMessage: sendAction
+  };
+}
