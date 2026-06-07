@@ -77,4 +77,35 @@ describe('ModuxLayout', () => {
     const bobContainer = screen.getByText('Bob').parentElement;
     expect(bobContainer.querySelector('.modux-player-status')).toHaveClass('not-ready');
   });
+
+  it('toggles mobile sidebar menu when button is clicked', async () => {
+    // import userEvent or use fireEvent. Let's use fireEvent for simplicity.
+    const { fireEvent } = await import('@testing-library/react');
+    
+    renderWithContext(
+      <ModuxLayout appName="TestApp">
+        <div>Content</div>
+      </ModuxLayout>,
+      {}
+    );
+
+    // Initial state: sidebar shouldn't have 'open' class
+    const sidebar = document.querySelector('.modux-sidebar');
+    expect(sidebar).not.toHaveClass('open');
+
+    // Find and click the toggle button
+    // Since the button doesn't have an aria-label, we get it by class name
+    const toggleBtn = document.querySelector('.modux-menu-toggle');
+    fireEvent.click(toggleBtn);
+
+    // Sidebar should now have 'open' class
+    expect(sidebar).toHaveClass('open');
+
+    // Click close button inside sidebar
+    const closeBtn = document.querySelector('.modux-sidebar-close');
+    fireEvent.click(closeBtn);
+
+    // Sidebar should be closed again
+    expect(sidebar).not.toHaveClass('open');
+  });
 });

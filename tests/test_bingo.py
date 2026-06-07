@@ -113,3 +113,33 @@ def test_auto_win_detection(manager, session_id):
     # Should trigger finish
     assert state.status == "finished"
     assert state.winner == "user1"
+
+def test_auto_win_custom_grid_size(manager, session_id):
+    manager.join_game(session_id, "user1", "Alice")
+    manager.join_game(session_id, "user2", "Bob")
+    manager.start_game(session_id, "user1")
+    
+    # 6x6 grid requires 6 lines to win
+    grid_size = 6
+    board = [list(range(i*grid_size + 1, i*grid_size + grid_size + 1)) for i in range(grid_size)]
+    
+    manager.update_config(session_id, {"grid_size": grid_size})
+    manager.submit_board(session_id, "user1", board)
+    manager.submit_board(session_id, "user2", board)
+    
+    state = manager.get_session(session_id)
+    assert state.status == "playing"
+    
+    # We need 6 lines to win in a 6x6 grid.
+    # By calling the first 36 numbers, we will definitely win.
+    for i in range(1, 37):
+        # We need to simulate taking turns correctly
+        current_turn_player = state.turn_order[state.current_turn_index]
+        manager.call_number(session_id, current_turn_player, i)
+        if state.status == "finished":
+            break
+            
+    assert state.status == "finished"
+    # To hit 6 lines, we would need to complete multiple rows/cols. 
+    # With a simple loop, the player who calls the winning number gets the win.
+    assert state.winner is not None
