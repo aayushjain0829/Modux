@@ -207,7 +207,7 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
       {/* Game Board */}
       <div style={{
         background: 'rgba(255, 255, 255, 0.95)',
-        padding: window.innerWidth <= 768 ? '15px' : '25px',
+        padding: '16px',
         borderRadius: '20px',
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
         backdropFilter: 'blur(10px)',
@@ -231,18 +231,14 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
         {/* Game Board Grid with Axes */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: window.innerWidth <= 768 
-            ? '60px repeat(4, 60px)' 
-            : '80px repeat(4, 70px)',
-          gridTemplateRows: window.innerWidth <= 768 
-            ? '40px repeat(4, 60px)' 
-            : '50px repeat(4, 70px)',
-          gap: window.innerWidth <= 768 ? '6px' : '8px',
+          gridTemplateColumns: '80px repeat(4, 1fr)',
+          gridTemplateRows: '50px repeat(4, 1fr)',
+          gap: '4px',
           justifyContent: 'center',
           alignItems: 'center',
-          width: 'fit-content',
-          margin: '0 auto',
-          minWidth: 'max-content'
+          width: '100%',
+          maxWidth: '600px',
+          margin: '0 auto'
         }}>
           {/* Empty corner */}
           <div></div>
@@ -256,20 +252,20 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
               justifyContent: 'center',
               background: 'linear-gradient(135deg, #667eea, #764ba2)',
               color: 'white',
-              padding: window.innerWidth <= 768 ? '6px 2px' : '8px 4px',
-              borderRadius: '20px',
-              fontSize: window.innerWidth <= 768 ? '0.7rem' : '0.85rem',
+              padding: '4px 2px',
+              borderRadius: '12px',
+              fontSize: '0.75rem',
               fontWeight: '700',
               boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
               border: '2px solid rgba(255, 255, 255, 0.2)',
               textAlign: 'center',
-              minHeight: window.innerWidth <= 768 ? '35px' : '40px',
+              minHeight: '35px',
               wordBreak: 'break-word',
               overflow: 'hidden',
-              margin: window.innerWidth <= 768 ? '2px' : '0'
+              margin: '2px'
             }}>
               <div style={{ 
-                fontSize: window.innerWidth <= 768 ? '0.65rem' : '0.75rem', 
+                fontSize: '0.65rem', 
                 fontWeight: '600', 
                 opacity: 0.9, 
                 marginBottom: '1px' 
@@ -277,7 +273,7 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
                 {col + 1}
               </div>
               <div style={{ 
-                fontSize: window.innerWidth <= 768 ? '0.7rem' : '0.8rem', 
+                fontSize: '0.7rem', 
                 fontWeight: '700', 
                 lineHeight: '1.2' 
               }}>
@@ -297,28 +293,28 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
                 justifyContent: 'center',
                 background: 'linear-gradient(135deg, #667eea, #764ba2)',
                 color: 'white',
-                padding: window.innerWidth <= 768 ? '6px 2px' : '8px 4px',
-                borderRadius: '20px',
-                fontSize: window.innerWidth <= 768 ? '0.7rem' : '0.85rem',
+                padding: '4px 2px',
+                borderRadius: '12px',
+                fontSize: '0.75rem',
                 fontWeight: '700',
                 boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
                 border: '2px solid rgba(255, 255, 255, 0.2)',
                 textAlign: 'center',
-                minHeight: window.innerWidth <= 768 ? '35px' : '40px',
+                minHeight: '35px',
                 wordBreak: 'break-word',
                 overflow: 'hidden',
-                margin: window.innerWidth <= 768 ? '2px' : '0',
+                margin: '2px',
                 lineHeight: '1.2'
               }}>
                 <div style={{ 
-                  fontSize: window.innerWidth <= 768 ? '0.65rem' : '0.75rem', 
+                  fontSize: '0.65rem', 
                   opacity: 0.9, 
                   marginBottom: '1px' 
                 }}>
                   {String.fromCharCode(65 + row)}
                 </div>
                 <div style={{ 
-                  fontSize: window.innerWidth <= 768 ? '0.7rem' : '0.8rem', 
+                  fontSize: '0.7rem', 
                   marginTop: '1px' 
                 }}>
                   {gameState?.row_words?.[row]}
@@ -330,66 +326,6 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
             </React.Fragment>
           ))}
         </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div style={{
-        display: 'flex',
-        gap: '20px',
-        justifyContent: 'center',
-        flexWrap: 'wrap',
-        marginTop: '20px'
-      }}>
-        <button
-          onClick={handleReturnToLobby}
-          style={{
-            padding: '15px 30px',
-            background: 'linear-gradient(135deg, #667eea, #764ba2)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '12px',
-            fontSize: '1.1rem',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
-          }}
-          onMouseOver={(e) => {
-            e.target.style.transform = 'translateY(-2px)'
-            e.target.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.4)'
-          }}
-          onMouseOut={(e) => {
-            e.target.style.transform = 'translateY(0)'
-            e.target.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.3)'
-          }}
-        >
-          🔄 Play Again
-        </button>
-        <button
-          onClick={handleReturnToDashboard}
-          style={{
-            padding: '15px 30px',
-            background: 'linear-gradient(135deg, #6c757d, #5a6268)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '12px',
-            fontSize: '1.1rem',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            boxShadow: '0 4px 15px rgba(108, 117, 125, 0.3)'
-          }}
-          onMouseOver={(e) => {
-            e.target.style.transform = 'translateY(-2px)'
-            e.target.style.boxShadow = '0 6px 20px rgba(108, 117, 125, 0.4)'
-          }}
-          onMouseOut={(e) => {
-            e.target.style.transform = 'translateY(0)'
-            e.target.style.boxShadow = '0 4px 15px rgba(108, 117, 125, 0.3)'
-          }}
-        >
-          🏠 Dashboard
-        </button>
       </div>
     </div>
   );

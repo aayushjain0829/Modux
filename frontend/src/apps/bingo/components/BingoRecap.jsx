@@ -37,25 +37,31 @@ const BingoRecap = ({ gameState, userId, sendMessage }) => {
     }}>
         {/* Winner Announcement */}
         <div style={{
-          background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
-          color: 'white',
-          padding: '30px',
+          background: 'rgba(40, 167, 69, 0.2)',
+          border: '1px solid rgba(40, 167, 69, 0.4)',
+          color: 'var(--text-high)',
+          padding: '24px',
           borderRadius: '16px',
-          marginBottom: '30px'
+          marginBottom: '24px',
+          textAlign: 'center',
+          boxShadow: '0 4px 20px rgba(40, 167, 69, 0.15)'
         }}>
           <h1 style={{
             fontSize: '2.5rem',
             fontWeight: '800',
+            fontFamily: 'var(--font-heading)',
             margin: '0 0 10px 0',
-            textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
+            color: 'var(--accent-cyan)',
+            textShadow: '0 0 15px rgba(45, 212, 191, 0.3)'
           }}>
             🎉 BINGO! 🎉
           </h1>
           <div style={{
-            fontSize: '1.5rem',
-            fontWeight: '600'
+            fontSize: '1.3rem',
+            fontWeight: '600',
+            color: 'var(--text-high)'
           }}>
-            Winner: {winner?.username || 'Unknown Player'}
+            Winner: <span style={{ color: 'var(--accent-purple)' }}>{winner?.username || 'Unknown Player'}</span>
           </div>
         </div>
 

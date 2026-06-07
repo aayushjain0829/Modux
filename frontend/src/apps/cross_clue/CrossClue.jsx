@@ -155,6 +155,7 @@ function CrossClue() {
             title="Game Complete!"
             subtitle="Great teamwork!"
             onReturnToLobby={() => sendMessage('return_to_lobby')}
+            onPlayAgain={isHost ? () => sendMessage('play_again') : null}
           >
             <CrossClueRecap
               gameState={gameState}

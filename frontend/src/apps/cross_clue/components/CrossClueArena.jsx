@@ -152,55 +152,48 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
       cellClasses.push(isClickable ? 'clickable' : 'not-clickable');
     }
     
-    // Mobile-responsive sizing
-    const isMobile = window.innerWidth <= 768
-    const tileSize = isMobile ? 50 : 70
-    const fontSize = isMobile ? '0.8rem' : '1.1rem'
-    const coordinateFontSize = isMobile ? '0.7rem' : '1rem'
+    // Remove manual mobile overrides and use CSS to handle aspect-ratio
+    const fontSize = '0.9rem'
+    const iconSize = '1.2rem'
+    const content = cellState.revealed ? (cellState.isSuccess ? '✓' : '✗') : coordinate
+    const cellClass = cellClasses.join(' ')
     
     return (
       <div
         key={coordinate}
         onClick={() => isClickable && handleCellClick(coordinate)}
-        className={cellClasses.join(' ')}
+        className={cellClass}
         style={{
-          width: `${tileSize}px`,
-          height: `${tileSize}px`,
-          fontSize: fontSize
+          width: '100%',
+          aspectRatio: '1/1',
+          fontSize: fontSize,
+          opacity: 1,
+          transform: 'none',
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxSizing: 'border-box'
         }}
       >
-        {cellState.revealed ? (
-          <div style={{
-            fontSize: isMobile ? '1.1rem' : '1.3rem',
-            fontWeight: '800',
-            textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
-          }}>
-            {cellState.isSuccess ? '✓' : '✗'}
-          </div>
-        ) : (
-          <div style={{
-            fontSize: coordinateFontSize,
-            fontWeight: '700',
-            letterSpacing: '0.5px'
-          }}>
-            {coordinate}
-          </div>
-        )}
+        <span style={{ fontSize: iconSize, marginBottom: '2px' }}>{content}</span>
         
-        {/* Vote Badge */}
-        {cellState.votes && cellState.votes.length > 0 && (
+        {/* Vote count indicator for guessers */}
+        {!isGiver && cellState.votes && cellState.votes.length > 0 && (
           <div style={{
             position: 'absolute',
-            top: '2px',
-            right: '2px',
-            background: 'rgba(102, 126, 234, 0.9)',
+            top: '-5px',
+            right: '-5px',
+            background: 'var(--accent-purple)',
             color: 'white',
-            borderRadius: '8px',
-            padding: '1px 4px',
-            fontSize: isMobile ? '0.6rem' : '0.7rem',
+            borderRadius: '50%',
+            width: '20px',
+            height: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '0.7rem',
             fontWeight: '700',
-            minWidth: isMobile ? '14px' : '16px',
-            textAlign: 'center',
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'
           }}>
             {cellState.votes.length}
@@ -280,7 +273,7 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
       {/* Main Game Board */}
       <div style={{
         background: 'rgba(255, 255, 255, 0.95)',
-        padding: window.innerWidth <= 768 ? '15px' : '25px',
+        padding: '16px',
         borderRadius: '20px',
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
         backdropFilter: 'blur(10px)',
@@ -294,18 +287,14 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
         {/* Game Board Grid with Axes */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: window.innerWidth <= 768 
-            ? '50px repeat(4, 50px)' 
-            : '80px repeat(4, 70px)',
-          gridTemplateRows: window.innerWidth <= 768 
-            ? '35px repeat(4, 50px)' 
-            : '50px repeat(4, 70px)',
-          gap: window.innerWidth <= 768 ? '4px' : '8px',
+          gridTemplateColumns: '80px repeat(4, 1fr)',
+          gridTemplateRows: '50px repeat(4, 1fr)',
+          gap: '4px',
           justifyContent: 'center',
           alignItems: 'center',
-          width: 'fit-content',
-          margin: '0 auto',
-          minWidth: 'max-content'
+          width: '100%',
+          maxWidth: '600px',
+          margin: '0 auto'
         }}>
           {/* Empty corner */}
           <div></div>
@@ -319,20 +308,20 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
               justifyContent: 'center',
               background: 'linear-gradient(135deg, #667eea, #764ba2)',
               color: 'white',
-              padding: window.innerWidth <= 768 ? '6px 2px' : '8px 4px',
-              borderRadius: '20px',
-              fontSize: window.innerWidth <= 768 ? '0.7rem' : '0.85rem',
+              padding: '4px 2px',
+              borderRadius: '12px',
+              fontSize: '0.75rem',
               fontWeight: '700',
               boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
               border: '2px solid rgba(255, 255, 255, 0.2)',
               textAlign: 'center',
-              minHeight: window.innerWidth <= 768 ? '35px' : '40px',
+              minHeight: '35px',
               wordBreak: 'break-word',
               overflow: 'hidden',
-              margin: window.innerWidth <= 768 ? '2px' : '0'
+              margin: '2px'
             }}>
               <div style={{
-                fontSize: window.innerWidth <= 768 ? '0.65rem' : '0.75rem',
+                fontSize: '0.65rem',
                 fontWeight: '600',
                 opacity: 0.9,
                 marginBottom: '1px'
@@ -340,7 +329,7 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
                 {col + 1}
               </div>
               <div style={{
-                fontSize: window.innerWidth <= 768 ? '0.7rem' : '0.8rem',
+                fontSize: '0.7rem',
                 fontWeight: '700',
                 lineHeight: '1.2'
               }}>
@@ -360,28 +349,28 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
                 justifyContent: 'center',
                 background: 'linear-gradient(135deg, #667eea, #764ba2)',
                 color: 'white',
-                padding: window.innerWidth <= 768 ? '6px 2px' : '8px 4px',
-                borderRadius: '20px',
-                fontSize: window.innerWidth <= 768 ? '0.7rem' : '0.85rem',
+                padding: '4px 2px',
+                borderRadius: '12px',
+                fontSize: '0.75rem',
                 fontWeight: '700',
                 boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
                 border: '2px solid rgba(255, 255, 255, 0.2)',
                 textAlign: 'center',
-                minHeight: window.innerWidth <= 768 ? '35px' : '40px',
+                minHeight: '35px',
                 wordBreak: 'break-word',
                 overflow: 'hidden',
-                margin: window.innerWidth <= 768 ? '2px' : '0',
+                margin: '2px',
                 lineHeight: '1.2'
               }}>
                 <div style={{ 
-                  fontSize: window.innerWidth <= 768 ? '0.65rem' : '0.75rem', 
+                  fontSize: '0.65rem', 
                   opacity: 0.9,
                   marginBottom: '1px'
                 }}>
                   {String.fromCharCode(65 + row)}
                 </div>
                 <div style={{ 
-                  fontSize: window.innerWidth <= 768 ? '0.7rem' : '0.8rem', 
+                  fontSize: '0.7rem', 
                   marginTop: '1px' 
                 }}>
                   {gameState?.row_words?.[row]}
