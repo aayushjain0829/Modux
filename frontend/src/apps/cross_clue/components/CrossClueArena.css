@@ -15,14 +15,20 @@
 
 /* Grid Cell Styles */
 .cc-cell {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   transition: var(--transition-normal);
-  border-radius: 16px;
   position: relative;
   overflow: hidden;
-  font-family: var(--font-heading);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .cc-cell.clickable {

@@ -100,12 +100,12 @@ const BingoSetup = ({ gameState, userId, sendMessage }) => {
   // No waiting room needed - sidebar shows submission status
   return (
     <div style={{
-      padding: '20px',
-      background: 'white',
-      borderRadius: '16px',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      width: '100%',
       maxWidth: '600px',
-      margin: '0 auto'
+      margin: '0 auto',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '20px'
     }}>
       <h2 style={{ textAlign: 'center', color: '#667eea', marginBottom: '20px' }}>
         Setup Your Bingo Board
@@ -141,7 +141,7 @@ const BingoSetup = ({ gameState, userId, sendMessage }) => {
       <div style={{
         display: 'grid',
         gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
-        gap: '8px',
+        gap: '4px',
         marginBottom: '20px'
       }}>
         {grid.map((row, rowIndex) => (
@@ -152,7 +152,6 @@ const BingoSetup = ({ gameState, userId, sendMessage }) => {
                 onClick={() => !isSubmitted && handleCellClick(rowIndex, colIndex)}
                 className={`bingo-setup-cell ${isSubmitted ? 'submitted' : (num !== null ? 'filled' : 'empty')}`}
                 style={{
-                  minHeight: gridSize > 6 ? '35px' : '50px',
                   fontSize: gridSize > 6 ? '0.8rem' : '1.1rem',
                 }}
               >

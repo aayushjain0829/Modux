@@ -30,22 +30,11 @@ const BingoRecap = ({ gameState, userId, sendMessage }) => {
     <div style={{
       display: 'flex',
       flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '100%',
-      padding: '40px 20px',
-      background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
-      borderRadius: '16px'
+      gap: '24px',
+      width: '100%',
+      maxWidth: '600px',
+      margin: '0 auto'
     }}>
-      <div style={{
-        background: 'white',
-        padding: '40px',
-        borderRadius: '16px',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-        textAlign: 'center',
-        maxWidth: '600px',
-        width: '100%'
-      }}>
         {/* Winner Announcement */}
         <div style={{
           background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
@@ -73,23 +62,23 @@ const BingoRecap = ({ gameState, userId, sendMessage }) => {
         {/* Final Board - hide for spectators */}
         {!isSpectator && currentPlayer?.board && (
           <div style={{
-            background: '#f8f9fa',
-            padding: '30px',
-            borderRadius: '12px',
-            marginBottom: '30px'
+            background: 'rgba(0,0,0,0.2)',
+            padding: '24px',
+            borderRadius: '16px',
+            border: '1px solid var(--glass-border)'
           }}>
             <h3 style={{
               fontSize: '1.3rem',
-              fontWeight: '600',
-              color: '#333',
+              fontWeight: '700',
+              fontFamily: 'var(--font-heading)',
+              color: 'var(--text-high)',
               margin: '0 0 20px 0'
             }}>
               Your Final Board
             </h3>
             <div style={{
               display: 'grid',
-              gridTemplateColumns: `repeat(${gameState.config?.grid_size || 5}, 50px)`,
-              gridTemplateRows: `repeat(${gameState.config?.grid_size || 5}, 50px)`,
+              gridTemplateColumns: `repeat(${gameState.config?.grid_size || 5}, 1fr)`,
               gap: '4px',
               justifyContent: 'center',
               marginBottom: '20px'
@@ -101,15 +90,17 @@ const BingoRecap = ({ gameState, userId, sendMessage }) => {
                     <div
                       key={`${rowIndex}-${colIndex}`}
                       style={{
-                        background: isCalled ? '#28a745' : 'white',
-                        color: isCalled ? 'white' : '#333',
-                        border: '2px solid #ddd',
-                        borderRadius: '6px',
+                        background: isCalled ? 'var(--accent-cyan)' : 'rgba(0,0,0,0.3)',
+                        color: isCalled ? 'var(--bg-darker)' : 'var(--text-high)',
+                        border: '1px solid var(--glass-border)',
+                        borderRadius: '8px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
+                        aspectRatio: '1/1',
                         fontSize: '0.9rem',
-                        fontWeight: '600'
+                        fontWeight: '700',
+                        fontFamily: 'var(--font-heading)'
                       }}
                     >
                       {number}
@@ -120,138 +111,14 @@ const BingoRecap = ({ gameState, userId, sendMessage }) => {
             </div>
             <div style={{
               fontSize: '1rem',
-              color: '#666'
+              color: 'var(--text-medium)',
+              fontWeight: '600'
             }}>
               Lines Completed: {currentPlayer.lines_completed}/{(gameState.config?.grid_size || 5) * 2 + 2}
             </div>
           </div>
         )}
 
-        {/* Game Stats */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-          gap: '20px',
-          marginBottom: '30px'
-        }}>
-          <div style={{
-            textAlign: 'center',
-            padding: '20px',
-            background: '#f8f9fa',
-            borderRadius: '12px'
-          }}>
-            <div style={{
-              fontSize: '1.8rem',
-              fontWeight: '700',
-              color: '#667eea',
-              marginBottom: '8px'
-            }}>
-              {gameState.called_numbers.length}
-            </div>
-            <div style={{
-              fontSize: '0.9rem',
-              color: '#666',
-              textTransform: 'uppercase',
-              letterSpacing: '1px'
-            }}>
-              Numbers Called
-            </div>
-          </div>
-          <div style={{
-            textAlign: 'center',
-            padding: '20px',
-            background: '#f8f9fa',
-            borderRadius: '12px'
-          }}>
-            <div style={{
-              fontSize: '1.8rem',
-              fontWeight: '700',
-              color: '#667eea',
-              marginBottom: '8px'
-            }}>
-              {Object.keys(gameState.players).length}
-            </div>
-            <div style={{
-              fontSize: '0.9rem',
-              color: '#666',
-              textTransform: 'uppercase',
-              letterSpacing: '1px'
-            }}>
-              Players
-            </div>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div style={{
-          display: 'flex',
-          gap: '16px',
-          justifyContent: 'center',
-          flexWrap: 'wrap'
-        }}>
-          <button
-            onClick={handleReturnToLobby}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '16px 32px',
-              background: 'white',
-              color: '#667eea',
-              border: '2px solid #667eea',
-              borderRadius: '12px',
-              fontSize: '1rem',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              minWidth: '200px',
-              justifyContent: 'center'
-            }}
-            onMouseOver={(e) => {
-              e.target.style.background = '#667eea'
-              e.target.style.color = 'white'
-            }}
-            onMouseOut={(e) => {
-              e.target.style.background = 'white'
-              e.target.style.color = '#667eea'
-            }}
-          >
-            <span>🏠</span>
-            <span>Return to Lobby</span>
-          </button>
-          <button
-            onClick={handleReturnToDashboard}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '16px 32px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '1rem',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              minWidth: '200px',
-              justifyContent: 'center',
-              boxShadow: '0 4px 16px rgba(102, 126, 234, 0.3)'
-            }}
-            onMouseOver={(e) => {
-              e.target.style.transform = 'translateY(-2px)'
-              e.target.style.boxShadow = '0 8px 24px rgba(102, 126, 234, 0.4)'
-            }}
-            onMouseOut={(e) => {
-              e.target.style.transform = 'translateY(0)'
-              e.target.style.boxShadow = '0 4px 16px rgba(102, 126, 234, 0.3)'
-            }}
-          >
-            <span>🎮</span>
-            <span>Return to Dashboard</span>
-          </button>
-        </div>
-      </div>
     </div>
   )
 }

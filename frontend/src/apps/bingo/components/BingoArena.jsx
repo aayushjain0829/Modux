@@ -50,12 +50,12 @@ const BingoArena = ({ gameState, userId, sendMessage }) => {
 
   return (
     <div style={{
-      padding: '20px',
-      background: 'white',
-      borderRadius: '16px',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      width: '100%',
       maxWidth: '600px',
-      margin: '0 auto'
+      margin: '0 auto',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '20px'
     }}>
       {/* Turn Indicator Banner */}
       <div style={{
@@ -145,7 +145,7 @@ const BingoArena = ({ gameState, userId, sendMessage }) => {
       <div style={{
         display: 'grid',
         gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
-        gap: '8px'
+        gap: '4px'
       }}>
         {currentPlayer?.board?.map((row, rowIndex) =>
           row.map((number, colIndex) => {
@@ -159,7 +159,6 @@ const BingoArena = ({ gameState, userId, sendMessage }) => {
                 onClick={() => canClick && handleNumberClick(number)}
                 className={`bingo-active-cell ${isLastCalled ? 'last-called' : isCalled ? 'called' : canClick ? 'clickable' : 'not-clickable'}`}
                 style={{
-                  minHeight: gridSize > 6 ? '35px' : '50px',
                   fontSize: gridSize > 6 ? '0.8rem' : '1.1rem',
                 }}
               >

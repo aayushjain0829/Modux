@@ -70,7 +70,7 @@ const Portal = () => {
             className="session-input"
             value={sessionId}
             onChange={(e) => setSessionId(e.target.value.toUpperCase())}
-            placeholder="ENTER ROOM ID TO JOIN"
+            placeholder="ROOM ID"
           />
         </div>
 

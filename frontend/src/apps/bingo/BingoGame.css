@@ -53,6 +53,8 @@
   transition: var(--transition-fast);
   aspect-ratio: 1/1;
   font-size: 1.1rem;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .bingo-setup-cell.submitted {
@@ -99,6 +101,8 @@
   transition: var(--transition-fast);
   aspect-ratio: 1/1;
   font-size: 1.1rem;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .bingo-active-cell.clickable {
