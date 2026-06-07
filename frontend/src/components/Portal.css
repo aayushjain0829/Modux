@@ -124,10 +124,12 @@
 .portal-actions {
   display: flex;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
 .action-btn {
   flex: 1;
+  min-width: 160px;
   padding: 16px 24px;
   font-size: 1.1rem;
   font-family: var(--font-heading);
@@ -138,6 +140,7 @@
   cursor: pointer;
   transition: var(--transition-fast);
   min-height: 56px;
+  white-space: nowrap;
 }
 
 .join-btn {
