@@ -55,27 +55,10 @@ const CrossClueSetup = ({ gameState, userId, sendMessage }) => {
               onClick={() => isHost && handleReroll('col', idx)}
               title={isHost ? "Click to shuffle" : ""}
             >
-              <div style={{
-                fontSize: '0.65rem',
-                fontWeight: '600',
-                opacity: 0.9,
-                marginBottom: '1px'
-              }}>
+              <div className="cc-header-index">
                 {idx + 1}
               </div>
-              <div style={{
-                fontSize: window.innerWidth <= 768 ? '0.62rem' : '0.7rem',
-                fontWeight: '700',
-                lineHeight: '1.2',
-                letterSpacing: '-0.3px',
-                writingMode: window.innerWidth <= 768 ? 'vertical-rl' : 'horizontal-tb',
-                transform: window.innerWidth <= 768 ? 'rotate(180deg)' : 'none',
-                maxHeight: window.innerWidth <= 768 ? '80px' : 'auto',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                padding: window.innerWidth <= 768 ? '4px 0' : '0'
-              }}>
+              <div className="cc-header-word vertical">
                 {word}
               </div>
             </div>
@@ -88,18 +71,10 @@ const CrossClueSetup = ({ gameState, userId, sendMessage }) => {
               onClick={() => isHost && handleReroll('row', idx)}
               title={isHost ? "Click to shuffle" : ""}
             >
-              <div style={{ 
-                fontSize: '0.65rem', 
-                opacity: 0.9,
-                marginBottom: '1px'
-              }}>
+              <div className="cc-header-index">
                 {String.fromCharCode(65 + idx)}
               </div>
-              <div style={{ 
-                fontSize: window.innerWidth <= 768 ? '0.62rem' : '0.7rem', 
-                marginTop: '1px',
-                letterSpacing: '-0.3px'
-              }}>
+              <div className="cc-header-word">
                 {word}
               </div>
             </div>

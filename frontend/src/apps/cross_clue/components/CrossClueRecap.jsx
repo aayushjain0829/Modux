@@ -182,45 +182,20 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
           rows={4}
           colHeaders={gameState?.col_words?.map((word, col) => (
             <div key={`col-${col}`} className="game-grid-header-pill" style={{ padding: '4px 0px' }}>
-              <div style={{
-                fontSize: '0.65rem',
-                fontWeight: '600',
-                opacity: 0.9,
-                marginBottom: '1px'
-              }}>
+              <div className="cc-header-index">
                 {col + 1}
               </div>
-              <div style={{
-                fontSize: window.innerWidth <= 768 ? '0.62rem' : '0.7rem',
-                fontWeight: '700',
-                lineHeight: '1.2',
-                letterSpacing: '-0.3px',
-                writingMode: window.innerWidth <= 768 ? 'vertical-rl' : 'horizontal-tb',
-                transform: window.innerWidth <= 768 ? 'rotate(180deg)' : 'none',
-                maxHeight: window.innerWidth <= 768 ? '80px' : 'auto',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                padding: window.innerWidth <= 768 ? '4px 0' : '0'
-              }}>
+              <div className="cc-header-word vertical">
                 {word}
               </div>
             </div>
           ))}
           rowHeaders={Array.from({ length: 4 }).map((_, row) => (
             <div key={`row-${row}`} className="game-grid-header-pill" style={{ padding: '4px 0px' }}>
-              <div style={{ 
-                fontSize: '0.65rem', 
-                opacity: 0.9,
-                marginBottom: '1px'
-              }}>
+              <div className="cc-header-index">
                 {String.fromCharCode(65 + row)}
               </div>
-              <div style={{ 
-                fontSize: window.innerWidth <= 768 ? '0.62rem' : '0.7rem', 
-                marginTop: '1px',
-                letterSpacing: '-0.3px'
-              }}>
+              <div className="cc-header-word">
                 {gameState?.row_words?.[row]}
               </div>
             </div>

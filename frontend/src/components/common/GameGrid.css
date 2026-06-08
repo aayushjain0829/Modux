@@ -165,3 +165,50 @@
   margin: 2px;
   line-height: 1.2;
 }
+
+/* Cross Clue Header Typography and Sizing */
+.cc-header-index {
+  font-size: 0.65rem;
+  font-weight: 600;
+  opacity: 0.9;
+  margin-bottom: 2px;
+}
+
+.cc-header-word {
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Modifier for column headers on mobile */
+.cc-header-word.vertical {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  max-height: 80px;
+  padding: 4px 0;
+}
+
+@media (min-width: 769px) {
+  .game-grid-header-pill {
+    aspect-ratio: 1 / 1;
+    padding: 8px;
+  }
+  
+  .cc-header-index {
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+  }
+  
+  .cc-header-word, .cc-header-word.vertical {
+    font-size: 1rem;
+    writing-mode: horizontal-tb;
+    transform: none;
+    max-height: none;
+    white-space: normal;
+    padding: 0;
+  }
+}
