@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
+import { useUser } from '../../context/UserContext'
 import './ModuxLayout.css'
 
-function ModuxLayout({ appName, sessionId, players = [], gameState, onLeave, currentUserId, children }) {
+function ModuxLayout({ appName, sessionId, players = [], gameState, onLeave, currentUserId, sendMessage, children }) {
   const [copied, setCopied] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [qrOpen, setQrOpen] = useState(false)
   const [networkIp, setNetworkIp] = useState(window.location.hostname)
+  
+  const { updateUsername } = useUser()
+  const [isEditingName, setIsEditingName] = useState(false)
+  const [editNameValue, setEditNameValue] = useState("")
+
+  // Rest of ModuxLayout
 
   useEffect(() => {
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
@@ -178,7 +185,77 @@ function ModuxLayout({ appName, sessionId, players = [], gameState, onLeave, cur
                   
                   {/* Player Name */}
                   <span className="modux-player-name">
-                    {player.name || 'Unknown'}{player.id === currentUserId && ' (you)'}
+                    {player.id === gameState?.host_id && <span className="modux-host-indicator" title="Host">👑 </span>}
+                    {player.id === currentUserId ? (
+                      isEditingName ? (
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          <input
+                            type="text"
+                            value={editNameValue}
+                            onChange={(e) => setEditNameValue(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const newName = editNameValue.trim();
+                                setIsEditingName(false);
+                                if (newName !== '') {
+                                  if (sendMessage) {
+                                    sendMessage('update_username', { username: newName });
+                                  }
+                                  // Defer context update to avoid triggering WS reconnect mid-render
+                                  setTimeout(() => updateUsername(newName), 0);
+                                }
+                              } else if (e.key === 'Escape') {
+                                setIsEditingName(false);
+                              }
+                            }}
+                            autoFocus
+                            style={{ 
+                              background: 'rgba(255,255,255,0.1)', 
+                              border: '1px solid rgba(255,255,255,0.3)', 
+                              color: 'white',
+                              borderRadius: '4px',
+                              padding: '2px 4px',
+                              width: '100px',
+                              fontSize: '0.9em'
+                            }}
+                          />
+                          <button 
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              const newName = editNameValue.trim();
+                              setIsEditingName(false);
+                              if (newName !== '') {
+                                if (sendMessage) {
+                                  sendMessage('update_username', { username: newName });
+                                }
+                                setTimeout(() => updateUsername(newName), 0);
+                              }
+                            }}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0', opacity: 0.9, fontSize: '0.9em' }}
+                            title="Save"
+                          >
+                            ✅
+                          </button>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                          <span>{player.name || 'Unknown'}</span>
+                          <button 
+                            onClick={() => {
+                              setEditNameValue(player.name || '');
+                              setIsEditingName(true);
+                            }}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0', opacity: 0.7, fontSize: '0.9em' }}
+                            title="Edit Name"
+                          >
+                            ✏️
+                          </button>
+                        </div>
+                      )
+                    ) : (
+                      <>{player.name || 'Unknown'}</>
+                    )}
                   </span>
                 </div>
                 );

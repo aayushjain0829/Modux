@@ -35,7 +35,7 @@ function Dashboard() {
           Modux
         </h1>
         <p className="dashboard-subtitle">
-          Modular Web Platform
+          Multiplayer Party Games
         </p>
         {username && (
           <p className="welcome-text">

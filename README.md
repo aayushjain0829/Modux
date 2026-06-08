@@ -36,6 +36,15 @@ A highly customizable, turn-based number grid game. Hosts can dynamically adjust
 
 ---
 
+## ✨ Platform Features
+
+- **Host Identification**: The room creator is automatically designated as the host (indicated by a 👑 icon) and has exclusive privileges to manage setups and start games.
+- **Dynamic Name Changes**: Players can click the edit icon (✏️) next to their name in the sidebar at any time to update their username. Changes are instantly broadcast to all connected players in the room without dropping the connection.
+- **Smart Timers**: Games with active turn timers (like Cross Clue) feature intelligent pausing, ensuring players only lose time when the action is actively occurring.
+- **Cross-Device UI**: Handcrafted responsive design ensures the UI looks polished and consistent on both desktop and mobile screens.
+
+---
+
 ## 🏗 Architecture & Tech Stack
 
 - **Frontend**: React, Vite, Context API (Hosted on GitHub Pages)
@@ -95,9 +104,9 @@ npm run dev
 
 To maintain a highly stable, bug-free production environment, Modux enforces a strict **Environment Branching (GitFlow)** model:
 
-1. **`development`**: The active engineering sandbox. All feature implementation, bug fixes, and manual testing occur here.
-2. **`staging`**: The automated Quality Assurance checkpoint. Code is merged from `development` into `staging` to trigger the automated CI/CD `pytest` and `vitest` workflows. If tests fail, fixes must be made back on `development` and re-merged.
-3. **`main`**: The sacred production branch. Code is ONLY merged here via Pull Request from `staging` after all status checks successfully pass. Merging into `main` automatically triggers cloud deployments.
+1. **`development`**: Feature development + bug fixing + individual testing.
+2. **`staging`**: Automated testing + multiple player testing (local hosting).
+3. **`main`**: Production ready code + requires PR to merge.
 
 ---
 

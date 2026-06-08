@@ -211,6 +211,13 @@ class CrossClueGameManager(BaseGameManager):
     ) -> Tuple[
         Optional[CrossClueGameState], Optional[Dict[str, Any]], Optional[Dict[str, Any]]
     ]:
+        if action == "update_username":
+            new_name = payload.get("username")
+            state = self.get_session(session_id)
+            if user_id in state.players and new_name:
+                state.players[user_id].username = new_name
+            return state, None, None
+
         if action == "join_game":
             username = payload.get("username", f"Player_{user_id[:4]}")
             state = self.join_game(session_id, user_id, username)
@@ -411,12 +418,15 @@ class CrossClueGameManager(BaseGameManager):
         # Check if all active players have submitted
         active_players = [p for p in game_state.players.values() if not p.is_spectator]
         if all(p.has_submitted for p in active_players):
-            # Set game start time and action deadline now
-            game_state.game_start_time = get_current_timestamp()
-            if game_state.turn_timer:
-                game_state.action_deadline = (
-                    get_current_timestamp() + game_state.turn_timer
-                )
+            # Set game start time (no action_deadline yet — wait for first draw)
+            now = get_current_timestamp()
+            game_state.game_start_time = now
+            game_state.action_deadline = None
+
+            # Initialize timer state to paused (waiting for first draw)
+            game_state.is_timer_paused = True
+            game_state.time_elapsed = 0.0
+            game_state.timer_resumed_at = None
 
             # Transition to playing
             game_state.status = "playing"
@@ -503,6 +513,16 @@ class CrossClueGameManager(BaseGameManager):
 
         # Allow drawing a new card even if active_turn exists (for new turns)
         coordinate = game_state.deck.pop()
+        
+        # Unpause both timers now that the card is drawn
+        now = get_current_timestamp()
+        if game_state.is_timer_paused:
+            game_state.is_timer_paused = False
+            game_state.timer_resumed_at = now
+        # Start the turn timer NOW (not during rotation)
+        if game_state.turn_timer:
+            game_state.action_deadline = now + game_state.turn_timer
+
         game_state.active_turn = {
             "user_id": user_id,
             "secret_coordinate": coordinate,
@@ -671,13 +691,21 @@ class CrossClueGameManager(BaseGameManager):
 
         game_state.turn_phase = "giving_clue"
 
-        # Set new action deadline for entire turn
-        game_state.action_deadline = get_current_timestamp() + game_state.turn_timer
+        # Clear action deadline — it will be set when the card is drawn
+        game_state.action_deadline = None
 
         # Clear active turn, current clue, and votes for new turn
         game_state.active_turn = None
         game_state.current_clue = None
         game_state.votes = None
+        
+        # Pause the game timer between turns
+        if not game_state.is_timer_paused:
+            now = get_current_timestamp()
+            if game_state.timer_resumed_at is not None:
+                game_state.time_elapsed += (now - game_state.timer_resumed_at)
+            game_state.is_timer_paused = True
+            game_state.timer_resumed_at = None
 
     def submit_vote(
         self, session_id: str, user_id: str, coordinate: str
@@ -776,6 +804,9 @@ class CrossClueGameManager(BaseGameManager):
         game_state.active_guesser_id = None
         game_state.turn_phase = "giving_clue"
         game_state.action_deadline = None
+        game_state.is_timer_paused = False
+        game_state.time_elapsed = 0.0
+        game_state.timer_resumed_at = None
 
         # Reset player statuses
         for player_id in game_state.players:
