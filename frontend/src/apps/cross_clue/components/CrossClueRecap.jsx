@@ -1,5 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
+import GameGrid from '../../../components/common/GameGrid'
 
 const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
   const navigate = useNavigate()
@@ -53,30 +55,9 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
     return (
       <div
         key={coordinate}
+        className={`modux-grid-cell ${cellState === 'success' ? 'success' : cellState === 'fail' ? 'fail' : ''}`}
         style={{
-          width: `${tileSize}px`,
-          height: `${tileSize}px`,
-          border: cellState ? 'none' : '2px solid #ddd',
-          borderRadius: '12px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
           cursor: 'default',
-          fontSize: fontSize,
-          fontWeight: '600',
-          transition: 'all 0.2s ease',
-          background: cellState === 'success' 
-            ? 'linear-gradient(135deg, #28a745, #20c997)'
-            : cellState === 'fail'
-            ? 'linear-gradient(135deg, #dc3545, #c82333)'
-            : '#fafafa',
-          color: cellState ? 'white' : '#333',
-          boxShadow: cellState 
-            ? cellState === 'success'
-              ? '0 4px 15px rgba(40, 167, 69, 0.3)'
-              : '0 4px 15px rgba(220, 53, 69, 0.3)'
-            : '0 2px 8px rgba(0, 0, 0, 0.1)',
-          position: 'relative'
         }}
       >
         {guesserName && (
@@ -86,7 +67,9 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
             textAlign: 'center',
             lineHeight: '1.1',
             maxWidth: '90%',
-            wordBreak: 'break-word'
+            wordBreak: 'break-word',
+            zIndex: 2,
+            position: 'relative'
           }}>
             {guesserName.length > maxNameLength ? guesserName.substring(0, maxNameLength - 2) + '...' : guesserName}
           </div>
@@ -219,41 +202,16 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
           📋 Final Board Results
         </h3>
         
-        {/* Game Board Grid with Axes */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '80px repeat(4, 1fr)',
-          gridTemplateRows: '50px repeat(4, 1fr)',
-          gap: '4px',
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: '100%',
-          maxWidth: '600px',
-          margin: '0 auto'
-        }}>
-          {/* Empty corner */}
-          <div></div>
-          
-          {/* Column Headers */}
-          {gameState?.col_words?.map((word, col) => (
-            <div key={`col-${col}`} style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'linear-gradient(135deg, #667eea, #764ba2)',
-              color: 'white',
-              padding: '4px 2px',
-              borderRadius: '12px',
-              fontSize: '0.75rem',
-              fontWeight: '700',
-              boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
-              border: '2px solid rgba(255, 255, 255, 0.2)',
-              textAlign: 'center',
-              minHeight: '35px',
-              wordBreak: 'break-word',
-              overflow: 'hidden',
-              margin: '2px'
+        {/* Game Board Grid with Axes using GameGrid */}
+        <GameGrid
+          cols={4}
+          rows={4}
+          colHeaders={gameState?.col_words?.map((word, col) => (
+            <div key={`col-${col}`} className="game-grid-header-pill" style={{ padding: '4px 2px', cursor: window.innerWidth <= 768 ? 'pointer' : 'default' }}
+            onClick={() => {
+              if (window.innerWidth <= 768) {
+                toast(`Column ${col + 1}: ${word}`, { icon: '📝' });
+              }
             }}>
               <div style={{ 
                 fontSize: '0.65rem', 
@@ -263,60 +221,43 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
               }}>
                 {col + 1}
               </div>
-              <div style={{ 
-                fontSize: '0.7rem', 
-                fontWeight: '700', 
-                lineHeight: '1.2' 
-              }}>
-                {word}
-              </div>
+              {window.innerWidth > 768 && (
+                <div style={{ 
+                  fontSize: '0.7rem', 
+                  fontWeight: '700', 
+                  lineHeight: '1.2' 
+                }}>
+                  {word}
+                </div>
+              )}
             </div>
           ))}
-          
-          {/* Grid Rows with Row Headers */}
-          {Array.from({ length: 4 }, (_, row) => (
-            <React.Fragment key={`row-${row}`}>
-              {/* Row Header */}
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                color: 'white',
-                padding: '4px 2px',
-                borderRadius: '12px',
-                fontSize: '0.75rem',
-                fontWeight: '700',
-                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
-                border: '2px solid rgba(255, 255, 255, 0.2)',
-                textAlign: 'center',
-                minHeight: '35px',
-                wordBreak: 'break-word',
-                overflow: 'hidden',
-                margin: '2px',
-                lineHeight: '1.2'
+          rowHeaders={Array.from({ length: 4 }).map((_, row) => (
+            <div key={`row-${row}`} className="game-grid-header-pill" style={{ padding: '4px 2px', cursor: window.innerWidth <= 768 ? 'pointer' : 'default' }}
+            onClick={() => {
+              if (window.innerWidth <= 768) {
+                toast(`Row ${String.fromCharCode(65 + row)}: ${gameState?.row_words?.[row]}`, { icon: '📝' });
+              }
+            }}>
+              <div style={{ 
+                fontSize: '0.65rem', 
+                opacity: 0.9, 
+                marginBottom: '1px' 
               }}>
-                <div style={{ 
-                  fontSize: '0.65rem', 
-                  opacity: 0.9, 
-                  marginBottom: '1px' 
-                }}>
-                  {String.fromCharCode(65 + row)}
-                </div>
+                {String.fromCharCode(65 + row)}
+              </div>
+              {window.innerWidth > 768 && (
                 <div style={{ 
                   fontSize: '0.7rem', 
                   marginTop: '1px' 
                 }}>
                   {gameState?.row_words?.[row]}
                 </div>
-              </div>
-              
-              {/* Grid Cells */}
-              {Array.from({ length: 4 }, (_, col) => renderRecapCell(row, col))}
-            </React.Fragment>
+              )}
+            </div>
           ))}
-        </div>
+          renderCell={(row, col) => renderRecapCell(row, col)}
+        />
       </div>
     </div>
   );

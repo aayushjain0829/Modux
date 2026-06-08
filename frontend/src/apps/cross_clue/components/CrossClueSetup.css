@@ -193,7 +193,7 @@
 
 .cc-mobile-word-group {
   background: rgba(0, 0, 0, 0.2);
-  padding: 16px;
+  padding: 10px;
   border-radius: 16px;
   border: 1px solid var(--glass-border);
 }
@@ -216,9 +216,9 @@
   display: flex;
   align-items: center;
   background: rgba(255, 255, 255, 0.05);
-  padding: 10px 15px;
+  padding: 8px 10px;
   border-radius: 12px;
-  gap: 15px;
+  gap: 10px;
 }
 
 .cc-mobile-index {

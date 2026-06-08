@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import '../BingoGame.css';
+import GameGrid from '../../../components/common/GameGrid';
 import SpectatorView from '../../../components/common/SpectatorView';
 import { useSpectator } from '../../../hooks/useSpectator';
 
@@ -138,29 +139,25 @@ const BingoSetup = ({ gameState, userId, sendMessage }) => {
         </span>
       </div>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
-        gap: '4px',
-        marginBottom: '20px'
-      }}>
-        {grid.map((row, rowIndex) => (
-          <React.Fragment key={`row-${rowIndex}`}>
-            {row.map((num, colIndex) => (
-              <div
-                key={`cell-${rowIndex}-${colIndex}`}
-                onClick={() => !isSubmitted && handleCellClick(rowIndex, colIndex)}
-                className={`bingo-setup-cell ${isSubmitted ? 'submitted' : (num !== null ? 'filled' : 'empty')}`}
-                style={{
-                  fontSize: gridSize > 6 ? '0.8rem' : '1.1rem',
-                }}
-              >
-                {num !== null ? num : '+'}
-              </div>
-            ))}
-          </React.Fragment>
-        ))}
-      </div>
+      <GameGrid
+        cols={gridSize}
+        rows={gridSize}
+        renderCell={(rowIndex, colIndex) => {
+          const num = grid[rowIndex][colIndex];
+          return (
+            <div
+              onClick={() => !isSubmitted && handleCellClick(rowIndex, colIndex)}
+              className={`modux-setup-cell ${isSubmitted ? 'submitted' : (num !== null ? 'filled' : 'empty')}`}
+              style={{
+                fontSize: gridSize > 6 ? '0.8rem' : '1.1rem',
+              }}
+            >
+              {num !== null ? num : '+'}
+            </div>
+          );
+        }}
+        gap="4px"
+      />
 
       <div style={{ textAlign: 'center' }}>
         {isSubmitted ? (

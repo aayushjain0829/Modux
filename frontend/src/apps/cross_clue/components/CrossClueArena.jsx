@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import './CrossClueArena.css'
+import GameGrid from '../../../components/common/GameGrid'
+import Confetti from 'react-confetti'
 
 function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
   const [clueInput, setClueInput] = useState('')
@@ -144,7 +146,7 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
     )
     
     // Determine cell classes
-    let cellClasses = ['cc-cell'];
+    let cellClasses = ['modux-grid-cell'];
     if (cellState.revealed) {
       cellClasses.push('revealed');
       cellClasses.push(cellState.isSuccess ? 'success' : 'fail');
@@ -163,18 +165,6 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
         key={coordinate}
         onClick={() => isClickable && handleCellClick(coordinate)}
         className={cellClass}
-        style={{
-          width: '100%',
-          aspectRatio: '1/1',
-          fontSize: fontSize,
-          opacity: 1,
-          transform: 'none',
-          position: 'relative',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxSizing: 'border-box'
-        }}
       >
         <span style={{ fontSize: iconSize, marginBottom: '2px' }}>{content}</span>
         
@@ -284,44 +274,12 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
         overflowX: 'auto',
         overflowY: 'visible'
       }}>
-        {/* Game Board Grid with Axes */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1.2fr repeat(4, 1fr)',
-          gridTemplateRows: 'minmax(40px, auto) repeat(4, 1fr)',
-          gap: '4px',
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: '100%',
-          maxWidth: '600px',
-          margin: '0 auto'
-        }}>
-          {/* Empty corner */}
-          <div></div>
-          
-          {/* Column Headers - Pill Shaped */}
-          {gameState?.col_words?.map((word, col) => (
-            <div key={`col-${col}`} style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'linear-gradient(135deg, #667eea, #764ba2)',
-              color: 'white',
-              padding: '4px 2px',
-              borderRadius: '12px',
-              fontSize: '0.75rem',
-              fontWeight: '700',
-              boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
-              border: '2px solid rgba(255, 255, 255, 0.2)',
-              textAlign: 'center',
-              minHeight: '35px',
-              wordBreak: 'normal',
-              overflowWrap: 'anywhere',
-              hyphens: 'auto',
-              overflow: 'hidden',
-              margin: '2px'
-            }}>
+        {/* Game Board Grid with Axes using GameGrid */}
+        <GameGrid
+          cols={4}
+          rows={4}
+          colHeaders={gameState?.col_words?.map((word, col) => (
+            <div key={`col-${col}`} className="game-grid-header-pill" style={{ padding: '4px 0px' }}>
               <div style={{
                 fontSize: '0.65rem',
                 fontWeight: '600',
@@ -331,62 +289,35 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
                 {col + 1}
               </div>
               <div style={{
-                fontSize: '0.7rem',
+                fontSize: window.innerWidth <= 768 ? '0.62rem' : '0.7rem',
                 fontWeight: '700',
-                lineHeight: '1.2'
+                lineHeight: '1.2',
+                letterSpacing: '-0.3px'
               }}>
                 {word}
               </div>
             </div>
           ))}
-          
-          {/* Grid Rows with Row Headers */}
-          {Array.from({ length: 4 }, (_, row) => (
-            <React.Fragment key={`row-${row}`}>
-              {/* Row Header - Pill Shaped */}
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                color: 'white',
-                padding: '4px 2px',
-                borderRadius: '12px',
-                fontSize: '0.75rem',
-                fontWeight: '700',
-                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
-                border: '2px solid rgba(255, 255, 255, 0.2)',
-                textAlign: 'center',
-                minHeight: '35px',
-                wordBreak: 'normal',
-                overflowWrap: 'anywhere',
-                hyphens: 'auto',
-                overflow: 'hidden',
-                margin: '2px',
-                lineHeight: '1.2'
+          rowHeaders={Array.from({ length: 4 }).map((_, row) => (
+            <div key={`row-${row}`} className="game-grid-header-pill" style={{ padding: '4px 0px' }}>
+              <div style={{ 
+                fontSize: '0.65rem', 
+                opacity: 0.9,
+                marginBottom: '1px'
               }}>
-                <div style={{ 
-                  fontSize: '0.65rem', 
-                  opacity: 0.9,
-                  marginBottom: '1px'
-                }}>
-                  {String.fromCharCode(65 + row)}
-                </div>
-                <div style={{ 
-                  fontSize: '0.7rem', 
-                  marginTop: '1px' 
-                }}>
-                  {gameState?.row_words?.[row]}
-                </div>
+                {String.fromCharCode(65 + row)}
               </div>
-              
-              {/* Grid Cells - Tactile Tiles */}
-              {Array.from({ length: 4 }, (_, col) => renderCell(row, col))}
-            </React.Fragment>
+              <div style={{ 
+                fontSize: window.innerWidth <= 768 ? '0.62rem' : '0.7rem', 
+                marginTop: '1px',
+                letterSpacing: '-0.3px'
+              }}>
+                {gameState?.row_words?.[row]}
+              </div>
+            </div>
           ))}
-        </div>
-
+          renderCell={(row, col) => renderCell(row, col)}
+        />
         </div>
 
       {/* Role-Based Control Panel */}

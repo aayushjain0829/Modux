@@ -1,5 +1,6 @@
 import React from 'react';
 import '../BingoGame.css';
+import GameGrid from '../../../components/common/GameGrid';
 import SpectatorView from '../../../components/common/SpectatorView';
 import { useSpectator } from '../../../hooks/useSpectator';
 
@@ -141,33 +142,31 @@ const BingoArena = ({ gameState, userId, sendMessage }) => {
         </div>
       </div>
       
-      {/* Interactive Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
-        gap: '4px'
-      }}>
-        {currentPlayer?.board?.map((row, rowIndex) =>
-          row.map((number, colIndex) => {
-            const isCalled = gameState.called_numbers.includes(number);
-            const isLastCalled = number === gameState.last_called_number;
-            const canClick = isMyTurn && !isCalled;
+      <GameGrid
+        cols={gridSize}
+        rows={gridSize}
+        renderCell={(rowIndex, colIndex) => {
+          const number = currentPlayer?.board?.[rowIndex]?.[colIndex];
+          if (!number) return null; // Safe guard
 
-            return (
-              <div
-                key={`${rowIndex}-${colIndex}`}
-                onClick={() => canClick && handleNumberClick(number)}
-                className={`bingo-active-cell ${isLastCalled ? 'last-called' : isCalled ? 'called' : canClick ? 'clickable' : 'not-clickable'}`}
-                style={{
-                  fontSize: gridSize > 6 ? '0.8rem' : '1.1rem',
-                }}
-              >
-                {number}
-              </div>
-            );
-          })
-        )}
-      </div>
+          const isCalled = gameState.called_numbers.includes(number);
+          const isLastCalled = number === gameState.last_called_number;
+          const canClick = isMyTurn && !isCalled;
+
+          return (
+            <div
+              onClick={() => canClick && handleNumberClick(number)}
+              className={`modux-grid-cell ${isLastCalled ? 'last-called' : isCalled ? 'called' : canClick ? 'clickable' : 'not-clickable'}`}
+              style={{
+                fontSize: gridSize > 6 ? '0.8rem' : '1.1rem',
+              }}
+            >
+              {number}
+            </div>
+          );
+        }}
+        gap="4px"
+      />
     </div>
   );
 };
