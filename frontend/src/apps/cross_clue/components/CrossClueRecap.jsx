@@ -80,51 +80,29 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
 
   return (
     <div style={{
-      padding: '20px',
-      maxWidth: '1200px',
       width: '100%',
+      maxWidth: '800px',
       margin: '0 auto',
-      minHeight: '100vh',
       display: 'flex',
       flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'flex-start',
-      boxSizing: 'border-box',
-      overflowX: 'hidden'
+      gap: '24px'
     }}>
-      {/* Header */}
-      <div style={{
-        background: 'rgba(255, 255, 255, 0.95)',
-        padding: '30px',
-        borderRadius: '20px',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        width: '100%',
-        maxWidth: '800px',
-        margin: '0 auto 30px',
-        textAlign: 'center'
-      }}>
-        {/* Game Statistics */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-          gap: '20px',
-          marginBottom: '25px'
-        }}>
+      {/* Game Statistics */}
+      <div className="stats-section">
+        <div className="stats-grid">
           <div style={{
             background: 'linear-gradient(135deg, #28a745, #20c997)',
             color: 'white',
             padding: '20px',
-            borderRadius: '15px',
+            borderRadius: '16px',
             textAlign: 'center',
             boxShadow: '0 4px 15px rgba(40, 167, 69, 0.3)'
           }}>
-            <div style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '5px' }}>
+            <div style={{ fontSize: '2.2rem', fontFamily: 'var(--font-heading)', fontWeight: '800', marginBottom: '5px' }}>
               {gameState?.score || 0}
             </div>
-            <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>
-              Correct Guesses
+            <div style={{ fontSize: '0.95rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              Correct
             </div>
           </div>
           
@@ -132,15 +110,15 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
             background: 'linear-gradient(135deg, #dc3545, #c82333)',
             color: 'white',
             padding: '20px',
-            borderRadius: '15px',
+            borderRadius: '16px',
             textAlign: 'center',
             boxShadow: '0 4px 15px rgba(220, 53, 69, 0.3)'
           }}>
-            <div style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '5px' }}>
+            <div style={{ fontSize: '2.2rem', fontFamily: 'var(--font-heading)', fontWeight: '800', marginBottom: '5px' }}>
               {gameState?.misses || 0}
             </div>
-            <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>
-              Missed Guesses
+            <div style={{ fontSize: '0.95rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              Missed
             </div>
           </div>
           
@@ -148,15 +126,15 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
             background: 'linear-gradient(135deg, #667eea, #764ba2)',
             color: 'white',
             padding: '20px',
-            borderRadius: '15px',
+            borderRadius: '16px',
             textAlign: 'center',
             boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
           }}>
-            <div style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '5px' }}>
+            <div style={{ fontSize: '2.2rem', fontFamily: 'var(--font-heading)', fontWeight: '800', marginBottom: '5px' }}>
               {formatDuration(gameDuration)}
             </div>
-            <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>
-              Game Duration
+            <div style={{ fontSize: '0.95rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              Duration
             </div>
           </div>
           
@@ -164,14 +142,14 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
             background: 'linear-gradient(135deg, #ff6b6b, #ff8e53)',
             color: 'white',
             padding: '20px',
-            borderRadius: '15px',
+            borderRadius: '16px',
             textAlign: 'center',
             boxShadow: '0 4px 15px rgba(255, 107, 107, 0.3)'
           }}>
-            <div style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '5px' }}>
+            <div style={{ fontSize: '2.2rem', fontFamily: 'var(--font-heading)', fontWeight: '800', marginBottom: '5px' }}>
               {Object.keys(gameState?.players || {}).length}
             </div>
-            <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>
+            <div style={{ fontSize: '0.95rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' }}>
               Players
             </div>
           </div>
@@ -179,11 +157,8 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
       </div>
 
       {/* Game Board */}
-      <div style={{
+      <div className="stats-section" style={{
         background: 'rgba(0,0,0,0.2)',
-        padding: '24px',
-        borderRadius: '16px',
-        border: '1px solid var(--glass-border)',
         width: '100%',
         maxWidth: '100%',
         margin: '0 auto 30px',

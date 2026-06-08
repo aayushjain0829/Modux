@@ -252,7 +252,7 @@
   .recap-stage { padding: 24px 16px; }
   .game-over-header { padding: 32px 20px; }
   .game-over-title { font-size: 2.5rem; }
-  .leaderboard-section, .stats-section { padding: 24px; }
+  .leaderboard-section, .stats-section { padding: 16px; }
   .stats-grid { grid-template-columns: 1fr; }
   .action-buttons { flex-direction: column; }
   .action-btn { min-width: 100%; }
