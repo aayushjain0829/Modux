@@ -206,53 +206,48 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
           cols={4}
           rows={4}
           colHeaders={gameState?.col_words?.map((word, col) => (
-            <div key={`col-${col}`} className="game-grid-header-pill" style={{ padding: '4px 2px', cursor: window.innerWidth <= 768 ? 'pointer' : 'default' }}
-            onClick={() => {
-              if (window.innerWidth <= 768) {
-                toast(`Column ${col + 1}: ${word}`, { icon: '📝' });
-              }
-            }}>
-              <div style={{ 
-                fontSize: '0.65rem', 
-                fontWeight: '600', 
-                opacity: 0.9, 
-                marginBottom: '1px' 
+            <div key={`col-${col}`} className="game-grid-header-pill" style={{ padding: '4px 0px' }}>
+              <div style={{
+                fontSize: '0.65rem',
+                fontWeight: '600',
+                opacity: 0.9,
+                marginBottom: '1px'
               }}>
                 {col + 1}
               </div>
-              {window.innerWidth > 768 && (
-                <div style={{ 
-                  fontSize: '0.7rem', 
-                  fontWeight: '700', 
-                  lineHeight: '1.2' 
-                }}>
-                  {word}
-                </div>
-              )}
+              <div style={{
+                fontSize: window.innerWidth <= 768 ? '0.62rem' : '0.7rem',
+                fontWeight: '700',
+                lineHeight: '1.2',
+                letterSpacing: '-0.3px',
+                writingMode: window.innerWidth <= 768 ? 'vertical-rl' : 'horizontal-tb',
+                transform: window.innerWidth <= 768 ? 'rotate(180deg)' : 'none',
+                maxHeight: window.innerWidth <= 768 ? '80px' : 'auto',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                padding: window.innerWidth <= 768 ? '4px 0' : '0'
+              }}>
+                {word}
+              </div>
             </div>
           ))}
           rowHeaders={Array.from({ length: 4 }).map((_, row) => (
-            <div key={`row-${row}`} className="game-grid-header-pill" style={{ padding: '4px 2px', cursor: window.innerWidth <= 768 ? 'pointer' : 'default' }}
-            onClick={() => {
-              if (window.innerWidth <= 768) {
-                toast(`Row ${String.fromCharCode(65 + row)}: ${gameState?.row_words?.[row]}`, { icon: '📝' });
-              }
-            }}>
+            <div key={`row-${row}`} className="game-grid-header-pill" style={{ padding: '4px 0px' }}>
               <div style={{ 
                 fontSize: '0.65rem', 
-                opacity: 0.9, 
-                marginBottom: '1px' 
+                opacity: 0.9,
+                marginBottom: '1px'
               }}>
                 {String.fromCharCode(65 + row)}
               </div>
-              {window.innerWidth > 768 && (
-                <div style={{ 
-                  fontSize: '0.7rem', 
-                  marginTop: '1px' 
-                }}>
-                  {gameState?.row_words?.[row]}
-                </div>
-              )}
+              <div style={{ 
+                fontSize: window.innerWidth <= 768 ? '0.62rem' : '0.7rem', 
+                marginTop: '1px',
+                letterSpacing: '-0.3px'
+              }}>
+                {gameState?.row_words?.[row]}
+              </div>
             </div>
           ))}
           renderCell={(row, col) => renderRecapCell(row, col)}

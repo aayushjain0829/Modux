@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import SpectatorView from '../../../components/common/SpectatorView';
+import GameGrid from '../../../components/common/GameGrid';
 import { useSpectator } from '../../../hooks/useSpectator';
 import './CrossClueSetup.css';
 
@@ -42,85 +43,77 @@ const CrossClueSetup = ({ gameState, userId, sendMessage }) => {
         <p>Review the grid below with your team. Discuss your initial thoughts before the timer starts!</p>
       </div>
 
-      {isMobile ? (
-        <div className="cc-setup-mobile-lists">
-          <div className="cc-mobile-word-group">
-            <h4 className="cc-mobile-group-title">Rows (A-D)</h4>
-            <div className="cc-mobile-word-list">
-              {row_words.map((word, idx) => (
-                <div key={`row-${idx}`} className="cc-mobile-word-item">
-                  <span className="cc-mobile-index">{['A', 'B', 'C', 'D'][idx]}</span>
-                  {isHost ? (
-                    <span className="cc-preview-word clickable" onClick={() => handleReroll('row', idx)} title="Click to shuffle">{word}</span>
-                  ) : (
-                    <span className="cc-preview-word">{word}</span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="cc-mobile-word-group">
-            <h4 className="cc-mobile-group-title">Columns (1-4)</h4>
-            <div className="cc-mobile-word-list">
-              {col_words.map((word, idx) => (
-                <div key={`col-${idx}`} className="cc-mobile-word-item">
-                  <span className="cc-mobile-index">{idx + 1}</span>
-                  {isHost ? (
-                    <span className="cc-preview-word clickable" onClick={() => handleReroll('col', idx)} title="Click to shuffle">{word}</span>
-                  ) : (
-                    <span className="cc-preview-word">{word}</span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="cc-setup-grid-preview">
-          <div className="cc-preview-header">
-            <div className="cc-preview-cell empty"></div>
-            {col_words.map((word, idx) => (
-              <div key={`col-${idx}`} className="cc-preview-cell label">
-                <span className="cc-preview-index">{idx + 1}</span>
-                {isHost ? (
-                  <span 
-                    className="cc-preview-word clickable" 
-                    onClick={() => handleReroll('col', idx)}
-                    title="Click to shuffle"
-                  >
-                    {word}
-                  </span>
-                ) : (
-                  <span className="cc-preview-word">{word}</span>
-                )}
+      <div style={{ padding: '16px 0', width: '100%', maxWidth: '100%', margin: '0 auto', overflowX: 'auto', overflowY: 'visible' }}>
+        <GameGrid
+          cols={4}
+          rows={4}
+          colHeaders={col_words.map((word, idx) => (
+            <div 
+              key={`col-${idx}`} 
+              className={`game-grid-header-pill ${isHost ? 'clickable' : ''}`}
+              style={{ padding: '4px 0px', cursor: isHost ? 'pointer' : 'default' }}
+              onClick={() => isHost && handleReroll('col', idx)}
+              title={isHost ? "Click to shuffle" : ""}
+            >
+              <div style={{
+                fontSize: '0.65rem',
+                fontWeight: '600',
+                opacity: 0.9,
+                marginBottom: '1px'
+              }}>
+                {idx + 1}
               </div>
-            ))}
-          </div>
-          
-          {row_words.map((rowWord, rowIdx) => (
-            <div key={`row-${rowIdx}`} className="cc-preview-row">
-              <div className="cc-preview-cell label">
-                <span className="cc-preview-index">{['A', 'B', 'C', 'D'][rowIdx]}</span>
-                {isHost ? (
-                  <span 
-                    className="cc-preview-word clickable" 
-                    onClick={() => handleReroll('row', rowIdx)}
-                    title="Click to shuffle"
-                  >
-                    {rowWord}
-                  </span>
-                ) : (
-                  <span className="cc-preview-word">{rowWord}</span>
-                )}
+              <div style={{
+                fontSize: window.innerWidth <= 768 ? '0.62rem' : '0.7rem',
+                fontWeight: '700',
+                lineHeight: '1.2',
+                letterSpacing: '-0.3px',
+                writingMode: window.innerWidth <= 768 ? 'vertical-rl' : 'horizontal-tb',
+                transform: window.innerWidth <= 768 ? 'rotate(180deg)' : 'none',
+                maxHeight: window.innerWidth <= 768 ? '80px' : 'auto',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                padding: window.innerWidth <= 768 ? '4px 0' : '0'
+              }}>
+                {word}
               </div>
-              {col_words.map((_, colIdx) => (
-                <div key={`cell-${rowIdx}-${colIdx}`} className="cc-preview-cell inner">
-                </div>
-              ))}
             </div>
           ))}
-        </div>
-      )}
+          rowHeaders={row_words.map((word, idx) => (
+            <div 
+              key={`row-${idx}`} 
+              className={`game-grid-header-pill ${isHost ? 'clickable' : ''}`}
+              style={{ padding: '4px 0px', cursor: isHost ? 'pointer' : 'default' }}
+              onClick={() => isHost && handleReroll('row', idx)}
+              title={isHost ? "Click to shuffle" : ""}
+            >
+              <div style={{ 
+                fontSize: '0.65rem', 
+                opacity: 0.9,
+                marginBottom: '1px'
+              }}>
+                {String.fromCharCode(65 + idx)}
+              </div>
+              <div style={{ 
+                fontSize: window.innerWidth <= 768 ? '0.62rem' : '0.7rem', 
+                marginTop: '1px',
+                letterSpacing: '-0.3px'
+              }}>
+                {word}
+              </div>
+            </div>
+          ))}
+          renderCell={(row, col) => (
+            <div
+              key={`${row}-${col}`}
+              className="modux-grid-cell not-clickable"
+              style={{ cursor: 'default' }}
+            >
+            </div>
+          )}
+        />
+      </div>
 
       <div className="cc-setup-action">
         {hasSubmitted ? (

@@ -286,7 +286,14 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
                 fontSize: window.innerWidth <= 768 ? '0.62rem' : '0.7rem',
                 fontWeight: '700',
                 lineHeight: '1.2',
-                letterSpacing: '-0.3px'
+                letterSpacing: '-0.3px',
+                writingMode: window.innerWidth <= 768 ? 'vertical-rl' : 'horizontal-tb',
+                transform: window.innerWidth <= 768 ? 'rotate(180deg)' : 'none',
+                maxHeight: window.innerWidth <= 768 ? '80px' : 'auto',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                padding: window.innerWidth <= 768 ? '4px 0' : '0'
               }}>
                 {word}
               </div>
