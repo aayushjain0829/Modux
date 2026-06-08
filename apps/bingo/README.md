@@ -32,8 +32,10 @@ Bingo is fully covered by our automated testing suite:
    - Validates dynamic grid sizes (e.g. 3x3, 5x5, 8x8) and rejects duplicate numbers.
    - Calculates O(1) Matrix Math for horizontal, vertical, and diagonal completions.
    - End-to-end simulations of players joining, submitting boards, calling numbers, and triggering auto-win logic.
+   - Validates Host-only rule configuration syncing (`update_config`).
 
-2. **Frontend Tests (`vitest`)**
-   - Game layout and UI state interactions are simulated locally via React Testing Library.
+2. **Frontend Component Tests (`vitest` + React Testing Library)**
+   - UI components (such as `LobbyStage.test.jsx`) are tested in isolation by passing mock GameState objects, ensuring flawless Host vs. Joiner rendering rules without requiring a live WebSocket server.
+   - Game layout and UI state interactions are simulated locally.
 
 *To run tests locally, refer to the [Root Testing Guide](../../tests/README.md).*

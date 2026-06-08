@@ -101,29 +101,20 @@ To maintain a highly stable, bug-free production environment, Modux enforces a s
 
 ---
 
-## 🗺️ Platform Execution Plan (Completed)
+## 🚀 Deployment Guide
 
-### Phase 1: Core Infrastructure & Backend Foundation ✅
-- Initialize FastAPI project with WebSocket Connection Manager.
-- Configure network binding for local network accessibility.
-- Establish modular app architecture with dynamic app routing.
+Modux utilizes a fully automated CI/CD pipeline integrated directly with GitHub Actions.
 
-### Phase 2: Frontend Architecture & Network Accessibility ✅
-- Initialize Vite + React project.
-- Implement platform-level Dashboard and dynamic session-based React Routing.
-- Develop custom `useGameSocket` React hook for seamless backend communication.
+### Frontend (GitHub Pages)
+The Vite/React frontend is automatically built and deployed to GitHub Pages whenever code is merged into the `main` branch. 
+- **Action**: `.github/workflows/deploy-frontend.yml` (if configured) or via Render static hosting.
+- **Environment**: The frontend expects the backend WebSocket URL to be provided via `VITE_WS_URL` in production (e.g., `wss://modux.onrender.com/ws`).
+- **Base URL**: Set to `/` for custom domains or `/<repo-name>/` for standard GitHub Pages in `vite.config.js`.
 
-### Phase 3: Modular Platform Routing & UI Flow ✅
-- Implement app-specific landing pages.
-- Isolate all app-specific UI components in `frontend/src/apps/`.
+### Backend (Render)
+The FastAPI WebSocket server is hosted on Render as a Web Service.
+- **Trigger**: Render automatically triggers a new build and deployment upon detecting a merge to `main`.
+- **Environment Variables**: Requires no specific database credentials as state is currently in-memory. 
+- **Port**: Binds automatically to the port provided by Render's environment.
 
-### Phase 4: Global Multiplayer Staging System ✅
-- Implement `UserContext` for global identity persistence.
-- Build persistent `<ModuxLayout>` shell with left-sidebar Player List.
-- Standardize the 4-Stage Pipeline (`Lobby` -> `Setup` -> `Arena` -> `Recap`).
-- Implement global Spectator Mode for late-joiners.
-
-### Phase 5: Cloud-Native Evolution ✅
-- **Backend Deployment**: Successfully transitioned FastAPI WebSockets to a scalable **Render** web service.
-- **Frontend Deployment**: Successfully deployed Vite/React SPA to **GitHub Pages**.
-- Seamlessly handled HTTPS/WSS upgrades for secure cloud play.
+> **Note**: Because the backend runs on Render's free tier, the instance will spin down after 15 minutes of inactivity. When a player loads the frontend and attempts to connect, the first WebSocket connection may take 30-60 seconds to wake the server up.

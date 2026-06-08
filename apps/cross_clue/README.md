@@ -29,8 +29,10 @@ Cross Clue is fully covered by our automated testing suite:
 1. **Backend Unit Tests (`test_cross_clue.py`)**
    - Rigorously tests the role queue generation via 50+ iterations of rejection sampling to mathematically guarantee fair player role assignment.
    - Simulates end-to-end interaction cycles (Giver draws a card -> Voter casts a vote -> Guesser finalizes the turn).
+   - Validates Host-only rule configuration syncing (`update_config`).
 
-2. **Frontend Tests (`vitest`)**
+2. **Frontend Component Tests (`vitest` + React Testing Library)**
+   - UI components (such as `LobbyStage.test.jsx`) are tested in isolation by passing mock GameState objects, ensuring flawless Host vs. Joiner rendering rules without requiring a live WebSocket server.
    - React components, WebSocket hooks, and state transitions are verified locally.
 
 *To run tests locally, refer to the [Root Testing Guide](../../tests/README.md).*

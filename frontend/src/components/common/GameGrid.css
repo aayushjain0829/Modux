@@ -1,0 +1,214 @@
+/* GameGrid.css */
+
+/* Setup Board Grid Cells */
+.modux-setup-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  transition: var(--transition-fast);
+  aspect-ratio: 1/1;
+  font-size: 1.1rem;
+  user-select: none;
+  -webkit-user-select: none;
+  box-sizing: border-box;
+}
+
+.modux-setup-cell.submitted {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid var(--glass-border);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.modux-setup-cell.filled {
+  background: rgba(45, 212, 191, 0.15);
+  border: 2px solid rgba(45, 212, 191, 0.4);
+  color: var(--accent-cyan);
+  cursor: pointer;
+  box-shadow: inset 0 0 10px rgba(45, 212, 191, 0.2);
+}
+.modux-setup-cell.filled:hover {
+  background: rgba(244, 63, 94, 0.15);
+  border-color: var(--accent-rose);
+  color: var(--accent-rose);
+}
+
+.modux-setup-cell.empty {
+  background: rgba(0, 0, 0, 0.2);
+  border: 2px dashed var(--glass-border-highlight);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.modux-setup-cell.empty:hover {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: var(--accent-cyan);
+  color: var(--text-high);
+}
+
+/* Active Game Cells */
+.modux-grid-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 2px solid;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  transition: var(--transition-fast);
+  aspect-ratio: 1/1;
+  font-size: 1.1rem;
+  user-select: none;
+  -webkit-user-select: none;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.modux-grid-cell.clickable {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: var(--glass-border-highlight);
+  color: var(--text-high);
+  cursor: pointer;
+}
+.modux-grid-cell.clickable:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--accent-cyan);
+  box-shadow: inset 0 0 15px var(--accent-cyan-glow);
+  transform: scale(1.05);
+  z-index: 5;
+}
+
+.modux-grid-cell.called {
+  background: rgba(45, 212, 191, 0.1);
+  border-color: rgba(45, 212, 191, 0.3);
+  color: var(--accent-cyan);
+  text-decoration: line-through;
+  opacity: 0.6;
+  cursor: default;
+}
+
+.modux-grid-cell.last-called {
+  background: rgba(192, 132, 252, 0.2);
+  border-color: var(--accent-purple);
+  color: #e9d5ff;
+  box-shadow: 0 0 15px var(--accent-purple-glow), inset 0 0 10px var(--accent-purple-glow);
+  transform: scale(1.1);
+  z-index: 10;
+  text-decoration: none;
+  opacity: 1;
+  cursor: default;
+  animation: modux-pulse-cell 2s infinite;
+}
+
+@keyframes modux-pulse-cell {
+  0% { box-shadow: 0 0 15px var(--accent-purple-glow), inset 0 0 10px var(--accent-purple-glow); }
+  50% { box-shadow: 0 0 25px var(--accent-purple-glow), inset 0 0 20px var(--accent-purple-glow); }
+  100% { box-shadow: 0 0 15px var(--accent-purple-glow), inset 0 0 10px var(--accent-purple-glow); }
+}
+
+.modux-grid-cell.not-clickable {
+  background: rgba(0, 0, 0, 0.1);
+  border-color: var(--glass-border);
+  color: var(--text-muted);
+  cursor: default;
+}
+
+/* Cross Clue specific modifiers applied on top of modux-grid-cell */
+.modux-grid-cell.success {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: white;
+  text-decoration: none;
+  opacity: 1;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.modux-grid-cell.fail {
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: white;
+  text-decoration: none;
+  opacity: 1;
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+}
+
+.modux-grid-cell.revealed {
+  cursor: default;
+}
+
+/* Common game grid layout */
+.game-grid-container {
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.game-grid-header-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border-radius: 12px;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  text-align: center;
+  min-height: 35px;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  overflow: hidden;
+  margin: 2px;
+  line-height: 1.2;
+}
+
+/* Cross Clue Header Typography and Sizing */
+.cc-header-index {
+  font-size: 0.65rem;
+  font-weight: 600;
+  opacity: 0.9;
+  margin-bottom: 2px;
+}
+
+.cc-header-word {
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Modifier for column headers on mobile */
+.cc-header-word.vertical {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  max-height: 80px;
+  padding: 4px 0;
+}
+
+@media (min-width: 769px) {
+  .game-grid-header-pill {
+    aspect-ratio: 1 / 1;
+    padding: 8px;
+  }
+  
+  .cc-header-index {
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+  }
+  
+  .cc-header-word, .cc-header-word.vertical {
+    font-size: 1rem;
+    writing-mode: horizontal-tb;
+    transform: none;
+    max-height: none;
+    white-space: normal;
+    padding: 0;
+  }
+}
