@@ -287,8 +287,8 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
         {/* Game Board Grid with Axes */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '80px repeat(4, 1fr)',
-          gridTemplateRows: '50px repeat(4, 1fr)',
+          gridTemplateColumns: '1.2fr repeat(4, 1fr)',
+          gridTemplateRows: 'minmax(40px, auto) repeat(4, 1fr)',
           gap: '4px',
           justifyContent: 'center',
           alignItems: 'center',
@@ -316,7 +316,9 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
               border: '2px solid rgba(255, 255, 255, 0.2)',
               textAlign: 'center',
               minHeight: '35px',
-              wordBreak: 'break-word',
+              wordBreak: 'normal',
+              overflowWrap: 'anywhere',
+              hyphens: 'auto',
               overflow: 'hidden',
               margin: '2px'
             }}>
@@ -357,7 +359,9 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
                 border: '2px solid rgba(255, 255, 255, 0.2)',
                 textAlign: 'center',
                 minHeight: '35px',
-                wordBreak: 'break-word',
+                wordBreak: 'normal',
+                overflowWrap: 'anywhere',
+                hyphens: 'auto',
                 overflow: 'hidden',
                 margin: '2px',
                 lineHeight: '1.2'

@@ -122,15 +122,6 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
         margin: '0 auto 30px',
         textAlign: 'center'
       }}>
-        <h2 style={{
-          color: '#667eea',
-          marginBottom: '20px',
-          fontSize: '2.5rem',
-          fontWeight: '700'
-        }}>
-          🎯 Cross Clue Complete!
-        </h2>
-        
         {/* Game Statistics */}
         <div style={{
           display: 'grid',

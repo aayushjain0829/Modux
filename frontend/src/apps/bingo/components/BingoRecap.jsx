@@ -46,18 +46,8 @@ const BingoRecap = ({ gameState, userId, sendMessage }) => {
           textAlign: 'center',
           boxShadow: '0 4px 20px rgba(40, 167, 69, 0.15)'
         }}>
-          <h1 style={{
-            fontSize: '2.5rem',
-            fontWeight: '800',
-            fontFamily: 'var(--font-heading)',
-            margin: '0 0 10px 0',
-            color: 'var(--accent-cyan)',
-            textShadow: '0 0 15px rgba(45, 212, 191, 0.3)'
-          }}>
-            🎉 BINGO! 🎉
-          </h1>
           <div style={{
-            fontSize: '1.3rem',
+            fontSize: '1.5rem',
             fontWeight: '600',
             color: 'var(--text-high)'
           }}>

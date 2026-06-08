@@ -123,3 +123,47 @@ def test_game_flow(manager, session_id):
     assert state.active_guesser_id is not None
     # Depending on the queue size, active roles might have changed
     assert len(state.role_queue) == 1
+
+def test_update_config(manager, session_id):
+    # 1. Join game with two players
+    host = "user1"
+    player2 = "user2"
+    manager.join_game(session_id, host, "Host")
+    manager.join_game(session_id, player2, "Player 2")
+    
+    state = manager.get_session(session_id)
+    assert state.turn_timer == 60
+    assert state.game_timer == 300
+    
+    # 2. Host updates config via handle_action
+    payload = {
+        "action": "update_config",
+        "user_id": host,
+        "config": {
+            "turn_timer": 45,
+            "game_timer": 600
+        }
+    }
+    updated_state, _, _ = manager.handle_action(session_id, host, "update_config", payload)
+    
+    assert updated_state.turn_timer == 45
+    assert updated_state.game_timer == 600
+    
+    # 3. Non-host tries to update config (should fail/return unchanged state)
+    payload_p2 = {
+        "action": "update_config",
+        "user_id": player2,
+        "config": {
+            "turn_timer": 30,
+            "game_timer": 120
+        }
+    }
+    p2_state, _, _ = manager.handle_action(session_id, player2, "update_config", payload_p2)
+    
+    # Action is ignored and returns None state update
+    assert p2_state is None
+    
+    # Values should remain unchanged on actual state
+    current_state = manager.get_session(session_id)
+    assert current_state.turn_timer == 45
+    assert current_state.game_timer == 600

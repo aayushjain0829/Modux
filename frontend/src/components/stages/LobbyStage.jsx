@@ -54,8 +54,10 @@ function LobbyStage({ gameType, isHost, players, gameConfig, onToggleReady, onSt
     }
 
     if (isCrossClue) {
-      configData.turn_timer = localTurnTimer
-      configData.game_timer = localGameTimer
+      configData.config = {
+        turn_timer: localTurnTimer,
+        game_timer: localGameTimer
+      }
     } else if (isBingo) {
       configData.config = {
         grid_size: localGridSize,
