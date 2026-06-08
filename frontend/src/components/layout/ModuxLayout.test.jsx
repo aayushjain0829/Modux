@@ -66,12 +66,12 @@ describe('ModuxLayout', () => {
     );
 
     // Check players are rendered
-    expect(screen.getByText('Alice (you)')).toBeInTheDocument();
+    expect(screen.getByText('Alice')).toBeInTheDocument();
     expect(screen.getByText('Bob')).toBeInTheDocument();
     expect(screen.getByText('Charlie')).toBeInTheDocument();
 
     // Check status indicators by checking the DOM for the classes
-    const aliceContainer = screen.getByText('Alice (you)').parentElement;
+    const aliceContainer = screen.getByText('Alice').closest('.modux-player-item');
     expect(aliceContainer.querySelector('.modux-player-status')).toHaveClass('ready');
     
     const bobContainer = screen.getByText('Bob').parentElement;

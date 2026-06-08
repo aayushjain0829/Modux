@@ -26,6 +26,11 @@ class CrossClueGameState(BaseGameState):
     game_timer: int = 300  # total game time in seconds
     game_start_time: Optional[float] = None  # Unix timestamp when game started
     game_end_time: Optional[float] = None  # Unix timestamp when game ended
+    
+    # Timer Pause Logic
+    is_timer_paused: bool = False
+    time_elapsed: float = 0.0
+    timer_resumed_at: Optional[float] = None
 
     # Turn-based game variables
     score: int = 0

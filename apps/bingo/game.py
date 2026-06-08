@@ -94,6 +94,13 @@ class BingoGameManager(BaseGameManager):
     ) -> Tuple[
         Optional[BingoGameState], Optional[Dict[str, Any]], Optional[Dict[str, Any]]
     ]:
+        if action == "update_username":
+            new_name = payload.get("username")
+            state = self.get_session(session_id)
+            if user_id in state.players and new_name:
+                state.players[user_id].username = new_name
+            return state, None, None
+
         if action == "join_game":
             username = payload.get("username", f"Player_{user_id[:4]}")
             state = self.join_game(session_id, user_id, username)
