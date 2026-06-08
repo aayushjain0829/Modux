@@ -47,15 +47,19 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
   // Timer calculations
   const timeRemainingCalc = gameState?.action_deadline 
     ? Math.max(0, Math.floor((gameState.action_deadline * 1000) - Date.now()))
-    : null
+    : (gameState?.is_timer_paused ? (gameState?.turn_timer * 1000) : null)
 
   // Game timer calculations
-  const gameStartTime = gameState?.game_start_time 
-    ? gameState.game_start_time * 1000 
-    : Date.now() // Fallback to current time if not set
   const gameDuration = (gameState?.game_timer || 300) * 1000 // Convert to milliseconds
+  
   const gameTimerRemaining = gameState?.status === 'playing' 
-    ? Math.max(0, Math.floor((gameStartTime + gameDuration) - Date.now()))
+    ? Math.max(0, Math.floor(
+        gameDuration - 
+        ((gameState?.time_elapsed || 0) * 1000) - 
+        (gameState?.is_timer_paused 
+          ? 0 
+          : (Date.now() - ((gameState?.timer_resumed_at || (gameState?.game_start_time || (Date.now()/1000))) * 1000)))
+      ))
     : 0
 
   // Game timer expiration check
