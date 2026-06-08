@@ -156,5 +156,5 @@
 @media (max-width: 768px) {
   .setup-stage { padding: 24px 16px; }
   .preparing-text { font-size: 2rem; }
-  .rules-section, .loadout-section { padding: 24px; }
+  .rules-section, .loadout-section { padding: 16px; }
 }
