@@ -24,70 +24,18 @@ A customizable, turn-based number grid game where players arrange numbers, take 
 
 **Scalable Sessions:** Support for dynamic, multi-user rooms with randomized unique identity generation.
 
-## 🏗️ Phase 4.1 Integration
-
-Bingo now follows the standardized Modux platform lifecycle:
-
-- **Portal → Lobby → Setup → Arena → Recap**: Universal entry through shared Portal, then progresses through standardized stages
-- **ModuxLayout Shell**: Persistent platform UI with player sidebar and session management
-- **Universal Components**: Uses shared LobbyStage, SetupStage, ArenaStage, RecapStage components
-- **Spectator Support**: Centralized spectator components usable across all games
-
-## 🗺️ Application Execution Plan
-
-- [x] **Phase 1: Backend State Engine & Turn Logic**
-  - Define the Pydantic models for the Bingo game state.
-  - Implement WebSocket actions: 'join_game', 'submit_board', 'call_number', 'toggle_ready', 'start_game'.
-  - Implement round-robin turn progression logic.
-  - Add individual player stages and spectator support.
-
-- [x] **Phase 2: The Setup Phase (UI)**
-  - Build a React component for players to arrange their 1-25 grid before the game starts.
-  - Include 'Auto-Shuffle' utility button for rapid testing.
-  - Implement Sequential Click Setup with automatic number assignment.
-  - Add spectator mode for late joiners.
-  - Remove redundant waiting room, use sidebar for status tracking.
-
-- [x] **Phase 3: The Active Game (UI & Matrix Logic)**
-  - Render the dynamic interactive grid with consistent styling.
-  - Build matrix-checking algorithm for completed lines and B-I-N-G-O progression.
-  - Implement visual 'Active Caller' indicator.
-  - Add spectator view without game controls.
-  - Remove redundant lines completed display.
-
-- [x] **Phase 4: Win Condition & Edge Cases**
-  - Handle 'BINGO Stop' broadcast when player hits 5 lines.
-  - Manage edge cases: player disconnects, duplicate number calls.
-  - Add Recap stage with individual actions.
-  - Implement 'Return to Lobby' and 'Play Again' functionality.
-
-- [x] **Phase 4.1: Platform Integration**
-  - Integrate with standardized Portal → Lobby → Setup → Arena → Recap flow
-  - Implement ModuxLayout with player sidebar and status indicators
-  - Add centralized spectator components (SpectatorView, useSpectator hook)
-  - Support mixed player stages (Lobby/Recap) in same session
-  - Ensure consistent UI/UX across all game stages
-
 ## 🧪 Testing
 
-To test the Bingo module locally:
+Bingo is fully covered by our automated testing suite:
 
-1. **Multi-Player Simulation:** Open multiple browser tabs and navigate to the same session URL (e.g., `/bingo/TEST01`). Each tab generates a unique user ID via UserContext.
+1. **Backend Unit Tests (`test_bingo.py`)**
+   - Validates dynamic grid sizes (e.g. 3x3, 5x5, 8x8) and rejects duplicate numbers.
+   - Calculates O(1) Matrix Math for horizontal, vertical, and diagonal completions.
+   - End-to-end simulations of players joining, submitting boards, calling numbers, and triggering auto-win logic.
+   - Validates Host-only rule configuration syncing (`update_config`).
 
-2. **Lobby Flow:** Verify players start in Lobby stage, can toggle ready status, and host can start game when all are ready.
+2. **Frontend Component Tests (`vitest` + React Testing Library)**
+   - UI components (such as `LobbyStage.test.jsx`) are tested in isolation by passing mock GameState objects, ensuring flawless Host vs. Joiner rendering rules without requiring a live WebSocket server.
+   - Game layout and UI state interactions are simulated locally.
 
-3. **Setup Phase:** Arrange the dynamic grids using sequential click setup or auto-shuffle. Verify submission status updates in sidebar and boards disable after submission.
-
-4. **Spectator Mode:** Join a game after it has started. Verify spectator UI displays consistently across Setup and Arena stages.
-
-5. **Turn-Based Gameplay:** Take turns calling numbers. Verify active player indicator and synchronized number marking across all boards.
-
-6. **Mixed Player Stages:** Have one player return to lobby from Recap while others remain in Recap. Verify individual stage management works correctly.
-
-7. **Win Condition:** Play until someone achieves 5 lines. Verify Recap stage displays winner and individual action buttons work properly.
-
-8. **Individual Actions:** Test "Return to Lobby" and "Play Again" buttons. Verify host can start new game even when some players are in different stages.
-
-9. **Disconnect Safeguard:** Close browser tab during player's turn. Verify turn automatically advances to next player.
-
-10. **Cross-Game Compatibility:** Test with CrossClue to ensure shared components work correctly.
+*To run tests locally, refer to the [Root Testing Guide](../../tests/README.md).*

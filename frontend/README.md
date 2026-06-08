@@ -88,3 +88,22 @@ const MyGameArena = ({ gameState, userId, sendMessage }) => {
 Expose your new app to the platform by updating `App.jsx`:
 1. Add a landing page route: `/your_app_name`
 2. Add the dynamic session route: `/your_app_name/:sessionId` (This should render your main `MyGame.jsx` orchestrator).
+
+## Rule 7: Leverage Shared Platform Components
+To ensure a unified, responsive experience across all games, utilize shared UI components from `src/components/common/` rather than building custom layouts. 
+
+For example, if your game requires a 2D grid (like Bingo or Cross Clue), strictly use the `<GameGrid>` component:
+
+```javascript
+import GameGrid from '../../components/common/GameGrid';
+
+<GameGrid
+  rows={5}
+  cols={5}
+  colHeaders={['1', '2', '3', '4', '5'].map(h => <div className="game-grid-header-pill">{h}</div>)}
+  rowHeaders={['A', 'B', 'C', 'D', 'E'].map(h => <div className="game-grid-header-pill">{h}</div>)}
+  renderCell={(row, col) => <div className="modux-grid-cell">Cell</div>}
+/>
+```
+
+This automatically guarantees mathematically perfect squares, responsive scaling, and unified styling (including mobile-rotated headers) across all devices.

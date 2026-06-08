@@ -152,9 +152,10 @@ function CrossClue() {
       case 'finished':
         return (
           <RecapStage
-            title="Game Complete!"
+            title="Cross clue!"
             subtitle="Great teamwork!"
             onReturnToLobby={() => sendMessage('return_to_lobby')}
+            onPlayAgain={isHost ? () => sendMessage('play_again') : null}
           >
             <CrossClueRecap
               gameState={gameState}

@@ -1,5 +1,6 @@
 import React from 'react';
 import '../BingoGame.css';
+import GameGrid from '../../../components/common/GameGrid';
 import SpectatorView from '../../../components/common/SpectatorView';
 import { useSpectator } from '../../../hooks/useSpectator';
 
@@ -50,12 +51,12 @@ const BingoArena = ({ gameState, userId, sendMessage }) => {
 
   return (
     <div style={{
-      padding: '20px',
-      background: 'white',
-      borderRadius: '16px',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      width: '100%',
       maxWidth: '600px',
-      margin: '0 auto'
+      margin: '0 auto',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '20px'
     }}>
       {/* Turn Indicator Banner */}
       <div style={{
@@ -141,34 +142,31 @@ const BingoArena = ({ gameState, userId, sendMessage }) => {
         </div>
       </div>
       
-      {/* Interactive Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
-        gap: '8px'
-      }}>
-        {currentPlayer?.board?.map((row, rowIndex) =>
-          row.map((number, colIndex) => {
-            const isCalled = gameState.called_numbers.includes(number);
-            const isLastCalled = number === gameState.last_called_number;
-            const canClick = isMyTurn && !isCalled;
+      <GameGrid
+        cols={gridSize}
+        rows={gridSize}
+        renderCell={(rowIndex, colIndex) => {
+          const number = currentPlayer?.board?.[rowIndex]?.[colIndex];
+          if (!number) return null; // Safe guard
 
-            return (
-              <div
-                key={`${rowIndex}-${colIndex}`}
-                onClick={() => canClick && handleNumberClick(number)}
-                className={`bingo-active-cell ${isLastCalled ? 'last-called' : isCalled ? 'called' : canClick ? 'clickable' : 'not-clickable'}`}
-                style={{
-                  minHeight: gridSize > 6 ? '35px' : '50px',
-                  fontSize: gridSize > 6 ? '0.8rem' : '1.1rem',
-                }}
-              >
-                {number}
-              </div>
-            );
-          })
-        )}
-      </div>
+          const isCalled = gameState.called_numbers.includes(number);
+          const isLastCalled = number === gameState.last_called_number;
+          const canClick = isMyTurn && !isCalled;
+
+          return (
+            <div
+              onClick={() => canClick && handleNumberClick(number)}
+              className={`modux-grid-cell ${isLastCalled ? 'last-called' : isCalled ? 'called' : canClick ? 'clickable' : 'not-clickable'}`}
+              style={{
+                fontSize: gridSize > 6 ? '0.8rem' : '1.1rem',
+              }}
+            >
+              {number}
+            </div>
+          );
+        }}
+        gap="4px"
+      />
     </div>
   );
 };

@@ -1,5 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
+import GameGrid from '../../../components/common/GameGrid'
 
 const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
   const navigate = useNavigate()
@@ -53,30 +55,9 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
     return (
       <div
         key={coordinate}
+        className={`modux-grid-cell ${cellState === 'success' ? 'success' : cellState === 'fail' ? 'fail' : 'not-clickable'}`}
         style={{
-          width: `${tileSize}px`,
-          height: `${tileSize}px`,
-          border: cellState ? 'none' : '2px solid #ddd',
-          borderRadius: '12px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
           cursor: 'default',
-          fontSize: fontSize,
-          fontWeight: '600',
-          transition: 'all 0.2s ease',
-          background: cellState === 'success' 
-            ? 'linear-gradient(135deg, #28a745, #20c997)'
-            : cellState === 'fail'
-            ? 'linear-gradient(135deg, #dc3545, #c82333)'
-            : '#fafafa',
-          color: cellState ? 'white' : '#333',
-          boxShadow: cellState 
-            ? cellState === 'success'
-              ? '0 4px 15px rgba(40, 167, 69, 0.3)'
-              : '0 4px 15px rgba(220, 53, 69, 0.3)'
-            : '0 2px 8px rgba(0, 0, 0, 0.1)',
-          position: 'relative'
         }}
       >
         {guesserName && (
@@ -86,7 +67,9 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
             textAlign: 'center',
             lineHeight: '1.1',
             maxWidth: '90%',
-            wordBreak: 'break-word'
+            wordBreak: 'break-word',
+            zIndex: 2,
+            position: 'relative'
           }}>
             {guesserName.length > maxNameLength ? guesserName.substring(0, maxNameLength - 2) + '...' : guesserName}
           </div>
@@ -97,60 +80,29 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
 
   return (
     <div style={{
-      padding: '20px',
-      maxWidth: '1200px',
       width: '100%',
+      maxWidth: '800px',
       margin: '0 auto',
-      minHeight: '100vh',
       display: 'flex',
       flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'flex-start',
-      boxSizing: 'border-box',
-      overflowX: 'hidden'
+      gap: '24px'
     }}>
-      {/* Header */}
-      <div style={{
-        background: 'rgba(255, 255, 255, 0.95)',
-        padding: '30px',
-        borderRadius: '20px',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        width: '100%',
-        maxWidth: '800px',
-        margin: '0 auto 30px',
-        textAlign: 'center'
-      }}>
-        <h2 style={{
-          color: '#667eea',
-          marginBottom: '20px',
-          fontSize: '2.5rem',
-          fontWeight: '700'
-        }}>
-          🎯 Cross Clue Complete!
-        </h2>
-        
-        {/* Game Statistics */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-          gap: '20px',
-          marginBottom: '25px'
-        }}>
+      {/* Game Statistics */}
+      <div className="stats-section">
+        <div className="stats-grid">
           <div style={{
             background: 'linear-gradient(135deg, #28a745, #20c997)',
             color: 'white',
             padding: '20px',
-            borderRadius: '15px',
+            borderRadius: '16px',
             textAlign: 'center',
             boxShadow: '0 4px 15px rgba(40, 167, 69, 0.3)'
           }}>
-            <div style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '5px' }}>
+            <div style={{ fontSize: '2.2rem', fontFamily: 'var(--font-heading)', fontWeight: '800', marginBottom: '5px' }}>
               {gameState?.score || 0}
             </div>
-            <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>
-              Correct Guesses
+            <div style={{ fontSize: '0.95rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              Correct
             </div>
           </div>
           
@@ -158,15 +110,15 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
             background: 'linear-gradient(135deg, #dc3545, #c82333)',
             color: 'white',
             padding: '20px',
-            borderRadius: '15px',
+            borderRadius: '16px',
             textAlign: 'center',
             boxShadow: '0 4px 15px rgba(220, 53, 69, 0.3)'
           }}>
-            <div style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '5px' }}>
+            <div style={{ fontSize: '2.2rem', fontFamily: 'var(--font-heading)', fontWeight: '800', marginBottom: '5px' }}>
               {gameState?.misses || 0}
             </div>
-            <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>
-              Missed Guesses
+            <div style={{ fontSize: '0.95rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              Missed
             </div>
           </div>
           
@@ -174,15 +126,15 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
             background: 'linear-gradient(135deg, #667eea, #764ba2)',
             color: 'white',
             padding: '20px',
-            borderRadius: '15px',
+            borderRadius: '16px',
             textAlign: 'center',
             boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
           }}>
-            <div style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '5px' }}>
+            <div style={{ fontSize: '2.2rem', fontFamily: 'var(--font-heading)', fontWeight: '800', marginBottom: '5px' }}>
               {formatDuration(gameDuration)}
             </div>
-            <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>
-              Game Duration
+            <div style={{ fontSize: '0.95rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              Duration
             </div>
           </div>
           
@@ -190,14 +142,14 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
             background: 'linear-gradient(135deg, #ff6b6b, #ff8e53)',
             color: 'white',
             padding: '20px',
-            borderRadius: '15px',
+            borderRadius: '16px',
             textAlign: 'center',
             boxShadow: '0 4px 15px rgba(255, 107, 107, 0.3)'
           }}>
-            <div style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '5px' }}>
+            <div style={{ fontSize: '2.2rem', fontFamily: 'var(--font-heading)', fontWeight: '800', marginBottom: '5px' }}>
               {Object.keys(gameState?.players || {}).length}
             </div>
-            <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>
+            <div style={{ fontSize: '0.95rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' }}>
               Players
             </div>
           </div>
@@ -205,13 +157,8 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
       </div>
 
       {/* Game Board */}
-      <div style={{
-        background: 'rgba(255, 255, 255, 0.95)',
-        padding: window.innerWidth <= 768 ? '15px' : '25px',
-        borderRadius: '20px',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
+      <div className="stats-section" style={{
+        background: 'rgba(0,0,0,0.2)',
         width: '100%',
         maxWidth: '100%',
         margin: '0 auto 30px',
@@ -219,177 +166,42 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
         overflowY: 'visible'
       }}>
         <h3 style={{
-          color: '#667eea',
-          marginBottom: '20px',
-          fontSize: '1.5rem',
-          fontWeight: '600',
+          fontSize: '1.3rem',
+          fontWeight: '700',
+          fontFamily: 'var(--font-heading)',
+          color: 'var(--text-high)',
+          margin: '0 0 20px 0',
           textAlign: 'center'
         }}>
           📋 Final Board Results
         </h3>
         
-        {/* Game Board Grid with Axes */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: window.innerWidth <= 768 
-            ? '60px repeat(4, 60px)' 
-            : '80px repeat(4, 70px)',
-          gridTemplateRows: window.innerWidth <= 768 
-            ? '40px repeat(4, 60px)' 
-            : '50px repeat(4, 70px)',
-          gap: window.innerWidth <= 768 ? '6px' : '8px',
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: 'fit-content',
-          margin: '0 auto',
-          minWidth: 'max-content'
-        }}>
-          {/* Empty corner */}
-          <div></div>
-          
-          {/* Column Headers */}
-          {gameState?.col_words?.map((word, col) => (
-            <div key={`col-${col}`} style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'linear-gradient(135deg, #667eea, #764ba2)',
-              color: 'white',
-              padding: window.innerWidth <= 768 ? '6px 2px' : '8px 4px',
-              borderRadius: '20px',
-              fontSize: window.innerWidth <= 768 ? '0.7rem' : '0.85rem',
-              fontWeight: '700',
-              boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
-              border: '2px solid rgba(255, 255, 255, 0.2)',
-              textAlign: 'center',
-              minHeight: window.innerWidth <= 768 ? '35px' : '40px',
-              wordBreak: 'break-word',
-              overflow: 'hidden',
-              margin: window.innerWidth <= 768 ? '2px' : '0'
-            }}>
-              <div style={{ 
-                fontSize: window.innerWidth <= 768 ? '0.65rem' : '0.75rem', 
-                fontWeight: '600', 
-                opacity: 0.9, 
-                marginBottom: '1px' 
-              }}>
+        {/* Game Board Grid with Axes using GameGrid */}
+        <GameGrid
+          cols={4}
+          rows={4}
+          colHeaders={gameState?.col_words?.map((word, col) => (
+            <div key={`col-${col}`} className="game-grid-header-pill" style={{ padding: '4px 0px' }}>
+              <div className="cc-header-index">
                 {col + 1}
               </div>
-              <div style={{ 
-                fontSize: window.innerWidth <= 768 ? '0.7rem' : '0.8rem', 
-                fontWeight: '700', 
-                lineHeight: '1.2' 
-              }}>
+              <div className="cc-header-word vertical">
                 {word}
               </div>
             </div>
           ))}
-          
-          {/* Grid Rows with Row Headers */}
-          {Array.from({ length: 4 }, (_, row) => (
-            <React.Fragment key={`row-${row}`}>
-              {/* Row Header */}
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                color: 'white',
-                padding: window.innerWidth <= 768 ? '6px 2px' : '8px 4px',
-                borderRadius: '20px',
-                fontSize: window.innerWidth <= 768 ? '0.7rem' : '0.85rem',
-                fontWeight: '700',
-                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
-                border: '2px solid rgba(255, 255, 255, 0.2)',
-                textAlign: 'center',
-                minHeight: window.innerWidth <= 768 ? '35px' : '40px',
-                wordBreak: 'break-word',
-                overflow: 'hidden',
-                margin: window.innerWidth <= 768 ? '2px' : '0',
-                lineHeight: '1.2'
-              }}>
-                <div style={{ 
-                  fontSize: window.innerWidth <= 768 ? '0.65rem' : '0.75rem', 
-                  opacity: 0.9, 
-                  marginBottom: '1px' 
-                }}>
-                  {String.fromCharCode(65 + row)}
-                </div>
-                <div style={{ 
-                  fontSize: window.innerWidth <= 768 ? '0.7rem' : '0.8rem', 
-                  marginTop: '1px' 
-                }}>
-                  {gameState?.row_words?.[row]}
-                </div>
+          rowHeaders={Array.from({ length: 4 }).map((_, row) => (
+            <div key={`row-${row}`} className="game-grid-header-pill" style={{ padding: '4px 0px' }}>
+              <div className="cc-header-index">
+                {String.fromCharCode(65 + row)}
               </div>
-              
-              {/* Grid Cells */}
-              {Array.from({ length: 4 }, (_, col) => renderRecapCell(row, col))}
-            </React.Fragment>
+              <div className="cc-header-word">
+                {gameState?.row_words?.[row]}
+              </div>
+            </div>
           ))}
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div style={{
-        display: 'flex',
-        gap: '20px',
-        justifyContent: 'center',
-        flexWrap: 'wrap',
-        marginTop: '20px'
-      }}>
-        <button
-          onClick={handleReturnToLobby}
-          style={{
-            padding: '15px 30px',
-            background: 'linear-gradient(135deg, #667eea, #764ba2)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '12px',
-            fontSize: '1.1rem',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
-          }}
-          onMouseOver={(e) => {
-            e.target.style.transform = 'translateY(-2px)'
-            e.target.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.4)'
-          }}
-          onMouseOut={(e) => {
-            e.target.style.transform = 'translateY(0)'
-            e.target.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.3)'
-          }}
-        >
-          🔄 Play Again
-        </button>
-        <button
-          onClick={handleReturnToDashboard}
-          style={{
-            padding: '15px 30px',
-            background: 'linear-gradient(135deg, #6c757d, #5a6268)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '12px',
-            fontSize: '1.1rem',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            boxShadow: '0 4px 15px rgba(108, 117, 125, 0.3)'
-          }}
-          onMouseOver={(e) => {
-            e.target.style.transform = 'translateY(-2px)'
-            e.target.style.boxShadow = '0 6px 20px rgba(108, 117, 125, 0.4)'
-          }}
-          onMouseOut={(e) => {
-            e.target.style.transform = 'translateY(0)'
-            e.target.style.boxShadow = '0 4px 15px rgba(108, 117, 125, 0.3)'
-          }}
-        >
-          🏠 Dashboard
-        </button>
+          renderCell={(row, col) => renderRecapCell(row, col)}
+        />
       </div>
     </div>
   );

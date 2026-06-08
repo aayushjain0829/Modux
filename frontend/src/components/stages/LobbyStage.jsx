@@ -54,8 +54,10 @@ function LobbyStage({ gameType, isHost, players, gameConfig, onToggleReady, onSt
     }
 
     if (isCrossClue) {
-      configData.turn_timer = localTurnTimer
-      configData.game_timer = localGameTimer
+      configData.config = {
+        turn_timer: localTurnTimer,
+        game_timer: localGameTimer
+      }
     } else if (isBingo) {
       configData.config = {
         grid_size: localGridSize,
@@ -164,9 +166,9 @@ function LobbyStage({ gameType, isHost, players, gameConfig, onToggleReady, onSt
             <div className="bingo-config">
               {isHost ? (
                 // Host can edit Bingo settings
-                <div className="bingo-settings-grid">
-                  <div className="bingo-setting-row">
-                    <label className="bingo-setting-label">
+                <div className="timer-grid">
+                  <div className="timer-row">
+                    <label className="timer-label">
                       Grid Size
                     </label>
                     <select
@@ -180,8 +182,8 @@ function LobbyStage({ gameType, isHost, players, gameConfig, onToggleReady, onSt
                       <option value={8}>8x8</option>
                     </select>
                   </div>
-                  <div className="bingo-setting-row">
-                    <label className="bingo-setting-label">
+                  <div className="timer-row">
+                    <label className="timer-label">
                       First Player
                     </label>
                     <select
@@ -201,20 +203,20 @@ function LobbyStage({ gameType, isHost, players, gameConfig, onToggleReady, onSt
                 </div>
               ) : (
                 // Non-host players see read-only settings from gameState
-                <div className="bingo-settings-grid">
-                  <div className="bingo-setting-row">
-                    <label className="bingo-setting-label">
+                <div className="timer-grid">
+                  <div className="timer-row">
+                    <label className="timer-label">
                       Grid Size
                     </label>
-                    <span className="bingo-setting-value">
+                    <span className="timer-number">
                       {gameState?.config?.grid_size || 5}x{gameState?.config?.grid_size || 5}
                     </span>
                   </div>
-                  <div className="bingo-setting-row">
-                    <label className="bingo-setting-label">
+                  <div className="timer-row">
+                    <label className="timer-label">
                       First Player
                     </label>
-                    <span className="bingo-setting-value">
+                    <span className="timer-number" style={{ textTransform: 'capitalize' }}>
                       {gameState?.config?.first_player_rule === 'random' ? 'Random' :
                        gameState?.config?.first_player_rule === 'host' ? 'Host' :
                        players.find(p => p.id === gameState?.config?.first_player_rule)?.name || gameState?.config?.first_player_rule}

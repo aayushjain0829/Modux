@@ -243,6 +243,10 @@ class CrossClueGameManager(BaseGameManager):
             state = self.remove_player(session_id, user_id)
             return state, None, None
 
+        elif action == "play_again":
+            state = self.play_again(session_id, user_id)
+            return state, None, None
+
         elif action == "submit_setup":
             state = self.submit_setup(session_id, user_id)
             return state, None, None
@@ -741,6 +745,50 @@ class CrossClueGameManager(BaseGameManager):
         self._rotate_turns(game_state)
 
         return result
+
+    def play_again(self, session_id: str, user_id: str) -> CrossClueGameState:
+        """Host resets the game to play again"""
+        game_state = self.get_session(session_id)
+
+        # Only host can play again (reset entire game for everyone)
+        if game_state.host_id and user_id != game_state.host_id:
+            return game_state
+
+        # Reset game state but keep players
+        game_state.status = "waiting"
+        game_state.score = 0
+        game_state.misses = 0
+        game_state.game_timer = 0
+        game_state.grid_state = {}
+        game_state.deck = []
+        game_state.active_turn = None
+        game_state.role_queue = []
+        game_state.guess_history = {}
+        game_state.current_turn_index = 0
+        
+        # Reset new turn variables
+        game_state.current_clue = None
+        game_state.votes = None
+        game_state.word_history = []
+        game_state.game_start_time = None
+        game_state.game_end_time = None
+        game_state.active_giver_id = None
+        game_state.active_guesser_id = None
+        game_state.turn_phase = "giving_clue"
+        game_state.action_deadline = None
+
+        # Reset player statuses
+        for player_id in game_state.players:
+            game_state.players[player_id].player_stage = "lobby"
+            game_state.players[player_id].is_ready = True  # Co-op defaults to ready
+            game_state.players[player_id].has_submitted = False
+            game_state.players[player_id].is_spectator = False
+            
+            # Make sure everyone is in the turn order
+            if player_id not in game_state.turn_order:
+                game_state.turn_order.append(player_id)
+
+        return game_state
 
     def return_to_lobby(self, session_id: str, user_id: str) -> CrossClueGameState:
         """Individual player returns to lobby"""
