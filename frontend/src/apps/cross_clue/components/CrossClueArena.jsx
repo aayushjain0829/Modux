@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import './CrossClueArena.css'
 import GameGrid from '../../../components/common/GameGrid'
-import Confetti from 'react-confetti'
 
 function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
   const [clueInput, setClueInput] = useState('')
