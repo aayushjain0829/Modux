@@ -261,12 +261,7 @@ function CrossClueArena({ gameState, userId, sendMessage, secretCard }) {
 
       {/* Main Game Board */}
       <div style={{
-        background: 'rgba(255, 255, 255, 0.95)',
-        padding: '16px',
-        borderRadius: '20px',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
+        padding: '16px 0',
         width: '100%',
         maxWidth: '100%',
         margin: '0 auto',

@@ -55,7 +55,7 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
     return (
       <div
         key={coordinate}
-        className={`modux-grid-cell ${cellState === 'success' ? 'success' : cellState === 'fail' ? 'fail' : ''}`}
+        className={`modux-grid-cell ${cellState === 'success' ? 'success' : cellState === 'fail' ? 'fail' : 'not-clickable'}`}
         style={{
           cursor: 'default',
         }}
@@ -180,12 +180,10 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
 
       {/* Game Board */}
       <div style={{
-        background: 'rgba(255, 255, 255, 0.95)',
-        padding: '16px',
-        borderRadius: '20px',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
+        background: 'rgba(0,0,0,0.2)',
+        padding: '24px',
+        borderRadius: '16px',
+        border: '1px solid var(--glass-border)',
         width: '100%',
         maxWidth: '100%',
         margin: '0 auto 30px',
@@ -193,10 +191,11 @@ const CrossClueRecap = ({ gameState, userId, sendMessage, wsRef }) => {
         overflowY: 'visible'
       }}>
         <h3 style={{
-          color: '#667eea',
-          marginBottom: '20px',
-          fontSize: '1.5rem',
-          fontWeight: '600',
+          fontSize: '1.3rem',
+          fontWeight: '700',
+          fontFamily: 'var(--font-heading)',
+          color: 'var(--text-high)',
+          margin: '0 0 20px 0',
           textAlign: 'center'
         }}>
           📋 Final Board Results
