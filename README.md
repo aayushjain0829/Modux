@@ -34,6 +34,12 @@ A highly customizable, turn-based number grid game. Hosts can dynamically adjust
 - **Live Competitor Tracking**: Visualizes which numbers opponents have struck off in real time.
 - **Auto-Win Detection**: The backend seamlessly calculates 5-in-a-row (horizontal, vertical, diagonal) and announces the winner instantly.
 
+### 3. Tic-Tac-Toe
+The classic 1v1 grid game, enhanced with spectator support and dynamic opponent selection.
+- **1v1 Arena with Spectators**: Exactly two players actively compete, while the rest of the lobby can spectate the match in real-time.
+- **Opponent Selection**: The Host can challenge anyone in the lobby directly.
+- **First Player Configuration**: The Host has granular control over who gets the first turn (Random, Host, or Opponent).
+
 ---
 
 ## ✨ Platform Features

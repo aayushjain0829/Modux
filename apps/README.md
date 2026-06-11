@@ -79,6 +79,7 @@ from apps.your_app_name.game import YourAppManager
 apps = {
     "cross_clue": CrossClueGameManager(),
     "bingo": BingoGameManager(),
+    "tic_tac_toe": TicTacToeGameManager(),
     "your_app_name": YourAppManager(),
 }
 ```

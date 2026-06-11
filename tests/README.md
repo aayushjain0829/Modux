@@ -9,6 +9,7 @@ The backend tests are located in this `tests/` directory. Our philosophy focuses
 ### Existing Test Suites:
 - **`test_bingo.py`**: Verifies dynamic grid generation, board validation, and complex line-completion calculations (horizontal, vertical, diagonal) for auto-win conditions.
 - **`test_cross_clue.py`**: Tests mathematically robust perfect-derangement algorithms (ensuring fair Giver/Guesser assignments) and end-to-end turn cycles.
+- **`test_tic_tac_toe.py`**: Validates turn enforcement, config-based turn order (e.g., host vs opponent), spectator filtering, and classic 3x3 win/draw states.
 - **`test_websocket.py`**: A dedicated suite for testing the underlying connection handlers.
 
 ### Running Backend Tests Locally

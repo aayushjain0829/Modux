@@ -63,4 +63,57 @@ describe('LobbyStage Component Tests', () => {
     expect(screen.getByText('45')).toBeInTheDocument();
     expect(screen.getByText('6m 40s')).toBeInTheDocument();
   });
+
+  it('renders dropdowns for Host in Tic-Tac-Toe', () => {
+    const gameState = {
+      config: {
+        opponent_id: null,
+        first_player_rule: 'random'
+      }
+    };
+
+    const threePlayers = [
+      ...mockPlayers,
+      { id: 'player-789', username: 'PlayerThree', is_ready: true, is_spectator: false }
+    ];
+
+    render(
+      <LobbyStage
+        gameType="tic_tac_toe"
+        isHost={true}
+        players={threePlayers}
+        currentUserId="host-123"
+        gameState={gameState}
+        sendMessage={vi.fn()}
+      />
+    );
+
+    // Host should see 2 select dropdowns
+    const selects = screen.getAllByRole('combobox');
+    expect(selects).toHaveLength(2);
+  });
+
+  it('renders read-only config for Non-Host players in Tic-Tac-Toe', () => {
+    const gameState = {
+      host_id: 'host-123',
+      config: {
+        opponent_id: 'player-456',
+        first_player_rule: 'random'
+      }
+    };
+
+    render(
+      <LobbyStage
+        gameType="tic_tac_toe"
+        isHost={false}
+        players={mockPlayers}
+        currentUserId="player-456"
+        gameState={gameState}
+        sendMessage={vi.fn()}
+      />
+    );
+
+    // Non-host should NOT see comboboxes
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+  });
 });
