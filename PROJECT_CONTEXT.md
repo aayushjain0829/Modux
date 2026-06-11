@@ -160,7 +160,7 @@ frontend/src/apps/your_game/
 - ❌ Adding new WebSocket endpoints — all traffic goes through `/ws/{app_name}/{session_id}`
 - ❌ Using external state management libraries (Redux, Zustand, MobX)
 - ❌ Skipping tests when adding or modifying game logic
-- ❌ Committing directly to `main` or `staging`
+- ❌ Committing directly to `main` (always use a PR from `staging`)
 - ❌ Creating game components that don't respect the 4-stage lifecycle
 
 ---

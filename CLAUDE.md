@@ -32,8 +32,8 @@ Follow [conventional commits](./.agents/skills/commit.md):
 
 Follow [GitFlow](./.agents/skills/branching.md):
 - Work on `development` (or a feature branch off it)
-- Never commit directly to `main` or `staging`
-- Merge path: `development` → `staging` (CI) → `main` (deploy)
+- Never commit directly to `main`
+- Merge path: `development` → (direct merge) → `staging` (CI) → (PR) → `main` (deploy)
 
 ## Post-Change Review
 

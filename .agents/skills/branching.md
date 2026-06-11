@@ -29,6 +29,6 @@ When assisting with code management, branch creation, or deployment strategies i
 If the user asks you to implement a feature and "deploy it":
 1. Write the code on `development` (or a feature branch off `development`).
 2. Verify tests pass locally.
-3. Once the user approves the feature on `development`, advise them to push to `development` and merge it into `staging`.
+3. Once the user approves the feature on `development`, advise them to merge it directly into `staging` (no PR needed).
 4. Inform them that they must wait for the GitHub Actions to pass on `staging` before opening a Pull Request from `staging` to `main`.
 5. Once merged to `main`, the deployment pipelines will take over.
