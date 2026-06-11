@@ -5,6 +5,7 @@ import Dashboard from './components/Dashboard'
 import Portal from './components/Portal'
 import CrossClue from './apps/cross_clue/CrossClue'
 import BingoGame from './apps/bingo/BingoGame'
+import TicTacToeGame from './apps/tic_tac_toe/TicTacToeGame'
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
           <Route path="/portal/:appName" element={<Portal />} />
           <Route path="/cross-clue/:sessionId" element={<CrossClue />} />
           <Route path="/bingo/:sessionId" element={<BingoGame />} />
+          <Route path="/tic_tac_toe/:sessionId" element={<TicTacToeGame />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </GameErrorBoundary>

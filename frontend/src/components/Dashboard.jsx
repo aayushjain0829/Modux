@@ -54,6 +54,12 @@ function Dashboard() {
         >
           Play BINGO
         </button>
+        <button
+          className="play-btn tic-tac-toe"
+          onClick={() => navigate('/portal/tic_tac_toe')}
+        >
+          Play Tic-Tac-Toe
+        </button>
       </div>
 
       {/* Settings Modal */}

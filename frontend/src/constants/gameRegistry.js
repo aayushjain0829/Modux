@@ -6,5 +6,9 @@ export const GAME_METADATA = {
   'bingo': {
     title: 'Bingo',
     description: 'A classic 5x5 number grid game with real-time multiplayer sync. Race to complete 5 lines before anyone else!'
+  },
+  'tic_tac_toe': {
+    title: 'Tic-Tac-Toe',
+    description: 'Classic 3x3 tic-tac-toe with spectator mode.'
   }
 }

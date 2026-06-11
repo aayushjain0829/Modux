@@ -171,6 +171,7 @@ frontend/src/apps/your_game/
 |------|---------|----------|-------------|
 | **Cross Clue** | `apps/cross_clue/` | `frontend/src/apps/cross_clue/` | Cooperative word-association with 4x4 grid, role rotation via rejection sampling |
 | **Bingo** | `apps/bingo/` | `frontend/src/apps/bingo/` | Turn-based number grid (5x5 to 8x8), auto-win detection |
+| **Tic-Tac-Toe** | `apps/tic_tac_toe/` | `frontend/src/apps/tic_tac_toe/` | Classic 1v1 3x3 grid game with turn-order config and real-time syncing |
 
 ---
 

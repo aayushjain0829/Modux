@@ -115,13 +115,24 @@
 
 .play-btn.bingo {
   background: linear-gradient(135deg, var(--accent-cyan), #0d9488);
-  margin-bottom: 0;
+  margin-bottom: 16px;
   box-shadow: 0 8px 25px rgba(45, 212, 191, 0.4);
 }
 
 .play-btn.bingo:hover {
   transform: translateY(-4px);
   box-shadow: 0 15px 35px rgba(45, 212, 191, 0.6);
+}
+
+.play-btn.tic-tac-toe {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  margin-bottom: 0;
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+}
+
+.play-btn.tic-tac-toe:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(239, 68, 68, 0.6);
 }
 
 .settings-modal-overlay {

@@ -143,6 +143,10 @@ def get_game_manager(app_name: str):
             from apps.bingo.game import BingoGameManager
 
             _game_managers[app_name] = BingoGameManager()
+        elif app_name == "tic_tac_toe":
+            from apps.tic_tac_toe.game import TicTacToeGameManager
+
+            _game_managers[app_name] = TicTacToeGameManager()
     return _game_managers.get(app_name)
 
 

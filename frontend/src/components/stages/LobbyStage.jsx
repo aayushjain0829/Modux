@@ -20,11 +20,17 @@ function LobbyStage({ gameType, isHost, players, gameConfig, onToggleReady, onSt
   const [localGridSize, setLocalGridSize] = useState(gameState?.config?.grid_size || 5)
   const [localFirstPlayerRule, setLocalFirstPlayerRule] = useState(gameState?.config?.first_player_rule || 'random')
 
+  // Configuration state for Tic-Tac-Toe
+  const [localOpponentId, setLocalOpponentId] = useState(gameState?.config?.opponent_id || '')
+
   // Check if this is CrossClue game
   const isCrossClue = gameType === 'cross_clue' || (gameConfig?.mode === 'cooperative' && gameConfig?.grid === '4x4')
 
+  // Check if this is Tic-Tac-Toe game
+  const isTicTacToe = gameType === 'tic_tac_toe'
+
   // Check if this is Bingo game
-  const isBingo = gameType === 'bingo' || (!isCrossClue && (!gameConfig || Object.keys(gameConfig).length === 0))
+  const isBingo = gameType === 'bingo' || (!isCrossClue && !isTicTacToe && (!gameConfig || Object.keys(gameConfig).length === 0))
   
   // Handle local configuration updates (draft state)
   const handleLocalConfigUpdate = (timerType, value) => {
@@ -46,6 +52,15 @@ function LobbyStage({ gameType, isHost, players, gameConfig, onToggleReady, onSt
     }
   }
 
+  // Handle Tic-Tac-Toe configuration updates
+  const handleTicTacToeConfigUpdate = (configType, value) => {
+    if (configType === 'opponent_id') {
+      setLocalOpponentId(value)
+    } else if (configType === 'first_player_rule') {
+      setLocalFirstPlayerRule(value)
+    }
+  }
+
   // Handle save rules function
   const handleSaveRules = () => {
     const configData = {
@@ -61,6 +76,11 @@ function LobbyStage({ gameType, isHost, players, gameConfig, onToggleReady, onSt
     } else if (isBingo) {
       configData.config = {
         grid_size: localGridSize,
+        first_player_rule: localFirstPlayerRule
+      }
+    } else if (isTicTacToe) {
+      configData.config = {
+        opponent_id: localOpponentId,
         first_player_rule: localFirstPlayerRule
       }
     }
@@ -89,7 +109,7 @@ function LobbyStage({ gameType, isHost, players, gameConfig, onToggleReady, onSt
       <div className="lobby-settings">
         <div className="settings-header">
           <h3 className="settings-title">Game Rules</h3>
-          {isHost && (isCrossClue || isBingo) && (
+          {isHost && (isCrossClue || isBingo || (isTicTacToe && totalActive > 2)) && (
             <button
               onClick={handleSaveRules}
               className={`save-rules-btn ${isSaved ? 'saved' : ''}`}
@@ -225,6 +245,80 @@ function LobbyStage({ gameType, isHost, players, gameConfig, onToggleReady, onSt
                 </div>
               )}
             </div>
+          ) : isTicTacToe ? (
+            // Tic-Tac-Toe configuration
+            <div className="tic-tac-toe-config">
+              {isHost ? (
+                <div className="timer-grid">
+                  <div className="timer-row">
+                    <label className="timer-label">Opponent</label>
+                    {totalActive === 1 ? (
+                      <span className="timer-number">Waiting for players...</span>
+                    ) : totalActive === 2 ? (
+                      <span className="timer-number" style={{ textTransform: 'capitalize' }}>
+                        {activePlayers.find(p => p.id !== currentUserId)?.name || 'Unknown'}
+                      </span>
+                    ) : (
+                      <select
+                        value={localOpponentId}
+                        onChange={(e) => handleTicTacToeConfigUpdate('opponent_id', e.target.value)}
+                        className="glass-input"
+                      >
+                        <option value="">-- Select Opponent --</option>
+                        {activePlayers.filter(p => p.id !== currentUserId && p.is_ready).map(player => (
+                          <option key={player.id} value={player.id}>
+                            {player.name}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+                  <div className="timer-row">
+                    <label className="timer-label">First Player</label>
+                    <select
+                      value={localFirstPlayerRule}
+                      onChange={(e) => handleTicTacToeConfigUpdate('first_player_rule', e.target.value)}
+                      className="glass-input"
+                    >
+                      <option value="random">Random</option>
+                      <option value="host">Host</option>
+                      {activePlayers.filter(p => p.id !== currentUserId && p.is_ready).map(player => (
+                        <option key={player.id} value={player.id}>
+                          {player.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              ) : (
+                <div className="timer-grid">
+                  <div className="timer-row">
+                    <label className="timer-label">Opponent</label>
+                    {totalActive === 1 ? (
+                      <span className="timer-number">Waiting for players...</span>
+                    ) : totalActive === 2 ? (
+                      <span className="timer-number" style={{ textTransform: 'capitalize' }}>
+                        {players.find(p => p.id === gameState?.host_id)?.name || 'Host'}
+                      </span>
+                    ) : (
+                      <span className="timer-number" style={{ textTransform: 'capitalize' }}>
+                        {currentUserId === gameState?.config?.opponent_id 
+                          ? players.find(p => p.id === gameState?.host_id)?.name || 'Host'
+                          : players.find(p => p.id === gameState?.config?.opponent_id)?.name || 'None'}
+                      </span>
+                    )}
+                  </div>
+                  <div className="timer-row">
+                    <label className="timer-label">First Player</label>
+                    <span className="timer-number" style={{ textTransform: 'capitalize' }}>
+                      {gameState?.config?.first_player_rule === 'random' ? 'Random' :
+                       gameState?.config?.first_player_rule === 'host' ? 'Host' :
+                       players.find(p => p.id === gameState?.config?.first_player_rule)?.name || 'Random'}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
           ) : (
             // Other games show standard config
             gameConfig && Object.keys(gameConfig).length > 0 ? (
@@ -252,15 +346,30 @@ function LobbyStage({ gameType, isHost, players, gameConfig, onToggleReady, onSt
           {isCurrentUserReady ? 'Not Ready' : 'I am Ready'}
         </button>
 
-        {isHost && (
-          <button
-            onClick={onStartGame}
-            className={`start-game ${allReady ? 'enabled' : 'disabled'}`}
-            disabled={!allReady}
-          >
-            Start Game
-          </button>
-        )}
+        {isHost && (() => {
+          let canStart = false;
+          if (isTicTacToe) {
+            if (totalActive === 2) {
+              canStart = activePlayers.every(p => p.is_ready);
+            } else if (totalActive > 2) {
+              const opponent = activePlayers.find(p => p.id === gameState?.config?.opponent_id);
+              const host = activePlayers.find(p => p.id === currentUserId);
+              canStart = !!opponent && opponent.is_ready && !!host && host.is_ready;
+            }
+          } else {
+            canStart = allReady;
+          }
+
+          return (
+            <button
+              onClick={onStartGame}
+              className={`start-game ${canStart ? 'enabled' : 'disabled'}`}
+              disabled={!canStart}
+            >
+              Start Game
+            </button>
+          );
+        })()}
       </div>
     </div>
   )
